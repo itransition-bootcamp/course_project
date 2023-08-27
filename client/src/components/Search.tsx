@@ -85,10 +85,10 @@ const Search: FC = () => {
         autoComplete
         value={value}
         freeSolo
-        onChange={(event: SyntheticEvent, newValue: string | null) => {
+        onChange={(_: SyntheticEvent, newValue: string | null) => {
           setValue(newValue);
         }}
-        onInputChange={(event, newInputValue) => {
+        onInputChange={(_, newInputValue) => {
           if (!newInputValue) return;
           fetchOptions(newInputValue);
         }}
