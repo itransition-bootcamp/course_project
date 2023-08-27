@@ -6,7 +6,7 @@ import "./passport";
 import { User, Review, Comment } from "./models/allModels";
 import logger from "./logger";
 import auth from "./routes/authRoutes";
-import { Op, QueryTypes, where } from "sequelize";
+import { Op } from "sequelize";
 import sequelize from "./sequelize";
 import "dotenv/config";
 

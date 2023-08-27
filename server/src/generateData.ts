@@ -1,4 +1,4 @@
-import { faker } from "@faker-js/faker";
+import { faker, fakerEN } from "@faker-js/faker";
 import { User, Review, Comment } from "./models/allModels";
 import sequelize from "./sequelize";
 
@@ -13,15 +13,15 @@ function createRandomUser() {
 function createRandomReview() {
   return {
     rating: faker.number.int({ min: 1, max: 10 }),
-    title: faker.lorem.sentence({ min: 2, max: 5 }),
-    text: faker.lorem.paragraphs({ min: 3, max: 8 }),
+    title: fakerEN.lorem.sentence({ min: 2, max: 5 }),
+    text: fakerEN.lorem.paragraphs({ min: 3, max: 8 }),
     createdAt: faker.date.past(),
   };
 }
 
 function createRandomComment() {
   return {
-    text: faker.lorem.paragraphs({ min: 1, max: 3 }),
+    text: fakerEN.lorem.paragraphs({ min: 1, max: 3 }),
     createdAt: faker.date.past(),
   };
 }
@@ -46,10 +46,7 @@ const generateData = async () => {
     });
     for (let k = 0; k < reviews.length; k++) {
       const review = reviews[k];
-      const reviewIntance = await Review.create({ ...review, UserId: user.id });
-      // reviewIntance.update({
-      //   vector: sequelize.fn("to_tsvector", "english", reviewIntance.text),
-      // });
+      await user.createReview(review);
     }
   }
 

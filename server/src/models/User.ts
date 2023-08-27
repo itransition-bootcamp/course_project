@@ -8,8 +8,6 @@ import {
   HasManyGetAssociationsMixin,
   HasManyHasAssociationMixin,
   HasManyHasAssociationsMixin,
-  HasManyRemoveAssociationMixin,
-  HasManyRemoveAssociationsMixin,
   HasManySetAssociationsMixin,
   InferAttributes,
   InferCreationAttributes,

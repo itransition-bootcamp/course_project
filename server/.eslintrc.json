@@ -12,6 +12,7 @@
   },
   "plugins": ["@typescript-eslint"],
   "rules": {
-    "@typescript-eslint/no-this-alias": 0
+    "@typescript-eslint/no-this-alias": 0,
+    "@typescript-eslint/no-namespace": 0
   }
 }

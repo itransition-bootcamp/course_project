@@ -20,7 +20,6 @@ import {
 } from "sequelize";
 import User from "./User";
 import Comment from "./Comment";
-import logger from "../logger";
 
 class Review extends Model<
   InferAttributes<Review>,

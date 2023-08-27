@@ -1,16 +1,12 @@
 import { SearchOutlined } from "@mui/icons-material";
 import {
   Autocomplete,
-  Box,
-  Grid,
   InputBase,
-  TextField,
-  Typography,
   alpha,
   debounce,
   styled,
 } from "@mui/material";
-import { FC, SyntheticEvent, useEffect, useMemo, useState } from "react";
+import { FC, SyntheticEvent, useMemo, useState } from "react";
 
 const SearchBar = styled("div")(({ theme }) => ({
   position: "relative",
@@ -54,27 +50,26 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 const Search: FC = () => {
   const [value, setValue] = useState<string | null>(null);
-  const [inputValue, setInputValue] = useState("");
-  const [options, setOptions] = useState<{ id: number; text: string }[]>([]);
+  const [options, setOptions] = useState<
+    { id: number; title: string; text: string }[]
+  >([]);
 
   const fetchOptions = useMemo(
     () =>
       debounce((newInputValue) => {
-        if (!newInputValue) return;
-        else
-          return fetch("/api/search", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ search: newInputValue }),
-          })
-            .then((res) => res.json())
-            .then((json) => {
-              console.log(json);
-              setOptions(json);
-            });
-      }, 2000),
+        return fetch("/api/search", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ search: newInputValue }),
+        })
+          .then((res) => res.json())
+          .then((json) => {
+            console.log(json);
+            setOptions(json);
+          });
+      }, 500),
     []
   );
 
@@ -85,16 +80,17 @@ const Search: FC = () => {
       </SearchIconWrapper>
       <Autocomplete
         placeholder="Search…"
-        options={options.map((o) => o.text)}
+        options={options.map((o) => o.title)}
         filterOptions={(x) => x}
         autoComplete
         value={value}
+        freeSolo
         onChange={(event: SyntheticEvent, newValue: string | null) => {
           setValue(newValue);
         }}
         onInputChange={(event, newInputValue) => {
+          if (!newInputValue) return;
           fetchOptions(newInputValue);
-          setInputValue(newInputValue);
         }}
         renderInput={(params) => (
           <StyledInputBase
