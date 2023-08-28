@@ -3,11 +3,11 @@ import cookieSession from "cookie-session";
 import cookieParser from "cookie-parser"; // parse cookie header
 import passport from "passport";
 import "./passport";
-import { User, Review, Comment } from "./models/allModels";
+import { User, Review, Comment, Like } from "./models/allModels";
 import logger from "./logger";
-import auth from "./routes/authRoutes";
-import { Op } from "sequelize";
-import sequelize from "./sequelize";
+import auth from "./routes/auth";
+import search from "./routes/search";
+import reviews from "./routes/reviews";
 import "dotenv/config";
 
 const app = express();
@@ -44,6 +44,8 @@ app.use(function (request, response, next) {
 });
 
 app.use("/auth", auth);
+app.use("/api/search", search);
+app.use("/api/reviews", reviews);
 app.get("/api/me", (req, res) => {
   User.findByPk(req.user?.id, {
     attributes: { exclude: ["hashedPassword", "salt"] },
@@ -57,28 +59,15 @@ app.get("/api/me", (req, res) => {
   });
 });
 
-app.post("/api/search", async (req, res) => {
-  console.log(req.body.json);
-  const searchResults = await Review.findAll({
-    where: {
-      vector: {
-        [Op.match]: sequelize.fn("plainto_tsquery", "english", req.body.search),
-      },
-    },
-    order: [
-      [
-        sequelize.fn(
-          "ts_rank",
-          sequelize.col("vector"),
-          sequelize.fn("plainto_tsquery", "english", req.body.search)
-        ),
-        "DESC",
-      ],
-    ],
-    limit: 10,
+app.post("/api/like", async (req, res) => {
+  if (!req.isAuthenticated()) res.sendStatus(401);
+  const findLike = await Like.findOrCreate({
+    where: { ReviewId: req.body.ReviewId, UserId: req.user!.id },
   });
+  const [like, created] = findLike;
+  if (!created) like.destroy();
 
-  res.json(searchResults);
+  res.send("OK");
 });
 
 app.get("/api/review/:reviewid", async (req, res) => {

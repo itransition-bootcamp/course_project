@@ -1,7 +1,9 @@
 import { SearchOutlined } from "@mui/icons-material";
 import {
   Autocomplete,
-  InputBase,
+  Popper,
+  PopperProps,
+  TextField,
   alpha,
   debounce,
   styled,
@@ -34,17 +36,22 @@ const SearchIconWrapper = styled("div")(({ theme }) => ({
   justifyContent: "center",
 }));
 
-const StyledInputBase = styled(InputBase)(({ theme }) => ({
-  color: "inherit",
-  "& .MuiInputBase-input": {
-    padding: theme.spacing(1, 1, 1, 0),
-    // vertical padding + font size from searchIcon
-    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-    transition: theme.transitions.create("width"),
-    width: "100%",
-    [theme.breakpoints.up("md")]: {
-      width: "100ch",
-    },
+const SearchPopper = function (props: PopperProps) {
+  return (
+    <Popper
+      {...props}
+      style={{
+        padding: "20px",
+        width: "fit-content",
+      }}
+    />
+  );
+};
+
+const StyledTextField = styled(TextField)(({ theme }) => ({
+  paddingLeft: `calc(1em + ${theme.spacing(4)})`,
+  "& .MuiInputBase-root": {
+    color: "inherit",
   },
 }));
 
@@ -75,12 +82,8 @@ const Search: FC = () => {
 
   return (
     <SearchBar>
-      <SearchIconWrapper>
-        <SearchOutlined />
-      </SearchIconWrapper>
       <Autocomplete
-        placeholder="Search…"
-        options={options.map((o) => o.title)}
+        options={options.map((o) => o.text)}
         filterOptions={(x) => x}
         autoComplete
         value={value}
@@ -90,16 +93,24 @@ const Search: FC = () => {
         }}
         onInputChange={(_, newInputValue) => {
           if (!newInputValue) return;
-          fetchOptions(newInputValue);
+          else fetchOptions(newInputValue);
         }}
+        PopperComponent={SearchPopper}
         renderInput={(params) => (
-          <StyledInputBase
-            id={params.id}
-            {...params.InputProps}
-            fullWidth
-            inputProps={params.inputProps}
-            placeholder="Search"
-          />
+          <>
+            <SearchIconWrapper>
+              <SearchOutlined />
+            </SearchIconWrapper>
+            <StyledTextField
+              variant="standard"
+              {...params}
+              onFocus={() => setOptions([])}
+              InputProps={{
+                disableUnderline: true,
+                ...params.InputProps,
+              }}
+            />
+          </>
         )}
         renderOption={(props, option) => {
           return <li {...props}>{option}</li>;

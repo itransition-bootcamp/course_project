@@ -2,7 +2,7 @@ import Container from "@mui/material/Container";
 import { Alert, AlertTitle, Link, Snackbar } from "@mui/material";
 import { useState } from "react";
 import { LoginRegisterForm } from "../components/LoginRegisterForm";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { useAuth } from "../components/AuthProvider";
 
 const Register = () => {
@@ -40,7 +40,7 @@ const Register = () => {
         text="Sign up"
         rememberMe={false}
         bottomLink={
-          <Link href="/login" variant="body2">
+          <Link component={RouterLink} to="/login" variant="body2">
             {"Already have an account? Sign In"}
           </Link>
         }

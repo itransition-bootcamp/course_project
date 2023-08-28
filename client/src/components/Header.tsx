@@ -30,10 +30,10 @@ const Header: FC = () => {
     setAnchorEl(null);
     navigate("/");
   };
-
+  // const location = useLocation();
+  // if (location.pathname == "/")
   return (
-    // <Box sx={{ flexGrow: 1 }}>
-    <AppBar position="relative">
+    <AppBar position="sticky">
       <Toolbar>
         <IconButton
           size="large"
@@ -86,7 +86,6 @@ const Header: FC = () => {
         )}
       </Toolbar>
     </AppBar>
-    // </Box>
   );
 };
 

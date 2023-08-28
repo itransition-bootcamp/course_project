@@ -42,7 +42,7 @@ const generateData = async () => {
   for (let i = 0; i < allUsers.length; i++) {
     const user = allUsers[i];
     const reviews = faker.helpers.multiple(createRandomReview, {
-      count: faker.number.int({ min: 500, max: 500 }),
+      count: faker.number.int({ min: 2, max: 5 }),
     });
     for (let k = 0; k < reviews.length; k++) {
       const review = reviews[k];
@@ -54,7 +54,7 @@ const generateData = async () => {
   for (let i = 0; i < allReviews.length; i++) {
     const review = allReviews[i];
     const comments = faker.helpers.multiple(createRandomComment, {
-      count: faker.number.int({ min: 1, max: 1 }),
+      count: faker.number.int({ min: 1, max: 2 }),
     });
     for (let k = 0; k < comments.length; k++) {
       const comment = comments[k];
