@@ -1,18 +1,28 @@
 import express from "express";
-import Review from "../models/Review";
 import sequelize from "../sequelize";
-import { FindOptions, InferAttributes } from "sequelize";
-import Like from "../models/Like";
+import { Review, User, Comment, Like } from "../models/allModels";
+import { FindOptions, Includeable, InferAttributes } from "sequelize";
 
 const router = express.Router();
 
 router.get("/:id", async (req, res) => {
-  res.send(await Review.findByPk(req.params.id));
+  const dbQuery = {
+    attributes: { exclude: ["updatedAt", "vector"] },
+    include: [Like] as Includeable[],
+  };
+  if (Object.prototype.hasOwnProperty.call(req.query, "comments"))
+    dbQuery.include.push(Comment);
+  else if (Object.prototype.hasOwnProperty.call(req.query, "user"))
+    dbQuery.include.push({
+      model: User,
+      attributes: ["username", "avatar"],
+    });
+  res.send(await Review.findByPk(req.params.id, dbQuery));
 });
 
 router.get("/", async (req, res) => {
   const limit: number = parseInt(req.query.limit as string);
-  const top = req.query.top === "true";
+  const top = Object.prototype.hasOwnProperty.call(req.query, "top");
 
   const dbQuery: FindOptions<
     InferAttributes<

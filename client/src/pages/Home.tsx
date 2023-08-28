@@ -8,8 +8,8 @@ import {
   Paper,
   Typography,
 } from "@mui/material";
-import { FC, useEffect, useState } from "react";
-import { Link as RouterLink } from "react-router-dom";
+import { FC } from "react";
+import { Link as RouterLink, useLoaderData } from "react-router-dom";
 
 type Review = {
   id: number;
@@ -20,44 +20,45 @@ type Review = {
 };
 
 const Home: React.FC = () => {
-  const [topReviews, setTopReviews] = useState<Review[]>([]);
-  const [lastReviews, setLastReviews] = useState<Review[]>([]);
+  // const [topReviews, setTopReviews] = useState<Review[]>([]);
+  // const [lastReviews, setLastReviews] = useState<Review[]>([]);
+  const [topReviews, lastReviews] = useLoaderData() as Review[][];
 
-  useEffect(() => {
-    const abortController = new AbortController();
-    async function fetchReviews() {
-      fetch("/api/reviews?top=true&limit=10", {
-        signal: abortController.signal,
-      })
-        .then((res) => res.json())
-        .then((json) => {
-          console.log(json);
-          setTopReviews(json);
-        });
-    }
-    fetchReviews();
-    return () => {
-      abortController.abort();
-    };
-  }, []);
+  // useEffect(() => {
+  //   const abortController = new AbortController();
+  //   async function fetchReviews() {
+  //     fetch("/api/reviews?top&limit=10", {
+  //       signal: abortController.signal,
+  //     })
+  //       .then((res) => res.json())
+  //       .then((json) => {
+  //         console.log(json);
+  //         setTopReviews(json);
+  //       });
+  //   }
+  //   fetchReviews();
+  //   return () => {
+  //     abortController.abort();
+  //   };
+  // }, []);
 
-  useEffect(() => {
-    const abortController = new AbortController();
-    async function fetchReviews() {
-      fetch("/api/reviews?limit=10", {
-        signal: abortController.signal,
-      })
-        .then((res) => res.json())
-        .then((json) => {
-          console.log(json);
-          setLastReviews(json);
-        });
-    }
-    fetchReviews();
-    return () => {
-      abortController.abort();
-    };
-  }, []);
+  // useEffect(() => {
+  //   const abortController = new AbortController();
+  //   async function fetchReviews() {
+  //     fetch("/api/reviews?limit=10", {
+  //       signal: abortController.signal,
+  //     })
+  //       .then((res) => res.json())
+  //       .then((json) => {
+  //         console.log(json);
+  //         setLastReviews(json);
+  //       });
+  //   }
+  //   fetchReviews();
+  //   return () => {
+  //     abortController.abort();
+  //   };
+  // }, []);
 
   return (
     <Container>
@@ -85,7 +86,7 @@ const ReviewsContainer: FC<{ reviews: Review[]; headline: string }> = ({
                 key={ind}
                 underline="none"
                 component={RouterLink}
-                to={"/review/" + review.id}
+                to={"/reviews/" + review.id}
                 flexGrow={1}
                 display={"flex"}
                 alignSelf={"center"}
@@ -106,7 +107,7 @@ const ReviewsContainer: FC<{ reviews: Review[]; headline: string }> = ({
               key={ind}
               underline="none"
               component={RouterLink}
-              to={"/review/" + review.id}
+              to={"/reviews/" + review.id}
             >
               <Typography color={"textSecondary"} variant="body1">
                 {review.text.slice(0, 300)}...
