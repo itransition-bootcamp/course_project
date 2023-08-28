@@ -76,32 +76,44 @@ const ReviewsContainer: FC<{ reviews: Review[]; headline: string }> = ({
   return (
     <Paper elevation={5} sx={{ marginTop: "20px", p: "10px" }}>
       <Typography variant="h5">{headline}</Typography>
+      <Divider sx={{ my: 1 }} />
       <Box sx={{ maxHeight: "300px", overflow: "scroll" }}>
-        <Divider sx={{ my: 1 }} />
         {reviews.map((review, ind) => (
-          <Link
-            key={ind}
-            underline="none"
-            component={RouterLink}
-            to={"/review/" + review.id}
-          >
+          <Box key={ind}>
             <Box sx={{ display: "flex" }}>
-              <Typography color={"textPrimary"} variant="h6">
-                {review.title}
-              </Typography>
-              <Typography color={"textPrimary"} flexGrow={1} variant="caption">
-                {review.createdAt}
-              </Typography>
-              <IconButton component={RouterLink} to={"/review/" + review.id}>
-                <ThumbUp /> {review.likesCount}{" "}
+              <Link
+                key={ind}
+                underline="none"
+                component={RouterLink}
+                to={"/review/" + review.id}
+                flexGrow={1}
+                display={"flex"}
+                alignSelf={"center"}
+              >
+                <Typography color={"textPrimary"} variant="h6">
+                  {review.title}
+                </Typography>
+                <Typography color={"textPrimary"} variant="caption">
+                  {review.createdAt}
+                </Typography>
+              </Link>
+              <IconButton>
+                <ThumbUp /> {review.likesCount}
               </IconButton>
             </Box>
 
-            <Typography color={"textSecondary"} variant="body1">
-              {review.text.slice(0, 300)}...
-            </Typography>
-            <Divider sx={{ my: 1 }} />
-          </Link>
+            <Link
+              key={ind}
+              underline="none"
+              component={RouterLink}
+              to={"/review/" + review.id}
+            >
+              <Typography color={"textSecondary"} variant="body1">
+                {review.text.slice(0, 300)}...
+              </Typography>
+              <Divider sx={{ my: 1 }} />
+            </Link>
+          </Box>
         ))}
       </Box>
     </Paper>
