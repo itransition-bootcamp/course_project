@@ -5,7 +5,6 @@ import { Op } from "sequelize";
 
 const router = express.Router();
 router.post("/", async (req, res) => {
-  console.log(req.body.json);
   const searchResults = await Review.findAll({
     where: {
       vector: {

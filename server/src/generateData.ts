@@ -14,7 +14,7 @@ function createRandomReview() {
   return {
     rating: faker.number.int({ min: 1, max: 10 }),
     title: fakerEN.lorem.sentence({ min: 2, max: 5 }),
-    text: fakerEN.lorem.paragraphs({ min: 3, max: 8 }),
+    text: fakerEN.lorem.paragraphs({ min: 3, max: 8 }, "\n\r"),
     createdAt: faker.date.past(),
   };
 }

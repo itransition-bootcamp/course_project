@@ -73,7 +73,6 @@ const Search: FC = () => {
         })
           .then((res) => res.json())
           .then((json) => {
-            console.log(json);
             setOptions(json);
           });
       }, 500),

@@ -3,7 +3,7 @@ import cookieSession from "cookie-session";
 import cookieParser from "cookie-parser"; // parse cookie header
 import passport from "passport";
 import "./passport";
-import { User, Review, Comment, Like } from "./models/allModels";
+import { User, Like } from "./models/allModels";
 import logger from "./logger";
 import auth from "./routes/auth";
 import search from "./routes/search";
@@ -68,17 +68,6 @@ app.post("/api/like", async (req, res) => {
   if (!created) like.destroy();
 
   res.send("OK");
-});
-
-app.get("/api/review/:reviewid", async (req, res) => {
-  res.json(
-    await Review.findByPk(req.params.reviewid, {
-      include: [
-        { model: User, attributes: ["username", "avatar"] },
-        { model: Comment, attributes: ["id"] },
-      ],
-    })
-  );
 });
 
 app.post("/api/comments", (req, res) => {

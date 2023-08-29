@@ -62,4 +62,13 @@ router.get("/", async (req, res) => {
   res.send(await Review.findAll(dbQuery));
 });
 
+router.post("/", async (req, res) => {
+  if (!req.isAuthenticated()) return;
+  await Review.update(
+    { title: req.body.title, text: req.body.text },
+    { where: { id: 1 } }
+  );
+  res.send("123");
+});
+
 export default router;

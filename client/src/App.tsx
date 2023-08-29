@@ -46,13 +46,13 @@ function App() {
           <Route
             path="/"
             element={<Home />}
-            loader={async () => {
-              const topReviews = await fetch("/api/reviews?top&limit=10").then(
-                (res) => res.json()
-              );
-              const lastReviews = await fetch("/api/reviews?limit=10").then(
-                (res) => res.json()
-              );
+            loader={async ({ request }) => {
+              const topReviews = await fetch("/api/reviews?top&limit=10", {
+                signal: request.signal,
+              }).then((res) => res.json());
+              const lastReviews = await fetch("/api/reviews?limit=10", {
+                signal: request.signal,
+              }).then((res) => res.json());
 
               return [topReviews, lastReviews];
             }}
@@ -60,8 +60,24 @@ function App() {
           <Route
             path="/reviews/:id"
             element={<Review />}
-            loader={async ({ params }) => {
-              return fetch(`/api/reviews/${params.id}?user&comments`);
+            action={async ({ request }) => {
+              const formData = await request.formData();
+              if (!formData.get("reviewText")) return null;
+              return fetch("/api/reviews", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  title: formData.get("reviewTitle"),
+                  text: formData.get("reviewText"),
+                }),
+              });
+            }}
+            loader={async ({ params, request }) => {
+              return fetch(`/api/reviews/${params.id}?user&comments`, {
+                signal: request.signal,
+              });
             }}
           ></Route>
         </Route>
