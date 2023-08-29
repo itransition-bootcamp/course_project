@@ -1,7 +1,7 @@
 import { Container, Typography } from "@mui/material";
 import MuiMarkdown from "mui-markdown";
 import { useLoaderData } from "react-router-dom";
-import CreateReview from "../components/CreateReview";
+import EditReview from "../components/EditReview";
 
 type Review = {
   id: number;
@@ -18,7 +18,7 @@ const ReviewPage = () => {
 
   return (
     <Container>
-      <CreateReview />
+      <EditReview />
       <Typography variant="h3">{review.title}</Typography>
       <MuiMarkdown>{review.text}</MuiMarkdown>
     </Container>

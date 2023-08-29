@@ -48,6 +48,16 @@ class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
   declare countComments: HasManyCountAssociationsMixin;
   declare createComment: HasManyCreateAssociationMixin<Comment, "UserId">;
 
+  sanitize() {
+    const sanitized = this.toJSON() as Partial<User>;
+    delete sanitized["githubId"];
+    delete sanitized["twitterId"];
+    delete sanitized["hashedPassword"];
+    delete sanitized["salt"];
+    delete sanitized["updatedAt"];
+    return sanitized;
+  }
+
   static initialize = (sequelize: Sequelize) =>
     User.init(
       {

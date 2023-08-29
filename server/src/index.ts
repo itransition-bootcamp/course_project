@@ -49,34 +49,15 @@ app.use("/api/reviews", reviews);
 app.get("/api/me", (req, res) => {
   User.findByPk(req.user?.id, {
     attributes: { exclude: ["hashedPassword", "salt"] },
+    include: { model: Like, attributes: ["ReviewId"] },
   }).then((user) => {
     res.status(200).json({
       authenticated: req.isAuthenticated(),
-      user: user,
+      user: user?.sanitize(),
       cookies: req.cookies,
       session: req.session,
     });
   });
-});
-
-app.post("/api/like", async (req, res) => {
-  if (!req.isAuthenticated()) res.sendStatus(401);
-  const findLike = await Like.findOrCreate({
-    where: { ReviewId: req.body.ReviewId, UserId: req.user!.id },
-  });
-  const [like, created] = findLike;
-  if (!created) like.destroy();
-
-  res.send("OK");
-});
-
-app.post("/api/comments", (req, res) => {
-  if (!req.user) res.sendStatus(401);
-  req.user?.createComment({
-    text: req.body.text,
-    ReviewId: req.body.ReviewId,
-  });
-  res.send("yo");
 });
 
 app.get("*", (req, res) => {

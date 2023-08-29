@@ -4,7 +4,7 @@ import passportGithub from "passport-github2";
 const LocalStrategy = passportLocal.Strategy;
 const GitHubStrategy = passportGithub.Strategy;
 import crypto, { BinaryLike } from "crypto";
-import { User as UserModel } from "./models/allModels";
+import { Like, User as UserModel } from "./models/allModels";
 import { VerifyCallback } from "passport-oauth2";
 
 // serialize the user.id to save in the cookie session
@@ -34,11 +34,13 @@ passport.use(
       // check if user already exists in our own db
       const currentUser = await UserModel.findOne({
         where: { githubId: profile.id },
+        include: { model: Like, attributes: ["ReviewId"] },
+        attributes: { exclude: ["githubId, hashedPassword, salt, updatedAt"] },
       });
 
       if (currentUser) {
         // already have this user
-        done(null, currentUser);
+        done(null, currentUser.sanitize());
       } else {
         // if not, create user in our db
         if (!profile.username)
@@ -51,7 +53,7 @@ passport.use(
           avatar: profile.photos && profile.photos[0].value,
         });
 
-        done(null, newUser);
+        done(null, newUser.sanitize());
       }
     }
   )
@@ -59,7 +61,11 @@ passport.use(
 
 passport.use(
   new LocalStrategy(function verify(username, password, done) {
-    UserModel.findOne({ where: { username: username } }).then((user) => {
+    UserModel.findOne({
+      where: { username: username },
+      include: { model: Like, attributes: ["ReviewId"] },
+      attributes: { exclude: ["githubId, hashedPassword, salt, updatedAt"] },
+    }).then((user) => {
       if (!user) return done(null, false, { message: "User doesnt exist" });
 
       crypto.pbkdf2(
@@ -82,7 +88,8 @@ passport.use(
               message: "Incorrect username or password.",
             });
           }
-          return done(null, user);
+
+          return done(null, user.sanitize());
         }
       );
     });
@@ -91,6 +98,6 @@ passport.use(
 
 declare global {
   namespace Express {
-    interface User extends UserModel {}
+    interface User extends Partial<UserModel> {}
   }
 }

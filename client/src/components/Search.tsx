@@ -103,7 +103,6 @@ const Search: FC = () => {
             <StyledTextField
               variant="standard"
               {...params}
-              onFocus={() => setOptions([])}
               InputProps={{
                 disableUnderline: true,
                 ...params.InputProps,

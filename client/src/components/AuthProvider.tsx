@@ -12,7 +12,13 @@ type User = {
   id: string;
   username: string;
   avatar?: string;
+  Likes: number[];
 };
+
+type UnformattedUser = Omit<User, "Likes"> & {
+  Likes: { ReviewId: number }[];
+};
+
 type AuthRequestType = (
   username: FormDataEntryValue | null,
   password: FormDataEntryValue | null
@@ -20,6 +26,7 @@ type AuthRequestType = (
 
 type AuthContextType = {
   user: User | null;
+  setUser: React.Dispatch<React.SetStateAction<User | null>>;
   authenticated: boolean;
   loading: boolean;
   login: AuthRequestType;
@@ -42,9 +49,9 @@ const AuthProvider: FC<PropsWithChildren> = memo(({ children }) => {
       setLoading(true);
       fetch("/api/me", { signal: abortController.signal })
         .then((res) => res.json())
-        .then((res) => {
-          setUser(res.user);
-          setAuthenticated(res.authenticated);
+        .then((json) => {
+          setAuthenticated(json.authenticated);
+          setUser(formatUser(json.user));
           setLoading(false);
         });
     }
@@ -75,12 +82,22 @@ const AuthProvider: FC<PropsWithChildren> = memo(({ children }) => {
 
     const json = await response.json();
     if (response.ok && json.user) {
-      setUser(json.user);
+      setUser(formatUser(json.user));
       setAuthenticated(true);
       return { success: true };
     } else {
       return { success: false, message: json.message };
     }
+  };
+
+  const formatUser = (user: UnformattedUser) => {
+    if (!user) return null;
+    return {
+      ...user,
+      Likes: user.Likes
+        ? user.Likes.map((like: { ReviewId: number }) => like.ReviewId)
+        : [],
+    };
   };
 
   const logout = () => {
@@ -99,6 +116,7 @@ const AuthProvider: FC<PropsWithChildren> = memo(({ children }) => {
 
   const value: AuthContextType = {
     user,
+    setUser,
     authenticated,
     loading,
     login,

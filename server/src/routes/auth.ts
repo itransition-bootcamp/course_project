@@ -20,12 +20,7 @@ router.post("/login", (req, res, next) => {
             return next(err);
           }
           return res.json({
-            user: {
-              id: user.id,
-              avatar: user.avatar,
-              username: user.username,
-              role: user.role,
-            },
+            user: user,
           });
         });
     }
@@ -58,12 +53,7 @@ router.post("/register", async (req, res, next) => {
         return next(err);
       }
       return res.json({
-        user: {
-          id: newUser.id,
-          avatar: newUser.avatar,
-          username: newUser.username,
-          role: newUser.role,
-        },
+        user: newUser,
       });
     });
   }

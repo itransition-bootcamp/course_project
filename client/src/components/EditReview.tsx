@@ -3,7 +3,7 @@ import MuiMarkdown from "mui-markdown";
 import { useState } from "react";
 import { useFetcher } from "react-router-dom";
 
-const CreateReview = () => {
+const EditReview = () => {
   const fetcher = useFetcher();
   const [body, setbody] = useState("");
   const [title, setTitle] = useState("");
@@ -41,4 +41,4 @@ const CreateReview = () => {
   );
 };
 
-export default CreateReview;
+export default EditReview;
