@@ -20,6 +20,7 @@ import {
 } from "sequelize";
 import User from "./User";
 import Comment from "./Comment";
+import Tag from "./Tag";
 
 class Review extends Model<
   InferAttributes<Review>,
@@ -52,11 +53,13 @@ class Review extends Model<
     "UserId"
   >;
 
+  declare setTags: HasManySetAssociationsMixin<Tag, number>;
+
   static initialize = (sequelize: Sequelize) =>
     Review.init(
       {
         id: {
-          type: DataTypes.INTEGER.UNSIGNED,
+          type: DataTypes.INTEGER,
           autoIncrement: true,
           primaryKey: true,
         },

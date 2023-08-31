@@ -30,7 +30,7 @@ class Comment extends Model<
     Comment.init(
       {
         id: {
-          type: DataTypes.INTEGER.UNSIGNED,
+          type: DataTypes.INTEGER,
           autoIncrement: true,
           primaryKey: true,
         },

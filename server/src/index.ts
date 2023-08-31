@@ -3,12 +3,14 @@ import cookieSession from "cookie-session";
 import cookieParser from "cookie-parser"; // parse cookie header
 import passport from "passport";
 import "./passport";
-import { User, Like } from "./models/allModels";
+import { User, Like, Review } from "./models/allModels";
 import logger from "./logger";
 import auth from "./routes/auth";
 import search from "./routes/search";
 import reviews from "./routes/reviews";
+import tags from "./routes/tags";
 import "dotenv/config";
+import { StatusCodes } from "http-status-codes";
 
 const app = express();
 app.use(express.json());
@@ -46,7 +48,8 @@ app.use(function (request, response, next) {
 app.use("/auth", auth);
 app.use("/api/search", search);
 app.use("/api/reviews", reviews);
-app.get("/api/me", (req, res) => {
+app.use("/api/tags", tags);
+app.get("/api/users/me", (req, res) => {
   User.findByPk(req.user?.id, {
     attributes: { exclude: ["hashedPassword", "salt"] },
     include: { model: Like, attributes: ["ReviewId"] },
@@ -54,9 +57,20 @@ app.get("/api/me", (req, res) => {
     res.status(200).json({
       authenticated: req.isAuthenticated(),
       user: user?.sanitize(),
-      cookies: req.cookies,
-      session: req.session,
     });
+  });
+});
+
+app.get("/api/users/:id", (req, res) => {
+  User.findByPk(req.params.id, {
+    attributes: { exclude: ["hashedPassword", "salt"] },
+    include: [
+      { model: Like, attributes: ["ReviewId"] },
+      { model: Review, attributes: ["id"] },
+    ],
+  }).then((user) => {
+    if (!user) return res.sendStatus(StatusCodes.NOT_FOUND);
+    res.status(200).json(user?.sanitize());
   });
 });
 

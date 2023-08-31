@@ -1,5 +1,5 @@
 import { faker, fakerEN } from "@faker-js/faker";
-import { User, Review, Comment } from "./models/allModels";
+import { User, Review, Comment, Tag } from "./models/allModels";
 import sequelize from "./sequelize";
 
 function createRandomUser() {
@@ -23,6 +23,12 @@ function createRandomComment() {
   return {
     text: fakerEN.lorem.paragraphs({ min: 1, max: 3 }),
     createdAt: faker.date.past(),
+  };
+}
+
+function createRandomTag() {
+  return {
+    name: fakerEN.word.noun(),
   };
 }
 
@@ -64,6 +70,15 @@ const generateData = async () => {
         ReviewId: review.id,
       });
     }
+  }
+
+  await Tag.bulkCreate(faker.helpers.multiple(createRandomTag, { count: 10 }));
+  const allTags = await Tag.findAll();
+  for (let i = 0; i < allReviews.length; i++) {
+    const review = allReviews[i];
+    await review.setTags(
+      faker.helpers.arrayElements(allTags, { min: 0, max: 5 })
+    );
   }
 
   sequelize.close();

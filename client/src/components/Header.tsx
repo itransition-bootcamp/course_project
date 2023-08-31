@@ -8,14 +8,25 @@ import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
 import { FC, useState } from "react";
 import { useAuth } from "./AuthProvider";
-import { Avatar, Button } from "@mui/material";
+import {
+  Avatar,
+  Button,
+  Drawer,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+} from "@mui/material";
 import Search from "./Search";
-import { useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { Games, Home, LibraryBooks, Movie } from "@mui/icons-material";
 
 const Header: FC = () => {
   const { user, authenticated, loading, logout } = useAuth();
-  const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [drawerOpened, setDrawerOpened] = useState(false);
+  const navigate = useNavigate();
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -30,8 +41,7 @@ const Header: FC = () => {
     setAnchorEl(null);
     navigate("/");
   };
-  // const location = useLocation();
-  // if (location.pathname == "/")
+
   return (
     <AppBar position="sticky">
       <Toolbar>
@@ -41,10 +51,39 @@ const Header: FC = () => {
           color="inherit"
           aria-label="menu"
           sx={{ mr: 2 }}
+          onClick={() => setDrawerOpened((prev) => !prev)}
         >
           <MenuIcon />
         </IconButton>
-        <Typography component="div">Category</Typography>
+        <Drawer
+          anchor={"left"}
+          open={drawerOpened}
+          onClose={() => setDrawerOpened((prev) => !prev)}
+        >
+          <List sx={{ width: 250 }}>
+            {["Home", "Movies", "Books", "Games"].map((text) => (
+              <ListItem key={text}>
+                <ListItemButton
+                  component={NavLink}
+                  to={text === "Home" ? "/" : text.toLowerCase()}
+                  sx={{
+                    "&.active": {
+                      bgcolor: "ActiveBorder",
+                    },
+                  }}
+                >
+                  <ListItemIcon>
+                    {text === "Home" && <Home />}
+                    {text === "Movies" && <Movie />}
+                    {text === "Books" && <LibraryBooks />}
+                    {text === "Games" && <Games />}
+                  </ListItemIcon>
+                  <ListItemText primary={text} />
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+        </Drawer>
         <Search />
         {!authenticated && !loading && (
           <Button
@@ -79,7 +118,9 @@ const Header: FC = () => {
               open={Boolean(anchorEl)}
               onClose={handleClose}
             >
-              <MenuItem onClick={handleClose}>Profile</MenuItem>
+              <MenuItem onClick={() => navigate("/profile/" + user?.id)}>
+                Profile
+              </MenuItem>
               <MenuItem onClick={handleLogout}>Logout</MenuItem>
             </Menu>
           </Box>

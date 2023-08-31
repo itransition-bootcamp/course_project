@@ -15,7 +15,7 @@ type Review = {
 
 const ReviewPage = () => {
   const review = useLoaderData() as Review;
-
+  console.log(review);
   return (
     <Container>
       <EditReview />

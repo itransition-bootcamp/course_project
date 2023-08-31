@@ -47,7 +47,7 @@ const AuthProvider: FC<PropsWithChildren> = memo(({ children }) => {
     const abortController = new AbortController();
     async function fetchUser() {
       setLoading(true);
-      fetch("/api/me", { signal: abortController.signal })
+      fetch("/api/users/me", { signal: abortController.signal })
         .then((res) => res.json())
         .then((json) => {
           setAuthenticated(json.authenticated);

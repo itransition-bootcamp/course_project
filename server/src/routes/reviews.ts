@@ -1,6 +1,6 @@
 import express from "express";
 import sequelize from "../sequelize";
-import { Review, User, Comment, Like } from "../models/allModels";
+import { Review, User, Comment, Like, Tag } from "../models/allModels";
 import { FindOptions, Includeable, InferAttributes } from "sequelize";
 import { StatusCodes } from "http-status-codes";
 
@@ -9,7 +9,7 @@ const router = express.Router();
 router.get("/:id", async (req, res) => {
   const dbQuery = {
     attributes: { exclude: ["updatedAt", "vector"] },
-    include: [Like] as Includeable[],
+    include: [Like, Tag] as Includeable[],
   };
   if (Object.prototype.hasOwnProperty.call(req.query, "comments"))
     dbQuery.include.push(Comment);
@@ -76,12 +76,12 @@ router.get("/", async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
-  if (!req.isAuthenticated()) return;
+  if (!req.isAuthenticated()) return res.sendStatus(StatusCodes.UNAUTHORIZED);
   await Review.update(
     { title: req.body.title, text: req.body.text },
     { where: { id: 1 } }
   );
-  res.send("123");
+  res.send("OK");
 });
 
 export default router;

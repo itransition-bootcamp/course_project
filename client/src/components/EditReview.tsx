@@ -9,8 +9,8 @@ const EditReview = () => {
   const [title, setTitle] = useState("");
 
   return (
-    <Grid container columns={2} bgcolor={"InactiveBorder"}>
-      <Grid item pr={2} xs={2} md={1}>
+    <Grid container columns={2}>
+      <Grid item pr={{ md: 2 }} xs={2} md={1}>
         <fetcher.Form method="post">
           <TextField
             name="reviewTitle"

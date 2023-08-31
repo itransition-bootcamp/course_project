@@ -8,6 +8,7 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { CssBaseline, useMediaQuery } from "@mui/material";
 
 import Home from "./pages/Home";
+import Profile from "./pages/Profile";
 import LogIn from "./pages/Login";
 import Register from "./pages/Register";
 import AuthProvider from "./components/AuthProvider";
@@ -53,7 +54,19 @@ function App() {
               const lastReviews = await fetch("/api/reviews?limit=10", {
                 signal: request.signal,
               }).then((res) => res.json());
-              return [topReviews, lastReviews];
+              const tags = await fetch("/api/tags", {
+                signal: request.signal,
+              }).then((res) => res.json());
+              return [topReviews, lastReviews, tags];
+            }}
+          />
+          <Route
+            path="/profile/:id"
+            element={<Profile />}
+            loader={async ({ params, request }) => {
+              return fetch(`/api/users/${params.id}`, {
+                signal: request.signal,
+              });
             }}
           />
           <Route

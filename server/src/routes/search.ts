@@ -1,5 +1,5 @@
 import express from "express";
-import Review from "../models/Review";
+import { Review } from "../models/allModels";
 import sequelize from "../sequelize";
 import { Op } from "sequelize";
 
