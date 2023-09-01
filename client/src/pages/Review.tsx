@@ -1,5 +1,7 @@
+import { Delete, Edit } from "@mui/icons-material";
 import { Box, Button, Container, Rating, Typography } from "@mui/material";
 import MuiMarkdown from "mui-markdown";
+import { useState } from "react";
 import {
   ActionFunction,
   Form,
@@ -7,24 +9,25 @@ import {
   redirect,
   useLoaderData,
 } from "react-router-dom";
-import EditReview from "../components/EditReview";
-import { Delete, Edit } from "@mui/icons-material";
-import { useState } from "react";
 import { useAuth } from "../components/AuthProvider";
+import CommentsContainer from "../components/CommentsContainer";
+import EditReview from "../components/EditReview";
 import { Review } from "../types";
 
 const ReviewPage = () => {
-  const review = useLoaderData() as Omit<Review, "Likes" | "Tags" | "Comments">;
+  const review = useLoaderData() as Omit<Review, "Likes" | "Tags">;
   const [editing, setEditing] = useState(false);
   const { user } = useAuth();
   const isAuthor = user?.id == review.UserId || user?.role == "admin";
-
+  console.log(review);
   const toggleEdit = () => setEditing((prev) => !prev);
   return (
-    <Container>
+    <Container sx={{ mt: 2 }}>
       {!editing && (
         <>
-          <Typography variant="h3">{review.title}</Typography>
+          <Typography variant="h3" gutterBottom>
+            {review.title}
+          </Typography>
           <Rating
             name="read-only"
             precision={0.5}
@@ -59,6 +62,8 @@ const ReviewPage = () => {
           </Form>
         </Box>
       )}
+
+      <CommentsContainer comments={review.Comments} />
     </Container>
   );
 };

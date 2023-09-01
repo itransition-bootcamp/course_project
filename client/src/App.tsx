@@ -5,7 +5,7 @@ import {
   createRoutesFromElements,
 } from "react-router-dom";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { CssBaseline, useMediaQuery } from "@mui/material";
+import { CssBaseline, Paper, useMediaQuery } from "@mui/material";
 
 import Home, { homePageLoader } from "./pages/Home";
 import Profile, { profilePageLoader } from "./pages/Profile";
@@ -66,7 +66,9 @@ function App() {
     <ThemeProvider theme={theme}>
       <AuthProvider>
         <CssBaseline />
-        <RouterProvider router={router} />
+        <Paper sx={{ minHeight: "100dvh" }}>
+          <RouterProvider router={router} />
+        </Paper>
       </AuthProvider>
     </ThemeProvider>
   );

@@ -60,13 +60,13 @@ const generateData = async () => {
   for (let i = 0; i < allReviews.length; i++) {
     const review = allReviews[i];
     const comments = faker.helpers.multiple(createRandomComment, {
-      count: faker.number.int({ min: 1, max: 2 }),
+      count: faker.number.int({ min: 1, max: 4 }),
     });
     for (let k = 0; k < comments.length; k++) {
       const comment = comments[k];
       await Comment.create({
         ...comment,
-        UserId: review.UserId,
+        UserId: faker.helpers.arrayElement(allUsers).id,
         ReviewId: review.id,
       });
     }

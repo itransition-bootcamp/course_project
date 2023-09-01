@@ -55,13 +55,19 @@ router.all("/:id", async (req, res, next) => {
   else next();
 });
 router.get("/:id", async (req, res) => {
-  const dbQuery = {
+  const dbQuery: FindOptions<InferAttributes<Review>> & {
+    include: Includeable[];
+  } = {
     attributes: { exclude: ["updatedAt", "vector"] },
-    include: [Like, Tag] as Includeable[],
+    include: [Like, Tag],
   };
-  if (Object.prototype.hasOwnProperty.call(req.query, "comments"))
-    dbQuery.include.push(Comment);
-  else if (Object.prototype.hasOwnProperty.call(req.query, "user"))
+  if (Object.prototype.hasOwnProperty.call(req.query, "comments")) {
+    dbQuery.include.push({
+      model: Comment,
+      include: [{ model: User, attributes: ["username", "avatar"] }],
+    });
+    dbQuery.order = [sequelize.col("Comments.createdAt")];
+  } else if (Object.prototype.hasOwnProperty.call(req.query, "user"))
     dbQuery.include.push({
       model: User,
       attributes: ["username", "avatar"],
