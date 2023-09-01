@@ -18,10 +18,8 @@ const SearchBar = styled("div")(({ theme }) => ({
     backgroundColor: alpha(theme.palette.common.white, 0.25),
   },
   marginRight: theme.spacing(2),
-  marginLeft: theme.spacing(3),
   width: "100%",
   [theme.breakpoints.up("sm")]: {
-    marginLeft: theme.spacing(3),
     width: "20ch",
   },
 }));
@@ -63,18 +61,16 @@ const Search: FC = () => {
 
   const fetchOptions = useMemo(
     () =>
-      debounce((newInputValue) => {
-        return fetch("/api/search", {
+      debounce(async (newInputValue) => {
+        const res = await fetch("/api/search", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ search: newInputValue }),
-        })
-          .then((res) => res.json())
-          .then((json) => {
-            setOptions(json);
-          });
+          body: JSON.stringify({ search: newInputValue, limit: 10 }),
+        });
+        const json = await res.json();
+        setOptions(json);
       }, 500),
     []
   );

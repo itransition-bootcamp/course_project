@@ -27,8 +27,8 @@ router.get("/:id", (req, res) => {
     },
   }).then((user) => {
     if (!user) return res.sendStatus(StatusCodes.NOT_FOUND);
-    const formated = user?.sanitize();
-    formated.Reviews?.forEach((review) => {
+    const formated = user.sanitize();
+    formated.Reviews?.map((review) => {
       review.likesCount = review.Likes!.length;
     });
     res.send(formated);

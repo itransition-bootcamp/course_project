@@ -5,7 +5,9 @@ import { Op } from "sequelize";
 
 const router = express.Router();
 router.post("/", async (req, res) => {
+  console.log(req.body);
   const searchResults = await Review.findAll({
+    attributes: { exclude: ["vector", "updatedAt"] },
     where: {
       vector: {
         [Op.match]: sequelize.fn("plainto_tsquery", "english", req.body.search),
@@ -21,7 +23,7 @@ router.post("/", async (req, res) => {
         "DESC",
       ],
     ],
-    limit: 10,
+    limit: req.body.limit,
   });
 
   res.json(searchResults);
