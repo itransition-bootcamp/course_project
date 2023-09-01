@@ -1,6 +1,6 @@
 import { Paper, Typography, Divider, Box } from "@mui/material";
 import { FC } from "react";
-import { Review } from "../pages/Home";
+import { Review } from "../types";
 import ReviewWrapper from "./ReviewWrapper";
 
 const ReviewsContainer: FC<{

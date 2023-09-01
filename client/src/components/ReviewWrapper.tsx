@@ -2,10 +2,12 @@ import { Star } from "@mui/icons-material";
 import { Box, Typography, IconButton, Divider, Link } from "@mui/material";
 import { FC, useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
-import { Review } from "../pages/Home";
+import { Review } from "../types";
 import { useAuth } from "./AuthProvider";
 
-const ReviewWrapper: FC<{ reviewLoader: Review }> = ({ reviewLoader }) => {
+const ReviewWrapper: FC<{
+  reviewLoader: Review;
+}> = ({ reviewLoader }) => {
   const { user, setUser } = useAuth();
   const [review, setReview] = useState(reviewLoader);
 
@@ -19,6 +21,8 @@ const ReviewWrapper: FC<{ reviewLoader: Review }> = ({ reviewLoader }) => {
     });
 
     setReview((prev) => {
+      if (prev.likesCount == undefined)
+        throw new Error("Missing likesCount field");
       if (!user.Likes.includes(prev.id))
         return { ...prev, likesCount: prev.likesCount + 1 };
       else if (user.Likes.includes(prev.id))

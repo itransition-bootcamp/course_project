@@ -9,10 +9,11 @@ import {
 } from "react";
 
 type User = {
-  id: string;
+  id: number;
   username: string;
   avatar?: string;
   Likes: number[];
+  role: string;
 };
 
 type UnformattedUser = Omit<User, "Likes"> & {

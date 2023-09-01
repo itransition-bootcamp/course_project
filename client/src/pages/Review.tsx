@@ -1,26 +1,53 @@
-import { Container, Typography } from "@mui/material";
+import { Box, Button, Container, Rating, Typography } from "@mui/material";
 import MuiMarkdown from "mui-markdown";
-import { useLoaderData } from "react-router-dom";
+import { Form, useLoaderData } from "react-router-dom";
 import EditReview from "../components/EditReview";
-
-type Review = {
-  id: number;
-  UserId: number;
-  title: string;
-  text: string;
-  poster: string;
-  likesCount: number;
-  createdAt: string;
-};
+import { Delete, Edit } from "@mui/icons-material";
+import { useState } from "react";
+import { useAuth } from "../components/AuthProvider";
+import { Review } from "../types";
 
 const ReviewPage = () => {
-  const review = useLoaderData() as Review;
+  const review = useLoaderData() as Omit<Review, "Likes" | "Tags" | "Comments">;
+  const [editing, setEditing] = useState(false);
+  const { user } = useAuth();
+  const isAuthor = user?.id == review.UserId || user?.role == "admin";
   console.log(review);
   return (
     <Container>
-      <EditReview />
       <Typography variant="h3">{review.title}</Typography>
-      <MuiMarkdown>{review.text}</MuiMarkdown>
+      <Rating
+        name="read-only"
+        precision={0.5}
+        value={review.rating / 2}
+        readOnly
+      />
+      <Box>
+        <MuiMarkdown>{review.text}</MuiMarkdown>
+      </Box>
+
+      {isAuthor && (
+        <Box display={"flex"} gap={2} my={2}>
+          <Button
+            onClick={() => setEditing((prev) => !prev)}
+            variant="contained"
+            startIcon={<Edit />}
+          >
+            Edit Review
+          </Button>
+          <Form method="DELETE">
+            <Button
+              type="submit"
+              variant="contained"
+              color="error"
+              startIcon={<Delete />}
+            >
+              Delete Review
+            </Button>
+          </Form>
+        </Box>
+      )}
+      {editing && <EditReview review={review} />}
     </Container>
   );
 };

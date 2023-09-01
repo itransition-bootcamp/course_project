@@ -3,6 +3,7 @@ import {
   RouterProvider,
   createBrowserRouter,
   createRoutesFromElements,
+  redirect,
 } from "react-router-dom";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { CssBaseline, useMediaQuery } from "@mui/material";
@@ -64,32 +65,45 @@ function App() {
             path="/profile/:id"
             element={<Profile />}
             loader={async ({ params, request }) => {
-              return fetch(`/api/users/${params.id}`, {
+              const resp = await fetch(`/api/users/${params.id}`, {
                 signal: request.signal,
               });
+              if (!resp.ok) return redirect("/");
+              else return resp;
             }}
           />
           <Route
             path="/reviews/:id"
             element={<Review />}
-            action={async ({ request }) => {
-              const formData = await request.formData();
-              if (!formData.get("reviewText")) return null;
-              return fetch("/api/reviews", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  title: formData.get("reviewTitle"),
-                  text: formData.get("reviewText"),
-                }),
-              });
+            action={async ({ params, request }) => {
+              if (request.method == "DELETE")
+                return fetch(`/api/reviews/${params.id}`, {
+                  method: "DELETE",
+                });
+              else {
+                const formData = await request.formData();
+                if (!formData.get("reviewText")) return null;
+                return fetch(`/api/reviews/${params.id}`, {
+                  method: "PUT",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    title: formData.get("reviewTitle"),
+                    text: formData.get("reviewText"),
+                  }),
+                });
+              }
             }}
             loader={async ({ params, request }) => {
-              return fetch(`/api/reviews/${params.id}?user&comments`, {
-                signal: request.signal,
-              });
+              const resp = await fetch(
+                `/api/reviews/${params.id}?user&comments`,
+                {
+                  signal: request.signal,
+                }
+              );
+              if (!resp.ok) return redirect("/");
+              else return resp;
             }}
           ></Route>
         </Route>

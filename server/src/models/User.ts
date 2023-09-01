@@ -12,6 +12,7 @@ import {
   InferAttributes,
   InferCreationAttributes,
   Model,
+  NonAttribute,
   Sequelize,
 } from "sequelize";
 import Review from "./Review";
@@ -29,6 +30,8 @@ class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
   declare role: CreationOptional<"admin" | "user">;
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
+
+  declare Reviews?: NonAttribute<Review[]>;
 
   declare getReviews: HasManyGetAssociationsMixin<Review>;
   declare addReview: HasManyAddAssociationMixin<Review, number>;

@@ -21,6 +21,7 @@ import {
 import User from "./User";
 import Comment from "./Comment";
 import Tag from "./Tag";
+import Like from "./Like";
 
 class Review extends Model<
   InferAttributes<Review>,
@@ -37,6 +38,8 @@ class Review extends Model<
 
   declare UserId: ForeignKey<User["id"]>;
   declare User?: NonAttribute<User>;
+  declare Likes?: NonAttribute<Like[]>;
+  declare likesCount?: NonAttribute<number>;
 
   declare getComments: HasManyGetAssociationsMixin<Comment>;
   declare addComment: HasManyAddAssociationMixin<Comment, number>;

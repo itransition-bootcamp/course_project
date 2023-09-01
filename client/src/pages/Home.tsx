@@ -2,16 +2,10 @@ import ReviewsContainer from "./../components/ReviewsContainer";
 import { Container, styled } from "@mui/material";
 import { useLoaderData } from "react-router-dom";
 import { TagCloud } from "react-tagcloud";
+import { Review } from "../types";
 
-export type Review = {
-  id: number;
-  title: string;
-  text: string;
-  likesCount: number;
-  createdAt: string;
-};
-type Tag = { value: string; count: number };
-type LoaderData = [Review[], Review[], Tag[]];
+type TagCount = { value: string; count: number };
+type LoaderData = [Review[], Review[], TagCount[]];
 
 const StyledTagCloud = styled(TagCloud)(() => ({
   textAlign: "center",
@@ -20,7 +14,7 @@ const StyledTagCloud = styled(TagCloud)(() => ({
 
 const Home: React.FC = () => {
   const [topReviews, lastReviews, tags] = useLoaderData() as LoaderData;
-
+  console.log(topReviews[0]);
   return (
     <Container>
       <ReviewsContainer reviewsLoader={topReviews} headline="Top Reviews:" />
@@ -29,7 +23,7 @@ const Home: React.FC = () => {
         minSize={15}
         maxSize={60}
         tags={tags}
-        onClick={(tag: Tag) => alert(`'${tag.value}' was selected!`)}
+        onClick={(tag: TagCount) => alert(`'${tag.value}' was selected!`)}
       />
     </Container>
   );

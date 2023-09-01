@@ -101,7 +101,13 @@ const Header: FC = () => {
             <Typography variant="h6" mr={2}>
               {user?.username}
             </Typography>
-            <Avatar onClick={handleMenu} src={user?.avatar} />
+            <Avatar
+              onClick={handleMenu}
+              alt={user?.username}
+              src={user?.avatar}
+            >
+              {user?.username.charAt(0)}
+            </Avatar>
 
             <Menu
               id="menu-appbar"

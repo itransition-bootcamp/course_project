@@ -6,32 +6,6 @@ import { StatusCodes } from "http-status-codes";
 
 const router = express.Router();
 
-router.get("/:id", async (req, res) => {
-  const dbQuery = {
-    attributes: { exclude: ["updatedAt", "vector"] },
-    include: [Like, Tag] as Includeable[],
-  };
-  if (Object.prototype.hasOwnProperty.call(req.query, "comments"))
-    dbQuery.include.push(Comment);
-  else if (Object.prototype.hasOwnProperty.call(req.query, "user"))
-    dbQuery.include.push({
-      model: User,
-      attributes: ["username", "avatar"],
-    });
-  res.send(await Review.findByPk(req.params.id, dbQuery));
-});
-
-router.get("/:id/like", async (req, res) => {
-  if (!req.isAuthenticated()) res.sendStatus(StatusCodes.UNAUTHORIZED);
-  const findLike = await Like.findOrCreate({
-    where: { ReviewId: req.params.id, UserId: req.user!.id },
-  });
-  const [like, created] = findLike;
-  if (!created) like.destroy();
-
-  res.send("OK");
-});
-
 router.get("/", async (req, res) => {
   const limit: number = parseInt(req.query.limit as string);
   const top = Object.prototype.hasOwnProperty.call(req.query, "top");
@@ -45,7 +19,7 @@ router.get("/", async (req, res) => {
     >
   > = {
     attributes: {
-      exclude: ["poster", "rating", "updatedAt", "vector", "UserId"],
+      exclude: ["updatedAt", "vector"],
       include: [
         [
           sequelize.cast(
@@ -75,12 +49,52 @@ router.get("/", async (req, res) => {
   res.send(await Review.findAll(dbQuery));
 });
 
-router.post("/", async (req, res) => {
+router.all("/:id", async (req, res, next) => {
+  if (isNaN(parseInt(req.params.id)))
+    return res.sendStatus(StatusCodes.BAD_REQUEST);
+  else next();
+});
+router.get("/:id", async (req, res) => {
+  const dbQuery = {
+    attributes: { exclude: ["updatedAt", "vector"] },
+    include: [Like, Tag] as Includeable[],
+  };
+  if (Object.prototype.hasOwnProperty.call(req.query, "comments"))
+    dbQuery.include.push(Comment);
+  else if (Object.prototype.hasOwnProperty.call(req.query, "user"))
+    dbQuery.include.push({
+      model: User,
+      attributes: ["username", "avatar"],
+    });
+  const result = await Review.findByPk(req.params.id, dbQuery);
+  if (!result) res.sendStatus(StatusCodes.NOT_FOUND);
+  else res.send(result);
+});
+
+router.all("/:id", async (req, res, next) => {
+  if (req.method != "PUT" && req.method != "DELETE") return next();
   if (!req.isAuthenticated()) return res.sendStatus(StatusCodes.UNAUTHORIZED);
-  await Review.update(
-    { title: req.body.title, text: req.body.text },
-    { where: { id: 1 } }
-  );
+  const user = await User.findByPk(req.user.id);
+  const review = await Review.findByPk(req.params.id);
+  if (!review) return res.sendStatus(StatusCodes.NOT_FOUND);
+  if (user?.role != "admin" && !user?.hasReview(review))
+    return res.sendStatus(StatusCodes.UNAUTHORIZED);
+  if (req.method == "PUT")
+    await review.update({ title: req.body.title, text: req.body.text });
+  else if (req.method == "DELETE") await review.destroy();
+  res.send("OK");
+});
+
+router.get("/:id/like", async (req, res) => {
+  if (isNaN(parseInt(req.params.id)))
+    return res.sendStatus(StatusCodes.BAD_REQUEST);
+  if (!req.isAuthenticated()) res.sendStatus(StatusCodes.UNAUTHORIZED);
+  const findLike = await Like.findOrCreate({
+    where: { ReviewId: req.params.id, UserId: req.user!.id },
+  });
+  const [like, created] = findLike;
+  if (!created) like.destroy();
+
   res.send("OK");
 });
 
