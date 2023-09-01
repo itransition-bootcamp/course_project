@@ -12,7 +12,6 @@ const ReviewPage = () => {
   const [editing, setEditing] = useState(false);
   const { user } = useAuth();
   const isAuthor = user?.id == review.UserId || user?.role == "admin";
-  console.log(review);
   return (
     <Container>
       <Typography variant="h3">{review.title}</Typography>

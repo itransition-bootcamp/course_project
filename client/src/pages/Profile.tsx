@@ -27,7 +27,6 @@ const Profile = () => {
   if (!profile) return null;
 
   const { username, id, avatar, email, role, createdAt, Reviews } = profile;
-  console.log(profile);
   const canEdit = me?.id == id || me?.role == "admin";
 
   return (

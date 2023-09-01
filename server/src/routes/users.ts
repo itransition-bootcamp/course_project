@@ -31,7 +31,6 @@ router.get("/:id", (req, res) => {
     formated.Reviews?.forEach((review) => {
       review.likesCount = review.Likes!.length;
     });
-    console.log(formated);
     res.send(formated);
   });
 });

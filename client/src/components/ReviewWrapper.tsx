@@ -13,7 +13,7 @@ const ReviewWrapper: FC<{
 
   const handleLike = (id: number) => {
     if (!user) return;
-    fetch(`api/reviews/${id}/like`);
+    fetch(`/api/reviews/${id}/like`);
     setUser((old) => {
       if (!old) return null;
       const newUser = { ...old, Likes: addOrRemove<number>(old.Likes, id) };

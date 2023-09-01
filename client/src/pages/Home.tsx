@@ -14,7 +14,6 @@ const StyledTagCloud = styled(TagCloud)(() => ({
 
 const Home: React.FC = () => {
   const [topReviews, lastReviews, tags] = useLoaderData() as LoaderData;
-  console.log(topReviews[0]);
   return (
     <Container>
       <ReviewsContainer reviewsLoader={topReviews} headline="Top Reviews:" />

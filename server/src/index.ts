@@ -3,6 +3,7 @@ import cookieSession from "cookie-session";
 import cookieParser from "cookie-parser"; // parse cookie header
 import passport from "passport";
 import "./passport";
+import compression from "compression";
 import logger from "./logger";
 import auth from "./routes/auth";
 import search from "./routes/search";
@@ -12,6 +13,10 @@ import users from "./routes/users";
 import "dotenv/config";
 
 const app = express();
+if (app.get("env") === "production") {
+  app.set("trust proxy", 1); // trust first proxy
+  app.use(compression());
+}
 app.use(express.json());
 app.use(express.static(__dirname + "/../dist/public"));
 app.use(cookieParser());
@@ -24,10 +29,6 @@ app.use(
 );
 app.use(passport.initialize());
 app.use(passport.session());
-
-if (app.get("env") === "production") {
-  app.set("trust proxy", 1); // trust first proxy
-}
 
 // Bug workaround: register regenerate & save after the cookieSession middleware initialization
 app.use(function (req, resp, next) {
