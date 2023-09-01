@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import { FC, useMemo, useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
+import { Review } from "../types";
 
 const SearchBar = styled("div")(({ theme }) => ({
   position: "relative",
@@ -47,9 +48,7 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
 const Search: FC = () => {
   const [open, setOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [options, setOptions] = useState<
-    { id: number; title: string; text: string }[]
-  >([]);
+  const [options, setOptions] = useState<Review[]>([]);
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -58,7 +57,6 @@ const Search: FC = () => {
   const fetchOptions = useMemo(
     () =>
       debounce(async (newInputValue) => {
-        console.log("first");
         const res = await fetch("/api/search", {
           method: "POST",
           headers: {

@@ -1,13 +1,13 @@
 import express from "express";
-import { Review } from "../models/allModels";
+import { Like, Review } from "../models/allModels";
 import sequelize from "../sequelize";
 import { Op } from "sequelize";
 
 const router = express.Router();
 router.post("/", async (req, res) => {
-  console.log(req.body);
   const searchResults = await Review.findAll({
-    attributes: { exclude: ["vector", "updatedAt"] },
+    attributes: { exclude: ["updatedAt"] },
+    include: Like,
     where: {
       vector: {
         [Op.match]: sequelize.fn("plainto_tsquery", "english", req.body.search),
@@ -25,8 +25,13 @@ router.post("/", async (req, res) => {
     ],
     limit: req.body.limit,
   });
-
-  res.json(searchResults);
+  type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
+  const formated = searchResults.map((review) => review.toJSON()) as Optional<
+    Review,
+    "vector"
+  >[];
+  formated.forEach((review) => delete review.vector);
+  res.json(formated);
 });
 
 export default router;
