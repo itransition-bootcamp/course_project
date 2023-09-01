@@ -32,7 +32,7 @@ const EditReview: FC<{ review: Review }> = ({ review }) => {
             sx={{ mb: 1 }}
           />
           <Button fullWidth type="submit" variant="contained">
-            Finish Review
+            Finish Editing
           </Button>
         </fetcher.Form>
       </Grid>

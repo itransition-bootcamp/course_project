@@ -1,14 +1,17 @@
 import { SearchOutlined } from "@mui/icons-material";
 import {
-  Autocomplete,
   Popper,
-  PopperProps,
   TextField,
+  Link,
   alpha,
   debounce,
   styled,
+  List,
+  ListItem,
+  ClickAwayListener,
 } from "@mui/material";
-import { FC, SyntheticEvent, useMemo, useState } from "react";
+import { FC, useMemo, useState } from "react";
+import { Link as RouterLink } from "react-router-dom";
 
 const SearchBar = styled("div")(({ theme }) => ({
   position: "relative",
@@ -34,18 +37,6 @@ const SearchIconWrapper = styled("div")(({ theme }) => ({
   justifyContent: "center",
 }));
 
-const SearchPopper = function (props: PopperProps) {
-  return (
-    <Popper
-      {...props}
-      style={{
-        padding: "20px",
-        width: "fit-content",
-      }}
-    />
-  );
-};
-
 const StyledTextField = styled(TextField)(({ theme }) => ({
   paddingLeft: `calc(1em + ${theme.spacing(4)})`,
   "& .MuiInputBase-root": {
@@ -54,14 +45,20 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
 }));
 
 const Search: FC = () => {
-  const [value, setValue] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [options, setOptions] = useState<
     { id: number; title: string; text: string }[]
   >([]);
 
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+    setOpen(true);
+  };
   const fetchOptions = useMemo(
     () =>
       debounce(async (newInputValue) => {
+        console.log("first");
         const res = await fetch("/api/search", {
           method: "POST",
           headers: {
@@ -77,39 +74,55 @@ const Search: FC = () => {
 
   return (
     <SearchBar>
-      <Autocomplete
-        options={options.map((o) => o.text)}
-        filterOptions={(x) => x}
-        autoComplete
-        value={value}
-        freeSolo
-        onChange={(_: SyntheticEvent, newValue: string | null) => {
-          setValue(newValue);
+      <SearchIconWrapper>
+        <SearchOutlined />
+      </SearchIconWrapper>
+      <StyledTextField
+        variant="standard"
+        onClick={handleClick}
+        onChange={(e) => {
+          if (e.target.value == "") setOptions([]);
+          else fetchOptions(e.target.value);
         }}
-        onInputChange={(_, newInputValue) => {
-          if (!newInputValue) return;
-          else fetchOptions(newInputValue);
-        }}
-        PopperComponent={SearchPopper}
-        renderInput={(params) => (
-          <>
-            <SearchIconWrapper>
-              <SearchOutlined />
-            </SearchIconWrapper>
-            <StyledTextField
-              variant="standard"
-              {...params}
-              InputProps={{
-                disableUnderline: true,
-                ...params.InputProps,
-              }}
-            />
-          </>
-        )}
-        renderOption={(props, option) => {
-          return <li {...props}>{option}</li>;
+        InputProps={{
+          disableUnderline: true,
         }}
       />
+      <ClickAwayListener onClickAway={() => setOpen(false)}>
+        <Popper
+          open={open}
+          anchorEl={anchorEl}
+          placement="bottom-start"
+          sx={{ p: 3 }}
+        >
+          <List
+            sx={{
+              border: 1,
+              p: 1,
+              borderRadius: 1,
+              bgcolor: "background.paper",
+            }}
+          >
+            {options.length > 0 ? (
+              options.map((option) => (
+                <ListItem key={option.id}>
+                  <Link
+                    component={RouterLink}
+                    to={"/reviews/" + option.id}
+                    color="inherit"
+                    underline="none"
+                    onClick={() => setOpen(false)}
+                  >
+                    {option.title}
+                  </Link>
+                </ListItem>
+              ))
+            ) : (
+              <ListItem>"No Results"</ListItem>
+            )}
+          </List>
+        </Popper>
+      </ClickAwayListener>
     </SearchBar>
   );
 };

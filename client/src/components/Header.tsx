@@ -62,7 +62,7 @@ const Header: FC = () => {
         >
           <List sx={{ width: 250 }}>
             {["Home", "Movies", "Books", "Games"].map((text) => (
-              <ListItem key={text}>
+              <ListItem key={text} onClick={() => setDrawerOpened(false)}>
                 <ListItemButton
                   component={NavLink}
                   to={text === "Home" ? "/" : text.toLowerCase()}
