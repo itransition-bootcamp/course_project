@@ -4,15 +4,19 @@ import { FC, useState } from "react";
 import { useFetcher } from "react-router-dom";
 import { Review } from "../types";
 
-const EditReview: FC<{ review: Review }> = ({ review }) => {
+const EditReview: FC<{
+  review: Review;
+  hidden: boolean;
+  hide: () => void;
+}> = ({ review, hidden, hide }) => {
   const fetcher = useFetcher();
   const [title, setTitle] = useState(() => review.title);
   const [body, setbody] = useState(() => review.text);
 
   return (
-    <Grid container columns={2}>
+    <Grid container columns={2} display={hidden ? "none" : "flex"}>
       <Grid item pr={{ md: 2 }} xs={2} md={1}>
-        <fetcher.Form method="put" autoComplete="off">
+        <fetcher.Form method="put" autoComplete="off" onSubmit={hide}>
           <TextField
             name="reviewTitle"
             placeholder="Title"

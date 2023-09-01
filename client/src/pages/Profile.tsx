@@ -6,7 +6,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { useLoaderData } from "react-router-dom";
+import { LoaderFunction, redirect, useLoaderData } from "react-router-dom";
 import ReviewsContainer from "../components/ReviewsContainer";
 import { useAuth } from "../components/AuthProvider";
 import { Review } from "../types";
@@ -89,6 +89,17 @@ const Profile = () => {
       )}
     </Container>
   );
+};
+
+export const profilePageLoader: LoaderFunction = async ({
+  params,
+  request,
+}) => {
+  const resp = await fetch(`/api/users/${params.id}`, {
+    signal: request.signal,
+  });
+  if (!resp.ok) return redirect("/");
+  else return resp;
 };
 
 export default Profile;

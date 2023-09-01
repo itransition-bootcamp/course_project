@@ -1,6 +1,6 @@
 import ReviewsContainer from "./../components/ReviewsContainer";
 import { Container, styled } from "@mui/material";
-import { useLoaderData } from "react-router-dom";
+import { LoaderFunction, useLoaderData } from "react-router-dom";
 import { TagCloud } from "react-tagcloud";
 import { Review } from "../types";
 
@@ -26,6 +26,19 @@ const Home: React.FC = () => {
       />
     </Container>
   );
+};
+
+export const homePageLoader: LoaderFunction = async ({ request }) => {
+  const topReviews = await fetch("/api/reviews?top&limit=10", {
+    signal: request.signal,
+  }).then((res) => res.json());
+  const lastReviews = await fetch("/api/reviews?limit=10", {
+    signal: request.signal,
+  }).then((res) => res.json());
+  const tags = await fetch("/api/tags", {
+    signal: request.signal,
+  }).then((res) => res.json());
+  return [topReviews, lastReviews, tags];
 };
 
 export default Home;

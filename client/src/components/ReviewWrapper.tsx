@@ -49,8 +49,8 @@ const ReviewWrapper: FC<{
           <Typography color={"textPrimary"} variant="h6">
             {review.title}
           </Typography>
-          <Typography color={"textPrimary"} variant="caption">
-            {review.createdAt}
+          <Typography color={"GrayText"} variant="overline">
+            {new Date(review.createdAt).toLocaleDateString()}
           </Typography>
         </Link>
         <IconButton disabled={!user} onClick={() => handleLike(review.id)}>
