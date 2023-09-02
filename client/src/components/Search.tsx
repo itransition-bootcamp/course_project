@@ -9,6 +9,7 @@ import {
   List,
   ListItem,
   ClickAwayListener,
+  Paper,
 } from "@mui/material";
 import { FC, useMemo, useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
@@ -94,14 +95,7 @@ const Search: FC = () => {
           placement="bottom-start"
           sx={{ p: 3 }}
         >
-          <List
-            sx={{
-              border: 1,
-              p: 1,
-              borderRadius: 1,
-              bgcolor: "background.paper",
-            }}
-          >
+          <List component={Paper} elevation={8}>
             {options.length > 0 ? (
               options.map((option) => (
                 <ListItem key={option.id}>

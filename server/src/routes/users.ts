@@ -19,11 +19,11 @@ router.get("/me", (req, res) => {
 router.get("/:id", (req, res) => {
   User.findByPk(req.params.id, {
     attributes: { exclude: ["hashedPassword", "salt"] },
-    //@ts-ignore
+
     include: {
       model: Review,
       attributes: { exclude: ["vector"] },
-      include: Like,
+      include: [Like],
     },
   }).then((user) => {
     if (!user) return res.sendStatus(StatusCodes.NOT_FOUND);
@@ -33,6 +33,29 @@ router.get("/:id", (req, res) => {
     });
     res.send(formated);
   });
+});
+
+router.put("/:id", async (req, res) => {
+  if (isNaN(parseInt(req.params.id)))
+    return res.sendStatus(StatusCodes.BAD_REQUEST);
+  if (!req.isAuthenticated()) return res.sendStatus(StatusCodes.UNAUTHORIZED);
+  const me = await User.findByPk(req.user.id);
+  const user =
+    req.user.id!.toString() == req.params.id
+      ? me
+      : await User.findByPk(req.params.id);
+  if (!user || !me) return res.sendStatus(StatusCodes.NOT_FOUND);
+  if (me.id != user.id && me.role != "admin")
+    return res.sendStatus(StatusCodes.UNAUTHORIZED);
+  if (Object.prototype.hasOwnProperty.call(req.body, "email"))
+    user.email = req.body.email;
+  if (Object.prototype.hasOwnProperty.call(req.body, "avatar"))
+    user.avatar = req.body.avatar;
+  if (Object.prototype.hasOwnProperty.call(req.body, "username"))
+    user.username = req.body.username;
+
+  await user.save();
+  res.send("OK");
 });
 
 export default router;

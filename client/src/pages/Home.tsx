@@ -1,5 +1,5 @@
 import ReviewsContainer from "./../components/ReviewsContainer";
-import { Container, styled } from "@mui/material";
+import { Container, Grid, styled } from "@mui/material";
 import { LoaderFunction, useLoaderData } from "react-router-dom";
 import { TagCloud } from "react-tagcloud";
 import { Review } from "../types";
@@ -15,9 +15,21 @@ const StyledTagCloud = styled(TagCloud)(() => ({
 const Home: React.FC = () => {
   const [topReviews, lastReviews, tags] = useLoaderData() as LoaderData;
   return (
-    <Container>
-      <ReviewsContainer reviewsLoader={topReviews} headline="Top Reviews:" />
-      <ReviewsContainer reviewsLoader={lastReviews} headline="Last Reviews:" />
+    <Container maxWidth="xl">
+      <Grid container columnSpacing={2}>
+        <Grid item md={6}>
+          <ReviewsContainer
+            reviewsLoader={topReviews}
+            headline="Top Reviews:"
+          />
+        </Grid>
+        <Grid item md={6}>
+          <ReviewsContainer
+            reviewsLoader={lastReviews}
+            headline="Last Reviews:"
+          />
+        </Grid>
+      </Grid>
       <StyledTagCloud
         minSize={15}
         maxSize={60}

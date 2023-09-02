@@ -8,7 +8,7 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { CssBaseline, Paper, useMediaQuery } from "@mui/material";
 
 import Home, { homePageLoader } from "./pages/Home";
-import Profile, { profilePageLoader } from "./pages/Profile";
+import Profile, { profilePageAction, profilePageLoader } from "./pages/Profile";
 import LogIn from "./pages/Login";
 import Register from "./pages/Register";
 import AuthProvider from "./components/AuthProvider";
@@ -51,11 +51,12 @@ function App() {
   const router = createBrowserRouter(
     createRoutesFromElements(
       <Route element={<Root />}>
-        <Route path="/" element={<WithHeader />}>
-          <Route index element={<Home />} loader={homePageLoader} />
+        <Route element={<WithHeader />}>
+          <Route path="/" element={<Home />} loader={homePageLoader} />
           <Route
             path="/profile/:id"
             element={<Profile />}
+            action={profilePageAction}
             loader={profilePageLoader}
           />
           <Route

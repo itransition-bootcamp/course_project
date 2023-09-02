@@ -41,7 +41,9 @@ const CommentsContainer: FC<{ comments: Review["Comments"] }> = ({
               </Typography>
             </Grid>
           </Grid>
-          <Divider light variant="fullWidth" sx={{ my: 2 }} />
+          {index != comments.length - 1 && (
+            <Divider light variant="fullWidth" sx={{ my: 2 }} />
+          )}
         </Box>
       ))}
     </Paper>

@@ -19,10 +19,9 @@ const ReviewPage = () => {
   const [editing, setEditing] = useState(false);
   const { user } = useAuth();
   const isAuthor = user?.id == review.UserId || user?.role == "admin";
-  console.log(review);
   const toggleEdit = () => setEditing((prev) => !prev);
   return (
-    <Container sx={{ mt: 2 }}>
+    <Container sx={{ py: 2 }}>
       {!editing && (
         <>
           <Typography variant="h3" gutterBottom>

@@ -10,10 +10,10 @@ const ReviewsContainer: FC<{
   if (!reviewsLoader) return null;
   return (
     <Paper
-      elevation={5}
+      elevation={2}
       sx={{
-        marginTop: "20px",
-        p: "10px",
+        marginTop: 2,
+        p: 2,
       }}
     >
       <Typography variant="h5">{headline}</Typography>
@@ -24,7 +24,7 @@ const ReviewsContainer: FC<{
       />
       <Box
         sx={{
-          maxHeight: "300px",
+          maxHeight: { xs: "250px", md: "500px" },
           overflow: "scroll",
         }}
       >
