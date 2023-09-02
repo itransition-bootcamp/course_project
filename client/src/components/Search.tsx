@@ -77,6 +77,7 @@ const Search: FC = () => {
       </SearchIconWrapper>
       <StyledTextField
         variant="standard"
+        autoComplete="off"
         onClick={handleClick}
         onChange={(e) => {
           if (e.target.value == "") setOptions([]);

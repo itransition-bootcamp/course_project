@@ -27,6 +27,14 @@ function WithHeader() {
   );
 }
 
+function Root() {
+  return (
+    <Paper sx={{ minHeight: "100dvh" }}>
+      <Outlet />
+    </Paper>
+  );
+}
+
 function App() {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
 
@@ -42,9 +50,9 @@ function App() {
 
   const router = createBrowserRouter(
     createRoutesFromElements(
-      <Route path="/">
+      <Route element={<Root />}>
         <Route path="/" element={<WithHeader />}>
-          <Route path="/" element={<Home />} loader={homePageLoader} />
+          <Route index element={<Home />} loader={homePageLoader} />
           <Route
             path="/profile/:id"
             element={<Profile />}
@@ -57,8 +65,10 @@ function App() {
             loader={reviewPageLoader}
           ></Route>
         </Route>
-        <Route path="/login" element={<LogIn />} />
-        <Route path="/register" element={<Register />} />
+        <Route element={<Outlet />}>
+          <Route path="/login" element={<LogIn />} />
+          <Route path="/register" element={<Register />} />
+        </Route>
       </Route>
     )
   );
@@ -66,9 +76,7 @@ function App() {
     <ThemeProvider theme={theme}>
       <AuthProvider>
         <CssBaseline />
-        <Paper sx={{ minHeight: "100dvh" }}>
-          <RouterProvider router={router} />
-        </Paper>
+        <RouterProvider router={router} />
       </AuthProvider>
     </ThemeProvider>
   );

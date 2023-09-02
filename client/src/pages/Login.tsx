@@ -35,7 +35,7 @@ const LogIn = () => {
 
   if (authenticated) return <Navigate to="/" />;
   return (
-    <Container component="main" maxWidth="xs">
+    <Container maxWidth="xs" sx={{ pt: 10 }}>
       <LoginRegisterForm
         handleSubmit={handleSubmit}
         text="Sign in"
