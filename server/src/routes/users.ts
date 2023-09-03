@@ -8,8 +8,8 @@ const upload = multer({});
 
 cloudinary.config({
   cloud_name: "dxb2qepsn",
-  api_key: "275337597173513",
-  api_secret: "IvE5XZi3fGCpz1E_9jf0rPh2u2M",
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
 const router = express.Router();

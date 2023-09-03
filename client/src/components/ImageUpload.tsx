@@ -74,7 +74,7 @@ const ImageUpload: FC<{
       ? "error"
       : "primary"
     : "action";
-  console.log(profileId);
+
   return (
     <Modal open={open} onClose={() => setOpen(false)}>
       <Card
@@ -91,7 +91,7 @@ const ImageUpload: FC<{
             bgcolor: isDragActive ? "action.hover" : "initial",
           }}
         >
-          <input {...getInputProps()} onChange={() => console.log("first")} />
+          <input {...getInputProps()} />
 
           <Typography variant="h6" mb={4}>
             Drag and drop image file here, or click to select from device
