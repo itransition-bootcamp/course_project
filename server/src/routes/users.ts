@@ -1,6 +1,16 @@
 import express from "express";
 import { Review, User, Like } from "../models/allModels";
 import { StatusCodes } from "http-status-codes";
+import { v2 as cloudinary } from "cloudinary";
+import { Readable } from "stream";
+import multer from "multer";
+const upload = multer({});
+
+cloudinary.config({
+  cloud_name: "dxb2qepsn",
+  api_key: "275337597173513",
+  api_secret: "IvE5XZi3fGCpz1E_9jf0rPh2u2M",
+});
 
 const router = express.Router();
 
@@ -56,6 +66,52 @@ router.put("/:id", async (req, res) => {
 
   await user.save();
   res.send("OK");
+});
+
+router.post("/:id/avatar", upload.single("avatar"), async (req, res) => {
+  if (isNaN(parseInt(req.params.id)))
+    return res.sendStatus(StatusCodes.BAD_REQUEST);
+  if (!req.isAuthenticated()) return res.sendStatus(StatusCodes.UNAUTHORIZED);
+  const me = await User.findByPk(req.user.id);
+  const user =
+    req.user.id!.toString() == req.params.id
+      ? me
+      : await User.findByPk(req.params.id);
+  if (!user || !me) return res.sendStatus(StatusCodes.NOT_FOUND);
+  if (me.id != user.id && me.role != "admin")
+    return res.sendStatus(StatusCodes.UNAUTHORIZED);
+
+  const file = req.file;
+  if (!file) {
+    return res.status(StatusCodes.BAD_REQUEST).send("No file was uploaded.");
+  }
+
+  if (file.size > 1024 * 1024 * 3) {
+    return res.status(StatusCodes.BAD_REQUEST).send("Size is too large");
+  }
+
+  if (file.mimetype !== "image/jpeg" && file.mimetype !== "image/png") {
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .send("File format is incorrect.");
+  }
+
+  const stream = new Readable({
+    read() {
+      this.push(file.buffer);
+      this.push(null);
+    },
+  });
+
+  const cldUploadStream = cloudinary.uploader.upload_stream(
+    {
+      transformation: { crop: "fill", width: 250, height: 250, format: "jpg" },
+    },
+    function (error, result) {
+      res.json({ url: result?.secure_url });
+    }
+  );
+  stream.pipe(cldUploadStream);
 });
 
 export default router;
