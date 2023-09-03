@@ -1,9 +1,9 @@
 import {
   Avatar,
+  Box,
   Button,
   Card,
   Container,
-  Grid,
   Input,
   TextField,
   Typography,
@@ -24,6 +24,7 @@ import {
   useEffect,
   useState,
 } from "react";
+import ImageUpload from "../components/ImageUpload";
 
 type Profile = {
   id: number;
@@ -42,7 +43,8 @@ const Profile = () => {
   const [usernameInputValue, setUsernameInputValue] = useState("");
   const [emailInputValue, setEmailInputValue] = useState("");
   const [avatarInputValue, setAvatarInputValue] = useState("");
-  const [submitEnabled, setSubmitEnabled] = useState(() => false);
+  const [submitEnabled, setSubmitEnabled] = useState(false);
+  const [openUploadWindow, setOpenUploadWindow] = useState(false);
 
   const { user: me, setUser } = useAuth();
   const fetcher = useFetcher();
@@ -67,6 +69,7 @@ const Profile = () => {
 
   const mutateAuthUser: FormEventHandler<HTMLFormElement> = () => {
     if (!isMyProfile) return;
+    setSubmitEnabled(false);
     setUser({
       ...me,
       username: usernameInputValue,
@@ -83,28 +86,43 @@ const Profile = () => {
   const handleAvatarChange: ChangeEventHandler<HTMLInputElement> = (e) => {
     setAvatarInputValue(e.target.value);
   };
+
   return (
     <Container sx={{ mt: 2 }}>
       <fetcher.Form method="PUT" onSubmit={mutateAuthUser}>
-        <Grid
-          container
-          alignItems={"center"}
-          p={2}
-          component={Card}
-          columns={8}
-          rowSpacing={2}
+        <Card
           elevation={2}
+          sx={{
+            maxWidth: "sm",
+            m: "auto",
+          }}
         >
-          <Grid item xs={10}>
-            <Avatar
-              src={avatar}
-              alt={username}
-              sx={{ width: 125, height: 125 }}
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: { xs: 1, md: 2 },
+              my: 2,
+              mx: 2,
+              // minWidth: { sm: "350px" },
+            }}
+          >
+            <Button
+              disabled={!canEdit}
+              onClick={() => setOpenUploadWindow(true)}
             >
-              {username.charAt(0)}
-            </Avatar>
-          </Grid>
-          <Grid item xs={8}>
+              <Avatar
+                src={avatarInputValue}
+                alt={username}
+                sx={{
+                  width: { xs: 125, sm: 250 },
+                  height: { xs: 125, sm: 250 },
+                }}
+              >
+                <Typography variant="h3">{username.charAt(0)}</Typography>
+              </Avatar>
+            </Button>
             <TextField
               label="Username"
               size="small"
@@ -113,10 +131,9 @@ const Profile = () => {
               required
               value={usernameInputValue}
               onChange={handleUsernameChange}
-              sx={{ width: "100%", maxWidth: "30ch" }}
+              fullWidth
             />
-          </Grid>
-          <Grid item xs={8}>
+
             <TextField
               type="email"
               label="Email"
@@ -125,50 +142,44 @@ const Profile = () => {
               name="email"
               value={emailInputValue}
               onChange={handleEmailChange}
-              sx={{ width: "100%", maxWidth: "30ch" }}
+              fullWidth
             />
-          </Grid>
-          <Grid sx={{ display: "none" }} item xs={8}>
+
             <Input
+              sx={{ display: "none" }}
               name="avatar"
               value={avatarInputValue}
               onChange={handleAvatarChange}
             />
-          </Grid>
 
-          <Grid item xs={3} sm={2} md={1} component={Typography}>
-            Registration Date:
-          </Grid>
-          <Grid item xs={5} sm={6} md={7} component={Typography}>
-            {new Date(createdAt).toLocaleDateString()}
-          </Grid>
-          <Grid item xs={3} sm={2} md={1} component={Typography}>
-            Role:
-          </Grid>
-          <Grid item xs={5} sm={6} md={7} component={Typography}>
-            {role}
-          </Grid>
-          <Grid
-            display={submitEnabled ? "block" : "none"}
-            item
-            xs={5}
-            sm={3}
-            md={2}
-          >
-            <Button
-              disabled={!canEdit}
-              variant="outlined"
-              fullWidth
-              type="submit"
-            >
-              save
-            </Button>
-          </Grid>
-        </Grid>
+            <Typography alignSelf={"flex-start"}>
+              Registration Date: {new Date(createdAt).toLocaleDateString()}
+            </Typography>
+
+            <Typography alignSelf={"flex-start"}>Role: {role}</Typography>
+
+            <Box display={submitEnabled ? "block" : "none"}>
+              <Button
+                disabled={!canEdit}
+                variant="outlined"
+                fullWidth
+                type="submit"
+              >
+                save
+              </Button>
+            </Box>
+          </Box>
+        </Card>
       </fetcher.Form>
       {Reviews.length > 0 && (
         <ReviewsContainer reviewsLoader={Reviews} headline="Reviews:" />
       )}
+      <ImageUpload
+        open={openUploadWindow}
+        setOpen={setOpenUploadWindow}
+        profileId={id}
+        setInput={setAvatarInputValue}
+      />
     </Container>
   );
 };
