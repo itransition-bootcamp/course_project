@@ -1,4 +1,4 @@
-import express from "express";
+import express, { RequestHandler } from "express";
 import { Review, User, Like } from "../models/allModels";
 import { StatusCodes } from "http-status-codes";
 import { v2 as cloudinary } from "cloudinary";
@@ -26,7 +26,7 @@ router.get("/me", (req, res) => {
   });
 });
 
-router.get("/:id", (req, res) => {
+router.get("/:id", validIdParam(), (req, res) => {
   User.findByPk(req.params.id, {
     attributes: { exclude: ["hashedPassword", "salt"] },
 
@@ -45,73 +45,89 @@ router.get("/:id", (req, res) => {
   });
 });
 
-router.put("/:id", async (req, res) => {
-  if (isNaN(parseInt(req.params.id)))
-    return res.sendStatus(StatusCodes.BAD_REQUEST);
-  if (!req.isAuthenticated()) return res.sendStatus(StatusCodes.UNAUTHORIZED);
-  const me = await User.findByPk(req.user.id);
-  const user =
-    req.user.id!.toString() == req.params.id
-      ? me
-      : await User.findByPk(req.params.id);
-  if (!user || !me) return res.sendStatus(StatusCodes.NOT_FOUND);
-  if (me.id != user.id && me.role != "admin")
-    return res.sendStatus(StatusCodes.UNAUTHORIZED);
+router.put("/:id", validIdParam(), authorized(), async (req, res) => {
   if (Object.prototype.hasOwnProperty.call(req.body, "email"))
-    user.email = req.body.email;
+    req.user!.email = req.body.email;
   if (Object.prototype.hasOwnProperty.call(req.body, "avatar"))
-    user.avatar = req.body.avatar;
+    req.user!.avatar = req.body.avatar;
   if (Object.prototype.hasOwnProperty.call(req.body, "username"))
-    user.username = req.body.username;
+    req.user!.username = req.body.username;
 
-  await user.save();
+  await req.user!.save!();
   res.send("OK");
 });
 
-router.post("/:id/avatar", upload.single("avatar"), async (req, res) => {
-  if (isNaN(parseInt(req.params.id)))
-    return res.sendStatus(StatusCodes.BAD_REQUEST);
-  if (!req.isAuthenticated()) return res.sendStatus(StatusCodes.UNAUTHORIZED);
-  const me = await User.findByPk(req.user.id);
-  const user =
-    req.user.id!.toString() == req.params.id
-      ? me
-      : await User.findByPk(req.params.id);
-  if (!user || !me) return res.sendStatus(StatusCodes.NOT_FOUND);
-  if (me.id != user.id && me.role != "admin")
-    return res.sendStatus(StatusCodes.UNAUTHORIZED);
-
-  const file = req.file;
-  if (!file) {
-    return res.status(StatusCodes.BAD_REQUEST).send("No file was uploaded.");
-  }
-
-  if (file.size > 1024 * 1024 * 3) {
-    return res.status(StatusCodes.BAD_REQUEST).send("Size is too large");
-  }
-
-  if (file.mimetype !== "image/jpeg" && file.mimetype !== "image/png") {
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .send("File format is incorrect.");
-  }
-
-  const stream = new Readable({
-    read() {
-      this.push(file.buffer);
-      this.push(null);
-    },
-  });
-
-  const cldUploadStream = cloudinary.uploader.upload_stream(
-    {
-      transformation: { crop: "fill", width: 250, height: 250, format: "jpg" },
-    },
-    function (error, result) {
-      res.json({ url: result?.secure_url });
+router.post(
+  "/:id/avatar",
+  validIdParam(),
+  authorized(),
+  upload.single("avatar"),
+  async (req, res) => {
+    const file = req.file;
+    if (!file) {
+      return res.status(StatusCodes.BAD_REQUEST).send("No file was uploaded.");
     }
-  );
-  stream.pipe(cldUploadStream);
-});
+    const maxSizeMB = 3;
+    if (file.size > 1024 * 1024 * maxSizeMB) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .send(`Size exceeded ${maxSizeMB} MB`);
+    }
+
+    if (file.mimetype !== "image/jpeg" && file.mimetype !== "image/png") {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .send("File format is incorrect.");
+    }
+
+    const stream = new Readable({
+      read() {
+        this.push(file.buffer);
+        this.push(null);
+      },
+    });
+
+    const cldUploadStream = cloudinary.uploader.upload_stream(
+      {
+        transformation: {
+          crop: "fill",
+          width: 250,
+          height: 250,
+          format: "jpg",
+        },
+      },
+      function (error, result) {
+        res.json({ url: result?.secure_url });
+      }
+    );
+    stream.pipe(cldUploadStream);
+  }
+);
+
+function validIdParam(): RequestHandler {
+  return async (req, res, next) => {
+    if (isNaN(parseInt(req.params.id)))
+      return res.sendStatus(StatusCodes.BAD_REQUEST);
+    else next();
+  };
+}
+
+function authorized(): RequestHandler {
+  return async (req, res, next) => {
+    if (!req.isAuthenticated()) return res.sendStatus(StatusCodes.UNAUTHORIZED);
+    const me = await User.findByPk(req.user.id);
+    const user =
+      req.user.id!.toString() == req.params.id
+        ? me
+        : await User.findByPk(req.params.id);
+    if (!user || !me) return res.sendStatus(StatusCodes.NOT_FOUND);
+    if (me.id != user.id && me.role != "admin")
+      return res.sendStatus(StatusCodes.UNAUTHORIZED);
+    else {
+      req.user = user;
+      next();
+    }
+  };
+}
 
 export default router;

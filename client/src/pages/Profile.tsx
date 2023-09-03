@@ -50,16 +50,16 @@ const Profile = () => {
   const canEdit = isMyProfile || me?.role == "admin";
 
   useEffect(() => {
-    setUsernameInputValue(username);
-    setEmailInputValue(email);
-    setAvatarInputValue(avatar);
+    setUsernameInputValue(username || "");
+    setEmailInputValue(email || "");
+    setAvatarInputValue(avatar || "");
   }, [profile]);
 
   useEffect(() => {
     if (
-      usernameInputValue == username &&
-      emailInputValue == email &&
-      avatarInputValue == avatar
+      usernameInputValue == (username || "") &&
+      emailInputValue == (email || "") &&
+      avatarInputValue == (avatar || "")
     )
       setSubmitEnabled(false);
     else setSubmitEnabled(true);
@@ -96,7 +96,11 @@ const Profile = () => {
           elevation={2}
         >
           <Grid item xs={10}>
-            <Avatar src={avatar} alt={username}>
+            <Avatar
+              src={avatar}
+              alt={username}
+              sx={{ width: 125, height: 125 }}
+            >
               {username.charAt(0)}
             </Avatar>
           </Grid>
