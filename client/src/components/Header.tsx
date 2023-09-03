@@ -124,7 +124,12 @@ const Header: FC = () => {
               open={Boolean(anchorEl)}
               onClose={handleClose}
             >
-              <MenuItem onClick={() => navigate("/profile/" + user?.id)}>
+              <MenuItem
+                onClick={() => {
+                  navigate("/profile/" + user?.id);
+                  handleClose();
+                }}
+              >
                 Profile
               </MenuItem>
               <MenuItem onClick={handleLogout}>Logout</MenuItem>

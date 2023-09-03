@@ -34,7 +34,7 @@ const Register = () => {
   };
 
   return (
-    <Container component="main" maxWidth="xs">
+    <Container component="main" maxWidth="xs" sx={{ pt: 10 }}>
       <LoginRegisterForm
         handleSubmit={handleSubmit}
         text="Sign up"

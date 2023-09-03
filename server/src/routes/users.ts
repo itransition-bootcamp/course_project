@@ -47,11 +47,11 @@ router.get("/:id", validIdParam(), (req, res) => {
 
 router.put("/:id", validIdParam(), authorized(), async (req, res) => {
   if (Object.prototype.hasOwnProperty.call(req.body, "email"))
-    req.user!.email = req.body.email;
+    req.user!.email = req.body.email === "" ? null : req.body.email;
   if (Object.prototype.hasOwnProperty.call(req.body, "avatar"))
-    req.user!.avatar = req.body.avatar;
+    req.user!.avatar = req.body.avatar === "" ? null : req.body.avatar;
   if (Object.prototype.hasOwnProperty.call(req.body, "username"))
-    req.user!.username = req.body.username;
+    req.user!.username = req.body.username === "" ? null : req.body.username;
 
   await req.user!.save!();
   res.send("OK");
