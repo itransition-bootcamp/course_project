@@ -86,7 +86,7 @@ const CommentsContainer: FC = () => {
               onChange={(e) => setCommentInput(e.target.value)}
             />
             <Button type="submit" name="intent" value="add comment">
-              send message
+              send
             </Button>
           </Form>
         </>

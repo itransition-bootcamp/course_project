@@ -111,15 +111,20 @@ router.get("/:id/comments", (req, res) => {
   if (isNaN(parseInt(reviewId))) return res.sendStatus(StatusCodes.BAD_REQUEST);
 
   res.set({
-    "Cache-Control": "no-cache",
     Connection: "keep-alive", // allowing TCP connection to remain open for multiple HTTP requests/responses
     "Content-Type": "text/event-stream", // media type for Server Sent Events (SSE)
+    "X-Accel-Buffering": "no",
+    "Cache-Control": "no-cache",
   });
   res.flushHeaders();
   if (subscribers[reviewId] === undefined) subscribers[reviewId] = [res];
   else subscribers[reviewId] = [...subscribers[reviewId], res];
 
   res.on("close", () => {
+    subscribers[reviewId] = subscribers[reviewId].filter(
+      (response) => response != res
+    );
+
     res.end();
   });
 });
@@ -139,9 +144,10 @@ router.post("/:id/comments", async (req, res) => {
     include: { model: User, attributes: ["avatar", "id", "username"] },
   });
   subscribers[reviewId] &&
-    subscribers[reviewId].map((subscriber) =>
-      subscriber.write(`data: ${JSON.stringify(newCommentWithUser)}\n\n`)
-    );
+    subscribers[reviewId].map((subscriber) => {
+      subscriber.write(`data: ${JSON.stringify(newCommentWithUser)}\n\n`);
+      subscriber.flush();
+    });
   res.sendStatus(200);
 });
 
