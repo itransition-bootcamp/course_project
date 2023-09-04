@@ -19,6 +19,7 @@ router.get("/me", (req, res) => {
     attributes: { exclude: ["hashedPassword", "salt"] },
     include: { model: Like, attributes: ["ReviewId"] },
   }).then((user) => {
+    if (!user) res.clearCookie("session");
     res.json({
       authenticated: req.isAuthenticated(),
       user: user?.sanitize(),

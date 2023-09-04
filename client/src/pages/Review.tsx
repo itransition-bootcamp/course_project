@@ -62,7 +62,7 @@ const ReviewPage = () => {
         </Box>
       )}
 
-      <CommentsContainer comments={review.Comments} />
+      <CommentsContainer />
     </Container>
   );
 };

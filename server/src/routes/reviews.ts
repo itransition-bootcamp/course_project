@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Response } from "express";
 import sequelize from "../sequelize";
 import { Review, User, Comment, Like, Tag } from "../models/allModels";
 import { FindOptions, Includeable, InferAttributes } from "sequelize";
@@ -102,6 +102,48 @@ router.get("/:id/like", async (req, res) => {
   if (!created) like.destroy();
 
   res.send("OK");
+});
+
+const subscribers: { [key: string]: Response[] } = {};
+
+router.get("/:id/comments", (req, res) => {
+  const reviewId = req.params.id;
+  if (isNaN(parseInt(reviewId))) return res.sendStatus(StatusCodes.BAD_REQUEST);
+
+  res.set({
+    "Cache-Control": "no-cache",
+    Connection: "keep-alive", // allowing TCP connection to remain open for multiple HTTP requests/responses
+    "Content-Type": "text/event-stream", // media type for Server Sent Events (SSE)
+  });
+  res.flushHeaders();
+  if (subscribers[reviewId] === undefined) subscribers[reviewId] = [res];
+  else subscribers[reviewId] = [...subscribers[reviewId], res];
+
+  res.on("close", () => {
+    console.log("sse connection closed");
+    res.end();
+  });
+});
+
+router.post("/:id/comments", async (req, res) => {
+  if (!req.isAuthenticated() || !req.user)
+    return res.sendStatus(StatusCodes.UNAUTHORIZED);
+  const reviewId = parseInt(req.params.id);
+
+  const newComment = await Comment.create({
+    UserId: req.user.id,
+    ReviewId: reviewId,
+    text: req.body.comment,
+  });
+
+  const newCommentWithUser = await Comment.findByPk(newComment.id, {
+    include: { model: User, attributes: ["avatar", "id", "username"] },
+  });
+  subscribers[reviewId] &&
+    subscribers[reviewId].map((subscriber) =>
+      subscriber.write(`data: ${JSON.stringify(newCommentWithUser)}\n\n`)
+    );
+  res.sendStatus(200);
 });
 
 export default router;
