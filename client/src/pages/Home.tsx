@@ -1,8 +1,9 @@
 import ReviewsContainer from "./../components/ReviewsContainer";
 import { Container, Grid, styled } from "@mui/material";
-import { LoaderFunction, useLoaderData } from "react-router-dom";
+import { LoaderFunction, useLoaderData, useNavigation } from "react-router-dom";
 import { TagCloud } from "react-tagcloud";
 import { Review } from "../types";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 type TagCount = { value: string; count: number };
 type LoaderData = [Review[], Review[], TagCount[]];
@@ -14,30 +15,33 @@ const StyledTagCloud = styled(TagCloud)(() => ({
 
 const Home: React.FC = () => {
   const [topReviews, lastReviews, tags] = useLoaderData() as LoaderData;
-  return (
-    <Container maxWidth="xl">
-      <Grid container columnSpacing={2}>
-        <Grid item md={6}>
-          <ReviewsContainer
-            reviewsLoader={topReviews}
-            headline="Top Reviews:"
-          />
+  const { state } = useNavigation();
+  if (state === "loading") return <LoadingSpinner />;
+  else
+    return (
+      <Container maxWidth="xl">
+        <Grid container columnSpacing={2}>
+          <Grid item md={6}>
+            <ReviewsContainer
+              reviewsLoader={topReviews}
+              headline="Top Reviews:"
+            />
+          </Grid>
+          <Grid item md={6}>
+            <ReviewsContainer
+              reviewsLoader={lastReviews}
+              headline="Last Reviews:"
+            />
+          </Grid>
         </Grid>
-        <Grid item md={6}>
-          <ReviewsContainer
-            reviewsLoader={lastReviews}
-            headline="Last Reviews:"
-          />
-        </Grid>
-      </Grid>
-      <StyledTagCloud
-        minSize={15}
-        maxSize={60}
-        tags={tags}
-        onClick={(tag: TagCount) => alert(`'${tag.value}' was selected!`)}
-      />
-    </Container>
-  );
+        <StyledTagCloud
+          minSize={15}
+          maxSize={60}
+          tags={tags}
+          onClick={(tag: TagCount) => alert(`'${tag.value}' was selected!`)}
+        />
+      </Container>
+    );
 };
 
 export const homePageLoader: LoaderFunction = async ({ request }) => {

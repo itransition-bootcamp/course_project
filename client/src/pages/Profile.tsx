@@ -14,6 +14,7 @@ import {
   redirect,
   useFetcher,
   useLoaderData,
+  useNavigation,
 } from "react-router-dom";
 import ReviewsContainer from "../components/ReviewsContainer";
 import { useAuth } from "../components/AuthProvider";
@@ -25,6 +26,7 @@ import {
   useState,
 } from "react";
 import ImageUpload from "../components/ImageUpload";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 type Profile = {
   id: number;
@@ -86,102 +88,103 @@ const Profile = () => {
   const handleAvatarChange: ChangeEventHandler<HTMLInputElement> = (e) => {
     setAvatarInputValue(e.target.value);
   };
-
-  return (
-    <Container sx={{ mt: 2 }}>
-      <fetcher.Form method="PUT" onSubmit={mutateAuthUser}>
-        <Card
-          elevation={2}
-          sx={{
-            maxWidth: "sm",
-            m: "auto",
-          }}
-        >
-          <Box
+  const { state } = useNavigation();
+  if (state === "loading") return <LoadingSpinner />;
+  else
+    return (
+      <Container sx={{ mt: 2 }}>
+        <fetcher.Form method="PUT" onSubmit={mutateAuthUser}>
+          <Card
+            elevation={2}
             sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: { xs: 1, md: 2 },
-              my: 2,
-              mx: 2,
-              // minWidth: { sm: "350px" },
+              maxWidth: "sm",
+              m: "auto",
             }}
           >
-            <Button
-              disabled={!canEdit}
-              onClick={() => setOpenUploadWindow(true)}
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: { xs: 1, md: 2 },
+                my: 2,
+                mx: 2,
+              }}
             >
-              <Avatar
-                src={avatarInputValue}
-                alt={username}
-                sx={{
-                  width: { xs: 125, sm: 250 },
-                  height: { xs: 125, sm: 250 },
-                }}
-              >
-                <Typography variant="h3">{username.charAt(0)}</Typography>
-              </Avatar>
-            </Button>
-            <TextField
-              label="Username"
-              size="small"
-              disabled={!canEdit}
-              name="username"
-              required
-              value={usernameInputValue}
-              onChange={handleUsernameChange}
-              fullWidth
-            />
-
-            <TextField
-              type="email"
-              label="Email"
-              size="small"
-              disabled={!canEdit}
-              name="email"
-              value={emailInputValue}
-              onChange={handleEmailChange}
-              fullWidth
-            />
-
-            <Input
-              sx={{ display: "none" }}
-              name="avatar"
-              value={avatarInputValue}
-              onChange={handleAvatarChange}
-            />
-
-            <Typography alignSelf={"flex-start"}>
-              Registration Date: {new Date(createdAt).toLocaleDateString()}
-            </Typography>
-
-            <Typography alignSelf={"flex-start"}>Role: {role}</Typography>
-
-            <Box display={submitEnabled ? "block" : "none"}>
               <Button
                 disabled={!canEdit}
-                variant="outlined"
-                fullWidth
-                type="submit"
+                onClick={() => setOpenUploadWindow(true)}
               >
-                save
+                <Avatar
+                  src={avatarInputValue}
+                  alt={username}
+                  sx={{
+                    width: { xs: 125, sm: 250 },
+                    height: { xs: 125, sm: 250 },
+                  }}
+                >
+                  <Typography variant="h3">{username.charAt(0)}</Typography>
+                </Avatar>
               </Button>
+              <TextField
+                label="Username"
+                size="small"
+                disabled={!canEdit}
+                name="username"
+                required
+                value={usernameInputValue}
+                onChange={handleUsernameChange}
+                fullWidth
+              />
+
+              <TextField
+                type="email"
+                label="Email"
+                size="small"
+                disabled={!canEdit}
+                name="email"
+                value={emailInputValue}
+                onChange={handleEmailChange}
+                fullWidth
+              />
+
+              <Input
+                sx={{ display: "none" }}
+                name="avatar"
+                value={avatarInputValue}
+                onChange={handleAvatarChange}
+              />
+
+              <Typography alignSelf={"flex-start"}>
+                Registration Date: {new Date(createdAt).toLocaleDateString()}
+              </Typography>
+
+              <Typography alignSelf={"flex-start"}>Role: {role}</Typography>
+
+              <Box display={submitEnabled ? "block" : "none"}>
+                <Button
+                  disabled={!canEdit}
+                  variant="outlined"
+                  fullWidth
+                  type="submit"
+                >
+                  save
+                </Button>
+              </Box>
             </Box>
-          </Box>
-        </Card>
-      </fetcher.Form>
-      {Reviews.length > 0 && (
-        <ReviewsContainer reviewsLoader={Reviews} headline="Reviews:" />
-      )}
-      <ImageUpload
-        open={openUploadWindow}
-        setOpen={setOpenUploadWindow}
-        profileId={id}
-        setInput={setAvatarInputValue}
-      />
-    </Container>
-  );
+          </Card>
+        </fetcher.Form>
+        {Reviews.length > 0 && (
+          <ReviewsContainer reviewsLoader={Reviews} headline="Reviews:" />
+        )}
+        <ImageUpload
+          open={openUploadWindow}
+          setOpen={setOpenUploadWindow}
+          profileId={id}
+          setInput={setAvatarInputValue}
+        />
+      </Container>
+    );
 };
 
 export const profilePageAction: ActionFunction = async ({

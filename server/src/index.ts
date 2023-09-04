@@ -15,8 +15,8 @@ import "dotenv/config";
 const app = express();
 if (app.get("env") === "production") {
   app.set("trust proxy", 1); // trust first proxy
-  app.use(compression());
 }
+app.use(compression());
 app.use(express.json());
 app.use(express.static(__dirname + "/../dist/public"));
 app.use(cookieParser());

@@ -8,63 +8,73 @@ import {
   LoaderFunction,
   redirect,
   useLoaderData,
+  useNavigation,
 } from "react-router-dom";
 import { useAuth } from "../components/AuthProvider";
 import CommentsContainer from "../components/CommentsContainer";
 import EditReview from "../components/EditReview";
 import { Review } from "../types";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const ReviewPage = () => {
   const review = useLoaderData() as Omit<Review, "Likes" | "Tags">;
   const [editing, setEditing] = useState(false);
+  const { state } = useNavigation();
   const { user } = useAuth();
   const isAuthor = user?.id == review.UserId || user?.role == "admin";
   const toggleEdit = () => setEditing((prev) => !prev);
-  return (
-    <Container sx={{ py: 2 }}>
-      {!editing && (
-        <>
-          <Typography variant="h3" gutterBottom>
-            {review.title}
-          </Typography>
-          <Rating
-            name="read-only"
-            precision={0.5}
-            value={review.rating / 2}
-            readOnly
-          />
-          <Box>
-            <MuiMarkdown>{review.text}</MuiMarkdown>
-          </Box>
-        </>
-      )}
 
-      <EditReview
-        review={review}
-        hidden={!editing}
-        hide={() => setEditing(false)}
-      />
-      {isAuthor && (
-        <Box display={"flex"} gap={2} my={2}>
-          <Button onClick={toggleEdit} variant="contained" startIcon={<Edit />}>
-            Edit Review
-          </Button>
-          <Form method="DELETE">
+  if (state === "loading") return <LoadingSpinner />;
+  else
+    return (
+      <Container sx={{ py: 2 }}>
+        {!editing && (
+          <>
+            <Typography variant="h3" gutterBottom>
+              {review.title}
+            </Typography>
+            <Rating
+              name="read-only"
+              precision={0.5}
+              value={review.rating / 2}
+              readOnly
+            />
+            <Box>
+              <MuiMarkdown>{review.text}</MuiMarkdown>
+            </Box>
+          </>
+        )}
+
+        <EditReview
+          review={review}
+          hidden={!editing}
+          hide={() => setEditing(false)}
+        />
+        {isAuthor && (
+          <Box display={"flex"} gap={2} my={2}>
             <Button
-              type="submit"
+              onClick={toggleEdit}
               variant="contained"
-              color="error"
-              startIcon={<Delete />}
+              startIcon={<Edit />}
             >
-              Delete Review
+              Edit Review
             </Button>
-          </Form>
-        </Box>
-      )}
+            <Form method="DELETE">
+              <Button
+                type="submit"
+                variant="contained"
+                color="error"
+                startIcon={<Delete />}
+              >
+                Delete Review
+              </Button>
+            </Form>
+          </Box>
+        )}
 
-      <CommentsContainer />
-    </Container>
-  );
+        <CommentsContainer />
+      </Container>
+    );
 };
 
 export const reviewPageAction: ActionFunction = async ({ params, request }) => {
