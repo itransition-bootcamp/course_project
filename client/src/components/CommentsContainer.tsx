@@ -6,38 +6,42 @@ import {
   Typography,
   Box,
   Link,
+  TextField,
+  Button,
 } from "@mui/material";
 import { FC, useEffect, useState } from "react";
 import { Review } from "../types";
-import { Link as RouterLink, useLoaderData } from "react-router-dom";
+import { Form, Link as RouterLink, useLoaderData } from "react-router-dom";
+import { useAuth } from "./AuthProvider";
 
 const CommentsContainer: FC = () => {
   const { id, Comments } = useLoaderData() as Omit<Review, "Likes" | "Tags">;
   const [comments, setComments] = useState<Review["Comments"]>(() => Comments);
+  const [commentInput, setCommentInput] = useState("");
+
+  const { authenticated } = useAuth();
 
   useEffect(() => {
-    // opening a connection to the server to begin receiving events from it
     const eventSource = new EventSource(`/api/reviews/${id}/comments`);
-    eventSource.onopen = () => console.log("connection opened");
-    // attaching a handler to receive message events
     eventSource.onmessage = (event) => {
       const comment = JSON.parse(event.data);
-      console.log(comment);
       setComments((prev) =>
         prev === undefined ? [comment] : [...prev, comment]
       );
     };
-
-    // terminating the connection on component unmount
     return () => eventSource.close();
   }, []);
 
+  useEffect(() => {
+    if (
+      document.body.scrollHeight - (window.scrollY + window.innerHeight) <
+      500
+    )
+      window.scrollTo(0, document.body.scrollHeight);
+  }, [comments]);
+
   return (
     <Paper elevation={2} sx={{ mt: 6, p: { xs: 2, sm: 3 } }}>
-      {/* <Typography variant="h5" color={"primary.dark"} mb={2}>
-        Comments:
-      </Typography> */}
-      {/* <Divider sx={{ my: 2 }} /> */}
       {comments?.map((comment, index) => (
         <Box key={index}>
           <Grid container wrap="nowrap" spacing={2}>
@@ -64,6 +68,29 @@ const CommentsContainer: FC = () => {
           )}
         </Box>
       ))}
+      {authenticated && (
+        <>
+          <Divider light variant="fullWidth" sx={{ my: 2 }} />
+          <Form
+            method="POST"
+            onSubmit={() => {
+              setCommentInput("");
+            }}
+            style={{ display: "flex", gap: 10 }}
+          >
+            <TextField
+              autoComplete="off"
+              sx={{ flexGrow: 1 }}
+              name="comment"
+              value={commentInput}
+              onChange={(e) => setCommentInput(e.target.value)}
+            />
+            <Button type="submit" name="intent" value="add comment">
+              send message
+            </Button>
+          </Form>
+        </>
+      )}
     </Paper>
   );
 };

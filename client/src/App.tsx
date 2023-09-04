@@ -64,7 +64,11 @@ function App() {
             element={<Review />}
             action={reviewPageAction}
             loader={reviewPageLoader}
-          ></Route>
+            shouldRevalidate={({ formData }) => {
+              if (formData?.get("intent") === "add comment") return false;
+              else return true;
+            }}
+          />
         </Route>
         <Route element={<Outlet />}>
           <Route path="/login" element={<LogIn />} />

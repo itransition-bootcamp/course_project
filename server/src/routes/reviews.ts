@@ -120,7 +120,6 @@ router.get("/:id/comments", (req, res) => {
   else subscribers[reviewId] = [...subscribers[reviewId], res];
 
   res.on("close", () => {
-    console.log("sse connection closed");
     res.end();
   });
 });

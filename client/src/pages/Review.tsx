@@ -68,11 +68,28 @@ const ReviewPage = () => {
 };
 
 export const reviewPageAction: ActionFunction = async ({ params, request }) => {
+  if (request.method == "POST") {
+    const formData = await request.formData();
+    const intent = formData.get("intent");
+    const comment = formData.get("comment");
+    if (!comment) return null;
+    if (intent === "add comment") {
+      return fetch(`/api/reviews/${params.id}/comments`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          comment: comment,
+        }),
+      });
+    }
+  }
   if (request.method == "DELETE")
     return fetch(`/api/reviews/${params.id}`, {
       method: "DELETE",
     });
-  else {
+  else if (request.method == "PUT") {
     const formData = await request.formData();
     if (!formData.get("reviewText")) return null;
     return fetch(`/api/reviews/${params.id}`, {
@@ -85,7 +102,7 @@ export const reviewPageAction: ActionFunction = async ({ params, request }) => {
         text: formData.get("reviewText"),
       }),
     });
-  }
+  } else return null;
 };
 
 export const reviewPageLoader: LoaderFunction = async ({ params, request }) => {
