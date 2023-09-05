@@ -9,6 +9,7 @@ import auth from "./routes/auth";
 import search from "./routes/search";
 import reviews from "./routes/reviews";
 import tags from "./routes/tags";
+import user from "./routes/user";
 import users from "./routes/users";
 import "dotenv/config";
 
@@ -49,6 +50,7 @@ app.use("/auth", auth);
 app.use("/api/search", search);
 app.use("/api/reviews", reviews);
 app.use("/api/tags", tags);
+app.use("/api/users", user);
 app.use("/api/users", users);
 
 app.get("*", (req, res) => {

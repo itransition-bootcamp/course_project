@@ -67,6 +67,8 @@ passport.use(
       attributes: { exclude: ["githubId, hashedPassword, salt, updatedAt"] },
     }).then((user) => {
       if (!user) return done(null, false, { message: "User doesnt exist" });
+      if (user.status == "banned")
+        return done(null, false, { message: "User is banned" });
 
       crypto.pbkdf2(
         password,

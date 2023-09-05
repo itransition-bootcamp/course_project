@@ -17,6 +17,10 @@ import { useMemo } from "react";
 
 import { Outlet } from "react-router-dom";
 import Review, { reviewPageAction, reviewPageLoader } from "./pages/Review";
+import AdminDashboard, {
+  adminPageAction,
+  adminPageLoader,
+} from "./pages/AdminDashboard";
 
 function WithHeader() {
   return (
@@ -53,6 +57,12 @@ function App() {
       <Route element={<Root />}>
         <Route element={<WithHeader />}>
           <Route path="/" element={<Home />} loader={homePageLoader} />
+          <Route
+            path="/admin"
+            element={<AdminDashboard />}
+            action={adminPageAction}
+            loader={adminPageLoader}
+          />
           <Route
             path="/profile/:id"
             element={<Profile />}

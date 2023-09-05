@@ -28,6 +28,7 @@ class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
   declare salt: string | null;
   declare avatar: string | null;
   declare role: CreationOptional<"admin" | "user">;
+  declare status: CreationOptional<"active" | "banned">;
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
 
@@ -99,6 +100,11 @@ class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
           type: DataTypes.ENUM("admin", "user"),
           allowNull: false,
           defaultValue: "user",
+        },
+        status: {
+          type: DataTypes.ENUM("active", "banned"),
+          allowNull: false,
+          defaultValue: "active",
         },
         createdAt: DataTypes.DATE,
         updatedAt: DataTypes.DATE,

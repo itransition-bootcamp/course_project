@@ -124,6 +124,16 @@ const Header: FC = () => {
               open={Boolean(anchorEl)}
               onClose={handleClose}
             >
+              {user?.role == "admin" && (
+                <MenuItem
+                  onClick={() => {
+                    navigate("/admin");
+                    handleClose();
+                  }}
+                >
+                  Admin Panel
+                </MenuItem>
+              )}
               <MenuItem
                 onClick={() => {
                   navigate("/profile/" + user?.id);
