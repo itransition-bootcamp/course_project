@@ -20,8 +20,7 @@ user.get("/me", (req, res) => {
     include: { model: Like, attributes: ["ReviewId"] },
   }).then((user) => {
     if (!user || user.status == "banned") {
-      res.clearCookie("session");
-      res.clearCookie("session.sig");
+      req.session = null;
       return res.json({
         authenticated: false,
       });

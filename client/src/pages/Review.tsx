@@ -38,6 +38,7 @@ const ReviewPage = () => {
         <Box>
           <MuiMarkdown>{review.text}</MuiMarkdown>
         </Box>
+        <img src={review.image} style={{ maxWidth: "100px" }}></img>
 
         {isAuthor && (
           <Box display={"flex"} gap={2} my={2}>

@@ -28,7 +28,7 @@ class Review extends Model<
   InferCreationAttributes<Review>
 > {
   declare id: CreationOptional<number>;
-  declare poster: string | null;
+  declare image: string | null;
   declare rating: number;
   declare title: string;
   declare text: string;
@@ -72,7 +72,7 @@ class Review extends Model<
           type: DataTypes.STRING(2000),
           allowNull: false,
         },
-        poster: DataTypes.STRING(30),
+        image: DataTypes.STRING(120),
         rating: {
           type: DataTypes.INTEGER,
           allowNull: false,
