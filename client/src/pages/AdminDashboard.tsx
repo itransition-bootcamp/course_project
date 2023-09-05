@@ -12,7 +12,7 @@ import { useAuth } from "../components/AuthProvider";
 import { Box, Button } from "@mui/material";
 import { DataGrid, GridColDef, useGridApiRef } from "@mui/x-data-grid";
 import LoadingSpinner from "../components/LoadingSpinner";
-import { Delete } from "@mui/icons-material";
+import { Block, Delete, Healing } from "@mui/icons-material";
 import { useState } from "react";
 
 type TableUser = {
@@ -88,10 +88,18 @@ const AdminDashboard = () => {
     return (
       <Container sx={{ pt: 2 }}>
         <Box style={{ marginBottom: 16 }}>
-          <Button onClick={handleBlock} disabled={selected.length == 0}>
+          <Button
+            onClick={handleBlock}
+            disabled={selected.length == 0}
+            startIcon={<Block />}
+          >
             Block
           </Button>
-          <Button onClick={handleUnblock} disabled={selected.length == 0}>
+          <Button
+            onClick={handleUnblock}
+            disabled={selected.length == 0}
+            startIcon={<Healing />}
+          >
             Unblock
           </Button>
           <Button
