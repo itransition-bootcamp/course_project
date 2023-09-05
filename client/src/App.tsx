@@ -1,26 +1,32 @@
+import { CssBaseline, Paper, useMediaQuery } from "@mui/material";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
 import {
   Route,
   RouterProvider,
   createBrowserRouter,
   createRoutesFromElements,
+  redirect,
 } from "react-router-dom";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { CssBaseline, Paper, useMediaQuery } from "@mui/material";
 
-import Home, { homePageLoader } from "./pages/Home";
-import Profile, { profilePageAction, profilePageLoader } from "./pages/Profile";
-import LogIn from "./pages/Login";
-import Register from "./pages/Register";
+import { useMemo } from "react";
 import AuthProvider from "./components/AuthProvider";
 import Header from "./components/Header";
-import { useMemo } from "react";
+import Home, { homePageLoader } from "./pages/Home";
+import LogIn from "./pages/Login";
+import Profile, { profilePageAction, profilePageLoader } from "./pages/Profile";
+import Register from "./pages/Register";
 
 import { Outlet } from "react-router-dom";
-import Review, { reviewPageAction, reviewPageLoader } from "./pages/Review";
 import AdminDashboard, {
   adminPageAction,
   adminPageLoader,
 } from "./pages/AdminDashboard";
+import EditReview, { editReviewAction } from "./pages/EditReview";
+import Review from "./pages/Review";
+import ReviewRoot, {
+  reviewRootAction,
+  reviewRootLoader,
+} from "./pages/ReviewRoot";
 
 function WithHeader() {
   return (
@@ -71,14 +77,32 @@ function App() {
           />
           <Route
             path="/reviews/:id"
-            element={<Review />}
-            action={reviewPageAction}
-            loader={reviewPageLoader}
-            shouldRevalidate={({ formData }) => {
+            action={reviewRootAction}
+            loader={reviewRootLoader}
+            element={<ReviewRoot />}
+            shouldRevalidate={({ formData, defaultShouldRevalidate }) => {
               if (formData?.get("intent") === "add comment") return false;
-              else return true;
+              else return defaultShouldRevalidate;
             }}
-          />
+          >
+            <Route path="" element={<Review />} />
+            <Route
+              path="edit"
+              action={editReviewAction}
+              element={<EditReview />}
+            ></Route>
+            <Route
+              path="delete"
+              action={async ({ params, request }) => {
+                if (request.method == "DELETE") {
+                  await fetch(`/api/reviews/${params.id}`, {
+                    method: "DELETE",
+                  });
+                  return redirect("/");
+                }
+              }}
+            ></Route>
+          </Route>
         </Route>
         <Route element={<Outlet />}>
           <Route path="/login" element={<LogIn />} />

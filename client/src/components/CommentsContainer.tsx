@@ -11,11 +11,12 @@ import {
 } from "@mui/material";
 import { FC, useEffect, useState } from "react";
 import { Review } from "../types";
-import { Form, Link as RouterLink, useLoaderData } from "react-router-dom";
+import { Form, Link as RouterLink, useOutletContext } from "react-router-dom";
 import { useAuth } from "./AuthProvider";
 
 const CommentsContainer: FC = () => {
-  const { id, Comments } = useLoaderData() as Omit<Review, "Likes" | "Tags">;
+  const { id, Comments } = useOutletContext() as Omit<Review, "Likes" | "Tags">;
+
   const [comments, setComments] = useState<Review["Comments"]>(() => Comments);
   const [commentInput, setCommentInput] = useState("");
 

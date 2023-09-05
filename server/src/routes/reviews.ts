@@ -86,7 +86,11 @@ router.all("/:id", async (req, res, next) => {
   if (user?.role != "admin" && !user?.hasReview(review))
     return res.sendStatus(StatusCodes.UNAUTHORIZED);
   if (req.method == "PUT")
-    await review.update({ title: req.body.title, text: req.body.text });
+    await review.update({
+      title: req.body.title,
+      text: req.body.text,
+      rating: req.body.rating,
+    });
   else if (req.method == "DELETE") await review.destroy();
   res.send("OK");
 });
