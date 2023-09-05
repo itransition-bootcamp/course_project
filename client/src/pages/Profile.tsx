@@ -1,5 +1,6 @@
 import {
   Avatar,
+  Badge,
   Box,
   Button,
   Card,
@@ -27,6 +28,7 @@ import {
 } from "react";
 import ImageUpload from "../components/ImageUpload";
 import LoadingSpinner from "../components/LoadingSpinner";
+import { Edit } from "@mui/icons-material";
 
 type Profile = {
   id: number;
@@ -115,16 +117,23 @@ const Profile = () => {
                 disabled={!canEdit}
                 onClick={() => setOpenUploadWindow(true)}
               >
-                <Avatar
-                  src={avatarInputValue}
-                  alt={username}
-                  sx={{
-                    width: { xs: 125, sm: 250 },
-                    height: { xs: 125, sm: 250 },
-                  }}
+                <Badge
+                  overlap="circular"
+                  invisible={!canEdit}
+                  anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                  badgeContent={<Edit fontSize="large" />}
                 >
-                  <Typography variant="h3">{username.charAt(0)}</Typography>
-                </Avatar>
+                  <Avatar
+                    src={avatarInputValue}
+                    alt={username}
+                    sx={{
+                      width: { xs: 125, sm: 250 },
+                      height: { xs: 125, sm: 250 },
+                    }}
+                  >
+                    <Typography variant="h3">{username.charAt(0)}</Typography>
+                  </Avatar>
+                </Badge>
               </Button>
               <TextField
                 label="Username"

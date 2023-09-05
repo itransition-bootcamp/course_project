@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   Card,
   Grid,
@@ -19,13 +20,13 @@ import {
 import { Review } from "../types";
 import { useAuth } from "../components/AuthProvider";
 import LoadingSpinner from "../components/LoadingSpinner";
+import TagsAutocomplete from "../components/TagsAutocomplete";
 
 const EditReview: FC = () => {
   const { state } = useNavigation();
   const { user, loading: loadingAuth } = useAuth();
   const fetcher = useFetcher();
   const review = useOutletContext() as Review;
-  console.log(review);
 
   const [title, setTitle] = useState(() => review.title);
   const [body, setbody] = useState(() => review.text);
@@ -35,16 +36,13 @@ const EditReview: FC = () => {
   if (state == "loading" || loadingAuth) return <LoadingSpinner />;
   if (!isAuthor) return <Navigate to={"/"} />;
   return (
-    <Grid container columns={2} p={2}>
+    <Grid container columns={2} p={2} rowGap={2}>
       <Grid item pr={{ md: 2 }} xs={2} md={1}>
-        <fetcher.Form method="put" autoComplete="off">
-          <Rating
-            name="reviewRating"
-            value={rating / 2}
-            precision={0.5}
-            onChange={(_, value) => value && setRating(value * 2)}
-            sx={{ mb: 1 }}
-          />
+        <fetcher.Form
+          method="put"
+          autoComplete="off"
+          style={{ display: "flex", flexDirection: "column", rowGap: 10 }}
+        >
           <TextField
             name="reviewTitle"
             placeholder="Title"
@@ -65,6 +63,17 @@ const EditReview: FC = () => {
             onChange={(e) => setbody(e.target.value)}
             sx={{ mb: 1 }}
           />
+          <Box display={"flex"} mb={1}>
+            <Typography display={"inline"}>Rating: </Typography>
+            <Rating
+              name="reviewRating"
+              value={rating / 2}
+              precision={0.5}
+              onChange={(_, value) => value && setRating(value * 2)}
+            />
+          </Box>
+
+          <TagsAutocomplete tags={review.Tags?.map((tag) => tag.name)} />
           <Button fullWidth type="submit" variant="contained">
             Finish Editing
           </Button>
@@ -93,6 +102,7 @@ export const editReviewAction: ActionFunction = async ({ params, request }) => {
         title: formData.get("reviewTitle"),
         text: formData.get("reviewText"),
         rating: parseFloat(formData.get("reviewRating") as string) * 2,
+        tags: JSON.parse(formData.get("reviewTags") as string),
       }),
     });
   }

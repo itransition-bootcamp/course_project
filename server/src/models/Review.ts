@@ -50,13 +50,11 @@ class Review extends Model<
   declare hasComment: HasManyHasAssociationMixin<Comment, number>;
   declare hasComments: HasManyHasAssociationsMixin<Comment, number>;
   declare countComments: HasManyCountAssociationsMixin;
-  declare createComment: HasManyCreateAssociationMixin<
-    Comment,
-    "ReviewId",
-    "UserId"
-  >;
+  declare createComment: HasManyCreateAssociationMixin<Comment, "UserId">;
 
   declare setTags: HasManySetAssociationsMixin<Tag, number>;
+  declare addTags: HasManyAddAssociationsMixin<Tag, number>;
+  declare createTag: HasManyCreateAssociationMixin<Tag, "name">;
 
   static initialize = (sequelize: Sequelize) =>
     Review.init(

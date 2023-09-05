@@ -85,13 +85,23 @@ router.all("/:id", async (req, res, next) => {
   if (!review) return res.sendStatus(StatusCodes.NOT_FOUND);
   if (user?.role != "admin" && !user?.hasReview(review))
     return res.sendStatus(StatusCodes.UNAUTHORIZED);
-  if (req.method == "PUT")
-    await review.update({
+  if (req.method == "PUT") {
+    review.set({
       title: req.body.title,
       text: req.body.text,
       rating: req.body.rating,
     });
-  else if (req.method == "DELETE") await review.destroy();
+
+    const newTags = await Promise.all(
+      req.body.tags.map(async (tag: string) => {
+        const [newTag] = await Tag.findOrCreate({ where: { name: tag } });
+        return newTag;
+      })
+    );
+
+    await review.setTags(newTags);
+    await review.save();
+  } else if (req.method == "DELETE") await review.destroy();
   res.send("OK");
 });
 
