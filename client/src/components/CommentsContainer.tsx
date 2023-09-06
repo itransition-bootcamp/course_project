@@ -42,7 +42,7 @@ const CommentsContainer: FC = () => {
   }, [comments]);
 
   return (
-    <Paper elevation={2} sx={{ mt: 6, p: { xs: 2, sm: 3 } }}>
+    <Paper elevation={2} sx={{ mt: 2, p: { xs: 2, sm: 3 } }}>
       {comments?.map((comment, index) => (
         <Box key={index}>
           <Grid container wrap="nowrap" spacing={2}>

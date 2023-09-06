@@ -52,7 +52,7 @@ const EditReview: FC = () => {
           onChange={(e) => setTitle(e.target.value)}
           sx={{ mb: 1 }}
         />
-        {!isPreview ? (
+        {isPreview ? (
           <Box
             sx={{
               p: 2,
@@ -80,7 +80,7 @@ const EditReview: FC = () => {
           variant="outlined"
           onClick={() => setIsPreview((prev) => !prev)}
         >
-          preview
+          Markdown Preview
         </Button>
         <Box display={"flex"} mb={1}>
           <Typography display={"inline"}>Rating: </Typography>

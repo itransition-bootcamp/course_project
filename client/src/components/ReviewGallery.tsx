@@ -1,7 +1,13 @@
-import { Button, ImageList, ImageListItem } from "@mui/material";
+import {
+  Badge,
+  Button,
+  IconButton,
+  ImageList,
+  ImageListItem,
+} from "@mui/material";
 import { FC, useState } from "react";
 import { Review } from "../types";
-import { AddAPhoto } from "@mui/icons-material";
+import { AddAPhoto, Close } from "@mui/icons-material";
 import ImageUpload from "./ImageUpload";
 
 type GalleryProps = {
@@ -11,19 +17,31 @@ type GalleryProps = {
 
 const ReviewGallery: FC<GalleryProps> = ({ images, canEdit }) => {
   const [openUploadWindow, setOpenUploadWindow] = useState(false);
-  const [, setInput] = useState("");
+  const [input, setInput] = useState(() => images);
+
+  const badgeContent = (
+    <IconButton size="medium">
+      <Close fontSize="inherit" />
+    </IconButton>
+  );
   return (
     <ImageList sx={{ width: "fit-content" }} cols={4}>
-      {images?.map((image) => (
+      {input?.map((image) => (
         <ImageListItem key={image.id}>
-          <img
-            src={image.src}
-            loading="lazy"
-            style={{
-              maxHeight: "100px",
-              maxWidth: "fit-content",
-            }}
-          />
+          <Badge
+            badgeContent={badgeContent}
+            overlap="circular"
+            // sx={{ "& .MuiBadge-badge": { p: 0 } }}
+          >
+            <img
+              src={image.src}
+              loading="lazy"
+              style={{
+                maxHeight: "100px",
+                maxWidth: "fit-content",
+              }}
+            />
+          </Badge>
         </ImageListItem>
       ))}
       {canEdit && (
