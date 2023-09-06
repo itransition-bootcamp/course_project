@@ -11,6 +11,7 @@ import { useAuth } from "../components/AuthProvider";
 import CommentsContainer from "../components/CommentsContainer";
 import { Review } from "../types";
 import LoadingSpinner from "../components/LoadingSpinner";
+import ReviewGallery from "../components/ReviewGallery";
 
 const ReviewPage = () => {
   const review = useOutletContext() as Review;
@@ -38,7 +39,10 @@ const ReviewPage = () => {
         <Box>
           <MuiMarkdown>{review.text}</MuiMarkdown>
         </Box>
-        <img src={review.image} style={{ maxWidth: "100px" }}></img>
+
+        {review.Review_Images && review.Review_Images?.length > 0 && (
+          <ReviewGallery images={review.Review_Images} canEdit={false} />
+        )}
 
         {isAuthor && (
           <Box display={"flex"} gap={2} my={2}>
@@ -62,7 +66,9 @@ const ReviewPage = () => {
           </Box>
         )}
 
-        <CommentsContainer />
+        {review.Comments && review.Comments?.length > 0 && (
+          <CommentsContainer />
+        )}
       </Container>
     );
 };

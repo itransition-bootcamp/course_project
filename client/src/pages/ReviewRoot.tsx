@@ -8,11 +8,11 @@ import {
 
 const ReviewRoot = () => {
   const review = useLoaderData();
+
   return <Outlet context={review} />;
 };
 
 export const reviewRootAction: ActionFunction = async ({ params, request }) => {
-  console.log("root action");
   if (request.method == "POST") {
     const formData = await request.formData();
     const intent = formData.get("intent");
@@ -33,8 +33,7 @@ export const reviewRootAction: ActionFunction = async ({ params, request }) => {
 };
 
 export const reviewRootLoader: LoaderFunction = async ({ params, request }) => {
-  console.log("root loader");
-  const resp = await fetch(`/api/reviews/${params.id}?user&comments`, {
+  const resp = await fetch(`/api/reviews/${params.id}?user&comments&gallery`, {
     signal: request.signal,
   });
   if (!resp.ok) return redirect("/");

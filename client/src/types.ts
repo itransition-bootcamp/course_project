@@ -11,6 +11,12 @@ export type Review = {
   Likes?: Like[];
   Tags?: Tag[];
   Comments?: Opinion[];
+  Review_Images?: Image[];
+};
+
+type Image = {
+  id: number;
+  src: string;
 };
 
 type Like = {

@@ -28,7 +28,6 @@ users.delete("/", (req, res) => {
 });
 
 users.put("/", (req, res) => {
-  console.log(req.body);
   if (!req.body.action || !req.body.id) res.sendStatus(405);
   switch (req.body.action) {
     case "block":

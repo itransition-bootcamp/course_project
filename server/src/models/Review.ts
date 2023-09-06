@@ -22,13 +22,13 @@ import User from "./User";
 import Comment from "./Comment";
 import Tag from "./Tag";
 import Like from "./Like";
+import Review_Image from "./Review_Image";
 
 class Review extends Model<
   InferAttributes<Review>,
   InferCreationAttributes<Review>
 > {
   declare id: CreationOptional<number>;
-  declare image: string | null;
   declare rating: number;
   declare title: string;
   declare text: string;
@@ -39,6 +39,7 @@ class Review extends Model<
   declare UserId: ForeignKey<User["id"]>;
   declare User?: NonAttribute<User>;
   declare Likes?: NonAttribute<Like[]>;
+  declare Review_Images?: NonAttribute<Review_Image[]>;
   declare likesCount?: NonAttribute<number>;
 
   declare getComments: HasManyGetAssociationsMixin<Comment>;
@@ -72,7 +73,6 @@ class Review extends Model<
           type: DataTypes.STRING(2000),
           allowNull: false,
         },
-        image: DataTypes.STRING(120),
         rating: {
           type: DataTypes.INTEGER,
           allowNull: false,

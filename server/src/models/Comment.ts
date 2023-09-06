@@ -24,7 +24,7 @@ class Comment extends Model<
   declare ReviewId: ForeignKey<Review["id"]>;
 
   declare User?: NonAttribute<User>;
-  declare Review?: NonAttribute<User>;
+  declare Review?: NonAttribute<Review>;
 
   static initialize = (sequelize: Sequelize) =>
     Comment.init(

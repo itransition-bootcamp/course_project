@@ -12,6 +12,7 @@ import {
 import { useDropzone } from "react-dropzone";
 import { Dispatch, FC, SetStateAction, useCallback, useState } from "react";
 import { CloudUploadOutlined } from "@mui/icons-material";
+import { isMobile } from "react-device-detect";
 
 const rootStyle: SxProps = {
   position: "absolute",
@@ -94,7 +95,9 @@ const ImageUpload: FC<{
           <input {...getInputProps()} />
 
           <Typography variant="h6" mb={4}>
-            Drag and drop image file here, or click to select from device
+            {isMobile
+              ? "Tap to select image from gallery"
+              : "Drag and drop image file here, or click to select from device"}
           </Typography>
           {loading && <CircularProgress />}
           {!loading && (

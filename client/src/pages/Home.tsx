@@ -51,7 +51,7 @@ export const homePageLoader: LoaderFunction = async ({ request }) => {
   const lastReviews = await fetch("/api/reviews?limit=10", {
     signal: request.signal,
   }).then((res) => res.json());
-  const tags = await fetch("/api/tags", {
+  const tags = await fetch("/api/tags?count", {
     signal: request.signal,
   }).then((res) => res.json());
   return [topReviews, lastReviews, tags];

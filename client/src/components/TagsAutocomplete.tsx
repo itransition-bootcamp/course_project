@@ -5,13 +5,15 @@ const TagsAutocomplete: FC<{ tags?: string[] }> = ({ tags }) => {
   const [options, setOptions] = useState([]);
   const [inputTags, setInputTags] = useState(() => tags);
   useEffect(() => {
-    fetch("/api/tags")
+    const abortController = new AbortController();
+    fetch("/api/tags", { signal: abortController.signal })
       .then((resp) => resp.json())
       .then((tags) =>
-        setOptions(
-          tags.map((tag: { value: string; count: number }) => tag.value)
-        )
+        setOptions(tags.map((tag: { name: string }) => tag.name))
       );
+    return () => {
+      abortController.abort();
+    };
   }, []);
   return (
     <Box>

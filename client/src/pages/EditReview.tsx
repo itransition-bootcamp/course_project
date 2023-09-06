@@ -1,8 +1,7 @@
 import {
   Box,
   Button,
-  Card,
-  Grid,
+  Container,
   Rating,
   TextField,
   Typography,
@@ -21,6 +20,7 @@ import { Review } from "../types";
 import { useAuth } from "../components/AuthProvider";
 import LoadingSpinner from "../components/LoadingSpinner";
 import TagsAutocomplete from "../components/TagsAutocomplete";
+import ReviewGallery from "../components/ReviewGallery";
 
 const EditReview: FC = () => {
   const { state } = useNavigation();
@@ -31,27 +31,39 @@ const EditReview: FC = () => {
   const [title, setTitle] = useState(() => review.title);
   const [body, setbody] = useState(() => review.text);
   const [rating, setRating] = useState(() => review.rating);
+  const [isPreview, setIsPreview] = useState(false);
 
   const isAuthor = user?.id == review.UserId || user?.role == "admin";
   if (state == "loading" || loadingAuth) return <LoadingSpinner />;
   if (!isAuthor) return <Navigate to={"/"} />;
   return (
-    <Grid container columns={2} p={2} rowGap={2}>
-      <Grid item pr={{ md: 2 }} xs={2} md={1}>
-        <fetcher.Form
-          method="put"
-          autoComplete="off"
-          style={{ display: "flex", flexDirection: "column", rowGap: 10 }}
-        >
-          <TextField
-            name="reviewTitle"
-            placeholder="Title"
-            fullWidth
-            label="Title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            sx={{ mb: 1 }}
-          />
+    <Container sx={{ mt: 2 }}>
+      <fetcher.Form
+        method="put"
+        autoComplete="off"
+        style={{ display: "flex", flexDirection: "column", rowGap: 10 }}
+      >
+        <TextField
+          name="reviewTitle"
+          placeholder="Title"
+          fullWidth
+          label="Title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          sx={{ mb: 1 }}
+        />
+        {!isPreview ? (
+          <Box
+            sx={{
+              p: 2,
+              border: 1,
+              borderRadius: 1,
+              borderColor: "action.disabled",
+            }}
+          >
+            <MuiMarkdown>{body}</MuiMarkdown>
+          </Box>
+        ) : (
           <TextField
             multiline
             name="reviewText"
@@ -63,27 +75,30 @@ const EditReview: FC = () => {
             onChange={(e) => setbody(e.target.value)}
             sx={{ mb: 1 }}
           />
-          <Box display={"flex"} mb={1}>
-            <Typography display={"inline"}>Rating: </Typography>
-            <Rating
-              name="reviewRating"
-              value={rating / 2}
-              precision={0.5}
-              onChange={(_, value) => value && setRating(value * 2)}
-            />
-          </Box>
+        )}
+        <Button
+          variant="outlined"
+          onClick={() => setIsPreview((prev) => !prev)}
+        >
+          preview
+        </Button>
+        <Box display={"flex"} mb={1}>
+          <Typography display={"inline"}>Rating: </Typography>
+          <Rating
+            name="reviewRating"
+            value={rating / 2}
+            precision={0.5}
+            onChange={(_, value) => value && setRating(value * 2)}
+          />
+        </Box>
 
-          <TagsAutocomplete tags={review.Tags?.map((tag) => tag.name)} />
-          <Button fullWidth type="submit" variant="contained">
-            Finish Editing
-          </Button>
-        </fetcher.Form>
-      </Grid>
-      <Grid item xs={2} md={1} p={1} component={Card}>
-        <Typography variant="h3">{title ? title : "Title..."}</Typography>
-        <MuiMarkdown>{body}</MuiMarkdown>
-      </Grid>
-    </Grid>
+        <TagsAutocomplete tags={review.Tags?.map((tag) => tag.name)} />
+        <ReviewGallery images={review.Review_Images} canEdit={true} />
+        <Button fullWidth type="submit" variant="contained">
+          Finish Editing
+        </Button>
+      </fetcher.Form>
+    </Container>
   );
 };
 

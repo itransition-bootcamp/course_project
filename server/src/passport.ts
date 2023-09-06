@@ -69,6 +69,10 @@ passport.use(
       if (!user) return done(null, false, { message: "User doesnt exist" });
       if (user.status == "banned")
         return done(null, false, { message: "User is banned" });
+      if (!user.hashedPassword || !user.salt)
+        return done(null, false, {
+          message: "User stored in database is missing password",
+        });
 
       crypto.pbkdf2(
         password,

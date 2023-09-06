@@ -1,6 +1,13 @@
 import express, { Response } from "express";
 import sequelize from "../sequelize";
-import { Review, User, Comment, Like, Tag } from "../models/allModels";
+import {
+  Review,
+  User,
+  Comment,
+  Like,
+  Tag,
+  Review_Image,
+} from "../models/allModels";
 import { FindOptions, Includeable, InferAttributes } from "sequelize";
 import { StatusCodes } from "http-status-codes";
 
@@ -67,11 +74,19 @@ router.get("/:id", async (req, res) => {
       include: [{ model: User, attributes: ["username", "avatar"] }],
     });
     dbQuery.order = [sequelize.col("Comments.createdAt")];
-  } else if (Object.prototype.hasOwnProperty.call(req.query, "user"))
+  }
+  if (Object.prototype.hasOwnProperty.call(req.query, "user")) {
     dbQuery.include.push({
       model: User,
       attributes: ["username", "avatar"],
     });
+  }
+  if (Object.prototype.hasOwnProperty.call(req.query, "gallery")) {
+    dbQuery.include.push({
+      model: Review_Image,
+      attributes: ["id", "src"],
+    });
+  }
   const result = await Review.findByPk(req.params.id, dbQuery);
   if (!result) res.sendStatus(StatusCodes.NOT_FOUND);
   else res.send(result);

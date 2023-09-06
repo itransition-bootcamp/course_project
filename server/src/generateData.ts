@@ -1,5 +1,6 @@
 import { faker, fakerEN } from "@faker-js/faker";
-import { User, Review, Comment, Tag } from "./models/allModels";
+import { User, Review, Comment, Tag, Review_Image } from "./models/allModels";
+import crypto from "crypto";
 import sequelize from "./sequelize";
 
 function createRandomUser() {
@@ -7,6 +8,7 @@ function createRandomUser() {
     username: faker.internet.userName(),
     email: faker.internet.email(),
     avatar: faker.image.avatar(),
+    createdAt: faker.date.past(),
   };
 }
 
@@ -15,7 +17,6 @@ function createRandomReview() {
     rating: faker.number.int({ min: 1, max: 10 }),
     title: fakerEN.lorem.sentence({ min: 2, max: 5 }),
     text: fakerEN.lorem.paragraphs({ min: 3, max: 8 }, "\n\r"),
-    image: fakerEN.image.urlLoremFlickr({ category: "movie" }),
     createdAt: faker.date.past(),
   };
 }
@@ -27,10 +28,37 @@ function createRandomComment() {
   };
 }
 
+function createRandomReviewImage() {
+  return {
+    src: fakerEN.image.urlLoremFlickr({ category: "movie" }),
+  };
+}
+
 function createRandomTag() {
   return {
     name: fakerEN.word.noun(),
   };
+}
+
+async function generateUser(
+  username: string,
+  password: string,
+  role: "admin" | "user"
+) {
+  const salt = crypto.randomBytes(16).toString("base64");
+  const hashedPassword = crypto
+    .pbkdf2Sync(password, salt, 1000, 32, "sha256")
+    .toString("base64");
+
+  await User.create({
+    username: username,
+    email: faker.internet.email(),
+    avatar: faker.image.avatar(),
+    role: role,
+    salt: salt,
+    hashedPassword: hashedPassword,
+    createdAt: faker.date.past(),
+  });
 }
 
 const generateData = async () => {
@@ -71,6 +99,16 @@ const generateData = async () => {
         ReviewId: review.id,
       });
     }
+    const reviewImages = faker.helpers.multiple(createRandomReviewImage, {
+      count: faker.number.int({ min: 1, max: 4 }),
+    });
+    for (let k = 0; k < reviewImages.length; k++) {
+      const reviewImage = reviewImages[k];
+      await Review_Image.create({
+        ...reviewImage,
+        ReviewId: review.id,
+      });
+    }
   }
 
   await Tag.bulkCreate(faker.helpers.multiple(createRandomTag, { count: 10 }));
@@ -81,6 +119,8 @@ const generateData = async () => {
       faker.helpers.arrayElements(allTags, { min: 0, max: 5 })
     );
   }
+
+  await generateUser("Adam", "123", "admin");
 
   sequelize.close();
 };
