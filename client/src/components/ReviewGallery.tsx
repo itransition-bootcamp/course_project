@@ -74,6 +74,7 @@ const ReviewGallery: FC<GalleryProps> = ({ images, canEdit }) => {
             open={openUploadWindow}
             setOpen={setOpenUploadWindow}
             profileId={3}
+            //@ts-ignore
             setInput={setInput}
           />
         </ImageListItem>

@@ -49,6 +49,7 @@ const ReviewWrapper: FC<{
           to={"/reviews/" + review.id}
           flexGrow={1}
           display={"flex"}
+          gap={2}
           alignSelf={"center"}
         >
           <Typography color={"primary.main"} variant="h6">
