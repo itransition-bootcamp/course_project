@@ -1,29 +1,55 @@
 import express from "express";
-import { Like, Review } from "../models/allModels";
+import { Comment, Like, Review } from "../models/allModels";
 import sequelize from "../sequelize";
 import { Op } from "sequelize";
 
 const router = express.Router();
 router.post("/", async (req, res) => {
   const searchResults = await Review.findAll({
-    attributes: { exclude: ["updatedAt"] },
-    include: Like,
+    attributes: { exclude: ["rating", "createdAt", "updatedAt"] },
+    include: [Like, Comment],
     where: {
-      vector: {
-        [Op.match]: sequelize.fn("plainto_tsquery", "english", req.body.search),
-      },
+      [Op.or]: [
+        {
+          vector: {
+            [Op.match]: sequelize.fn(
+              "plainto_tsquery",
+              "english",
+              req.body.search
+            ),
+          },
+        },
+        {
+          "$Comments.vector$": {
+            [Op.match]: sequelize.fn(
+              "plainto_tsquery",
+              "english",
+              req.body.search
+            ),
+          },
+        },
+      ],
     },
     order: [
       [
         sequelize.fn(
           "ts_rank",
-          sequelize.col("vector"),
+          sequelize.col("Review.vector"),
+          sequelize.fn("plainto_tsquery", "english", req.body.search)
+        ),
+        "DESC",
+      ],
+      [
+        sequelize.fn(
+          "ts_rank",
+          sequelize.col("Comments.vector"),
           sequelize.fn("plainto_tsquery", "english", req.body.search)
         ),
         "DESC",
       ],
     ],
     limit: req.body.limit,
+    subQuery: false,
   });
   type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
   const formated = searchResults.map((review) => review.toJSON()) as Optional<

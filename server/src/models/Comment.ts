@@ -19,6 +19,7 @@ class Comment extends Model<
   declare text: string;
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
+  declare vector: CreationOptional<string>;
 
   declare UserId: ForeignKey<User["id"]>;
   declare ReviewId: ForeignKey<Review["id"]>;
@@ -40,13 +41,17 @@ class Comment extends Model<
         },
         createdAt: DataTypes.DATE,
         updatedAt: DataTypes.DATE,
+        vector: {
+          type: DataTypes.TSVECTOR,
+        },
       },
       {
         sequelize,
         indexes: [
           {
-            name: "comtext_fts",
-            fields: ["text"],
+            name: "commenttext_fts",
+            fields: ["vector"],
+            using: "GIN",
           },
         ],
       }

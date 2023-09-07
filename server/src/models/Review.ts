@@ -23,6 +23,7 @@ import Comment from "./Comment";
 import Tag from "./Tag";
 import Like from "./Like";
 import Review_Image from "./Review_Image";
+import Product from "./Product";
 
 class Review extends Model<
   InferAttributes<Review>,
@@ -36,7 +37,9 @@ class Review extends Model<
   declare updatedAt: CreationOptional<Date>;
   declare vector: CreationOptional<string>;
 
+  declare ProductId: ForeignKey<Product["id"]>;
   declare UserId: ForeignKey<User["id"]>;
+  declare Product?: NonAttribute<Product>;
   declare User?: NonAttribute<User>;
   declare Likes?: NonAttribute<Like[]>;
   declare Review_Images?: NonAttribute<Review_Image[]>;

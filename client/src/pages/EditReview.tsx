@@ -47,6 +47,7 @@ const EditReview: FC = () => {
           name="reviewTitle"
           placeholder="Title"
           fullWidth
+          required
           label="Title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
@@ -70,6 +71,7 @@ const EditReview: FC = () => {
             placeholder="Write your review here"
             fullWidth
             label="Text"
+            required
             minRows={10}
             value={body}
             onChange={(e) => setbody(e.target.value)}

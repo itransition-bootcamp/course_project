@@ -1,7 +1,28 @@
 import { faker, fakerEN } from "@faker-js/faker";
-import { User, Review, Comment, Tag, Review_Image } from "./models/allModels";
+import {
+  User,
+  Review,
+  Comment,
+  Tag,
+  Review_Image,
+  Product,
+} from "./models/allModels";
 import crypto from "crypto";
 import sequelize from "./sequelize";
+
+enum Categories {
+  Movie = "Movie",
+  Book = "Book",
+  Videogame = "Videogame",
+}
+
+function createRandomProduct() {
+  return {
+    category: fakerEN.helpers.enumValue(Categories),
+    name: fakerEN.music.songName(),
+    poster: fakerEN.image.urlLoremFlickr({ category: "media" }),
+  };
+}
 
 function createRandomUser() {
   return {
@@ -12,12 +33,13 @@ function createRandomUser() {
   };
 }
 
-function createRandomReview() {
+function createRandomReview(allProducts: Product[]) {
   return {
     rating: faker.number.int({ min: 1, max: 10 }),
     title: fakerEN.lorem.sentence({ min: 2, max: 5 }),
     text: fakerEN.lorem.paragraphs({ min: 3, max: 8 }, "\n\r"),
     createdAt: faker.date.past(),
+    ProductId: fakerEN.helpers.arrayElement(allProducts).id,
   };
 }
 
@@ -67,6 +89,19 @@ const generateData = async () => {
   CREATE TRIGGER tsvectorupdate BEFORE INSERT OR UPDATE
   ON public."Reviews" FOR EACH ROW EXECUTE PROCEDURE
   tsvector_update_trigger(vector, 'pg_catalog.english', title, text)`);
+  await sequelize.query(`
+  CREATE TRIGGER tsvectorupdate BEFORE INSERT OR UPDATE
+  ON public."Comments" FOR EACH ROW EXECUTE PROCEDURE
+  tsvector_update_trigger(vector, 'pg_catalog.english', text)`);
+
+  await Product.bulkCreate(
+    faker.helpers.multiple(createRandomProduct, {
+      count: 10,
+    })
+  );
+
+  const allProducts = await Product.findAll();
+
   await User.bulkCreate(
     faker.helpers.multiple(createRandomUser, {
       count: faker.number.int({ min: 5, max: 10 }),
@@ -76,9 +111,12 @@ const generateData = async () => {
   const allUsers = await User.findAll();
   for (let i = 0; i < allUsers.length; i++) {
     const user = allUsers[i];
-    const reviews = faker.helpers.multiple(createRandomReview, {
-      count: faker.number.int({ min: 2, max: 5 }),
-    });
+    const reviews = faker.helpers.multiple(
+      () => createRandomReview(allProducts),
+      {
+        count: faker.number.int({ min: 2, max: 5 }),
+      }
+    );
     for (let k = 0; k < reviews.length; k++) {
       const review = reviews[k];
       await user.createReview(review);

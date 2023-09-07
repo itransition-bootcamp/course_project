@@ -85,9 +85,7 @@ const ReviewPage = () => {
           )}
         </Paper>
 
-        {review.Comments && review.Comments?.length > 0 && (
-          <CommentsContainer />
-        )}
+        <CommentsContainer />
       </Container>
     );
 };
