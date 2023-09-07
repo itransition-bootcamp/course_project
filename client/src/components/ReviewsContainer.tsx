@@ -16,7 +16,9 @@ const ReviewsContainer: FC<{
         p: 2,
       }}
     >
-      <Typography variant="h5">{headline}</Typography>
+      <Typography color={"primary.dark"} variant="h5">
+        {headline}
+      </Typography>
       <Divider
         sx={{
           my: 1,

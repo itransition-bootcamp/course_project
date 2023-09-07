@@ -62,7 +62,11 @@ function App() {
     createRoutesFromElements(
       <Route element={<Root />}>
         <Route element={<WithHeader />}>
-          <Route path="/" element={<Home />} loader={homePageLoader} />
+          <Route
+            path="/:category?"
+            element={<Home />}
+            loader={homePageLoader}
+          />
           <Route
             path="/admin"
             element={<AdminDashboard />}

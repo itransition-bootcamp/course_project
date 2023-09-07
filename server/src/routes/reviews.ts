@@ -7,6 +7,7 @@ import {
   Like,
   Tag,
   Review_Image,
+  Product,
 } from "../models/allModels";
 import { FindOptions, Includeable, InferAttributes } from "sequelize";
 import { StatusCodes } from "http-status-codes";
@@ -16,6 +17,9 @@ const router = express.Router();
 router.get("/", async (req, res) => {
   const limit: number = parseInt(req.query.limit as string);
   const top = Object.prototype.hasOwnProperty.call(req.query, "top");
+  const category = req.query.cat;
+
+  if (category && typeof category != "string") return;
 
   const dbQuery: FindOptions<
     InferAttributes<
@@ -42,8 +46,9 @@ router.get("/", async (req, res) => {
         model: Like,
         attributes: [],
       },
+      { model: Product, attributes: ["category", "name"] },
     ],
-    group: ["Review.id"],
+    group: ["Review.id", "Product.id"],
     order: [["createdAt", "DESC"]],
   };
 
@@ -52,6 +57,11 @@ router.get("/", async (req, res) => {
       order: [["likesCount", "DESC"]],
     });
 
+  if (category) {
+    dbQuery.where = {
+      "$Product.category$": category,
+    };
+  }
   if (limit) Object.assign(dbQuery, { limit: limit, subQuery: false });
   res.send(await Review.findAll(dbQuery));
 });

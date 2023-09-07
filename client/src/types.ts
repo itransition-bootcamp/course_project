@@ -12,6 +12,7 @@ export type Review = {
   Tags?: Tag[];
   Comments?: Opinion[];
   Review_Images?: Image[];
+  Product?: { id?: number; category: string; name: string };
 };
 
 type Image = {

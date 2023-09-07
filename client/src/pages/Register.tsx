@@ -2,14 +2,14 @@ import Container from "@mui/material/Container";
 import { Alert, AlertTitle, Link, Snackbar } from "@mui/material";
 import { useState } from "react";
 import { LoginRegisterForm } from "../components/LoginRegisterForm";
-import { useNavigate, Link as RouterLink } from "react-router-dom";
+import { useNavigate, Link as RouterLink, Navigate } from "react-router-dom";
 import { useAuth } from "../components/AuthProvider";
 
 const Register = () => {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
-  const { register } = useAuth();
+  const { authenticated, register } = useAuth();
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === "clickaway") {
@@ -32,7 +32,7 @@ const Register = () => {
       }
     }
   };
-
+  if (authenticated) return <Navigate to="/" />;
   return (
     <Container component="main" maxWidth="xs" sx={{ pt: 10 }}>
       <LoginRegisterForm

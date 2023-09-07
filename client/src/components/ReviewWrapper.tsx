@@ -33,6 +33,11 @@ const ReviewWrapper: FC<{
 
   return (
     <Box>
+      {review.Product && (
+        <Typography color={"text.secondary"} variant="caption">
+          {review.Product.category}: {review.Product.name}
+        </Typography>
+      )}
       <Box
         sx={{
           display: "flex",
@@ -46,10 +51,11 @@ const ReviewWrapper: FC<{
           display={"flex"}
           alignSelf={"center"}
         >
-          <Typography color={"textPrimary"} variant="h6">
+          <Typography color={"primary.main"} variant="h6">
             {review.title}
           </Typography>
-          <Typography color={"GrayText"} variant="overline">
+
+          <Typography color={"text.secondary"} variant="overline">
             {new Date(review.createdAt).toLocaleDateString()}
           </Typography>
         </Link>
@@ -66,7 +72,7 @@ const ReviewWrapper: FC<{
         component={RouterLink}
         to={"/reviews/" + review.id}
       >
-        <Typography color={"textSecondary"} variant="body1">
+        <Typography color={"text.primary"} variant="body1">
           {review.text.slice(0, 300)}...
         </Typography>
         <Divider

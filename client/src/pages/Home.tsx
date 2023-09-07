@@ -44,11 +44,18 @@ const Home: React.FC = () => {
     );
 };
 
-export const homePageLoader: LoaderFunction = async ({ request }) => {
-  const topReviews = await fetch("/api/reviews?top&limit=10", {
+export const homePageLoader: LoaderFunction = async ({ params, request }) => {
+  let category = params.category;
+  if (category == "books") category = "Book";
+  else if (category == "movies") category = "Movie";
+  else if (category == "games") category = "Videogame";
+  else category = undefined;
+
+  const fetchUrl = `/api/reviews?limit=10${category ? "&cat=" + category : ""}`;
+  const topReviews = await fetch(`${fetchUrl}&top`, {
     signal: request.signal,
   }).then((res) => res.json());
-  const lastReviews = await fetch("/api/reviews?limit=10", {
+  const lastReviews = await fetch(fetchUrl, {
     signal: request.signal,
   }).then((res) => res.json());
   const tags = await fetch("/api/tags?count", {
