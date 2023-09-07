@@ -38,14 +38,13 @@ const ReviewPage = () => {
     return (
       <Container sx={{ py: 2 }}>
         <Paper elevation={3} sx={{ p: 2 }}>
-          <Typography variant="h3" gutterBottom>
-            {review.title}
-          </Typography>
+          <Typography variant="h3">{review.title}</Typography>
           <Rating
             name="read-only"
             precision={0.5}
             value={review.rating / 2}
             readOnly
+            sx={{ py: 2 }}
           />
           <Box>
             <MuiMarkdown>{review.text}</MuiMarkdown>
