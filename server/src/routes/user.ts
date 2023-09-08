@@ -1,5 +1,5 @@
 import express, { RequestHandler } from "express";
-import { Review, User, Like } from "../models/allModels";
+import { Review, User, Like, Product } from "../models/allModels";
 import { StatusCodes } from "http-status-codes";
 import { v2 as cloudinary } from "cloudinary";
 import { Readable } from "stream";
@@ -39,7 +39,7 @@ user.get("/:id", validIdParam(), (req, res) => {
     include: {
       model: Review,
       attributes: { exclude: ["vector"] },
-      include: [Like],
+      include: [Like, Product],
     },
   }).then((user) => {
     if (!user) return res.sendStatus(StatusCodes.NOT_FOUND);

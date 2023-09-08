@@ -17,7 +17,6 @@ import {
   useLoaderData,
   useNavigation,
 } from "react-router-dom";
-import ReviewsContainer from "../components/ReviewsContainer";
 import { useAuth } from "../components/AuthProvider";
 import { Review } from "../types";
 import {
@@ -29,6 +28,7 @@ import {
 import ImageUpload from "../components/ImageUpload";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { Edit } from "@mui/icons-material";
+import ReviewsTable from "../components/ReviewsTable";
 
 type Profile = {
   id: number;
@@ -94,8 +94,12 @@ const Profile = () => {
   if (state === "loading") return <LoadingSpinner />;
   else
     return (
-      <Container sx={{ mt: 2 }}>
-        <fetcher.Form method="PUT" onSubmit={mutateAuthUser}>
+      <Container sx={{ py: 2 }} maxWidth={false}>
+        <fetcher.Form
+          method="PUT"
+          onSubmit={mutateAuthUser}
+          style={{ marginBottom: "20px" }}
+        >
           <Card
             elevation={2}
             sx={{
@@ -183,9 +187,7 @@ const Profile = () => {
             </Box>
           </Card>
         </fetcher.Form>
-        {Reviews.length > 0 && (
-          <ReviewsContainer reviewsLoader={Reviews} headline="Reviews:" />
-        )}
+        {Reviews.length > 0 && <ReviewsTable />}
         <ImageUpload
           open={openUploadWindow}
           setOpen={setOpenUploadWindow}

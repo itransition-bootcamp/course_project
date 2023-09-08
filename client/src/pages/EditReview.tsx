@@ -37,7 +37,7 @@ const EditReview: FC = () => {
   if (state == "loading" || loadingAuth) return <LoadingSpinner />;
   if (!isAuthor) return <Navigate to={"/"} />;
   return (
-    <Container sx={{ mt: 2 }}>
+    <Container sx={{ py: 2 }}>
       <fetcher.Form
         method="put"
         autoComplete="off"
