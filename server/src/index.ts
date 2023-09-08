@@ -11,6 +11,7 @@ import reviews from "./routes/reviews";
 import tags from "./routes/tags";
 import user from "./routes/user";
 import users from "./routes/users";
+import products from "./routes/products";
 import "dotenv/config";
 
 const app = express();
@@ -51,6 +52,7 @@ app.use("/api/reviews", reviews);
 app.use("/api/tags", tags);
 app.use("/api/users", user);
 app.use("/api/users", users);
+app.use("/api/products", products);
 
 app.get("*", (req, res) => {
   res.sendFile("index.html", { root: __dirname + "/../dist/public/" });

@@ -2,47 +2,93 @@ import {
   Box,
   Button,
   Container,
+  FormControl,
+  InputLabel,
+  ListSubheader,
+  MenuItem,
   Rating,
+  Select,
+  SelectChangeEvent,
   TextField,
   Typography,
 } from "@mui/material";
 import MuiMarkdown from "mui-markdown";
-import { FC, useState } from "react";
+import { FC, useCallback, useState } from "react";
 import {
   ActionFunction,
+  LoaderFunction,
   Navigate,
   redirect,
   useFetcher,
+  useLoaderData,
   useNavigation,
-  useOutletContext,
 } from "react-router-dom";
-import { Review } from "../types";
 import { useAuth } from "../components/AuthProvider";
 import LoadingSpinner from "../components/LoadingSpinner";
 import TagsAutocomplete from "../components/TagsAutocomplete";
 import ReviewGallery from "../components/ReviewGallery";
+import { Product } from "../types";
 
-const EditReview: FC = () => {
+const CreateReview: FC = () => {
   const { state } = useNavigation();
-  const { user, loading: loadingAuth } = useAuth();
-  const editForm = useFetcher();
-  const review = useOutletContext() as Review;
+  const { authenticated, loading: loadingAuth } = useAuth();
+  const createForm = useFetcher();
+  const products = useLoaderData() as Product[];
 
-  const [title, setTitle] = useState(() => review.title);
-  const [body, setbody] = useState(() => review.text);
-  const [rating, setRating] = useState(() => review.rating);
+  const categories = Array.from(
+    new Set(products.map((product) => product.category))
+  );
+
+  const [title, setTitle] = useState("");
+  const [body, setbody] = useState("");
+  const [rating, setRating] = useState(0);
   const [isPreview, setIsPreview] = useState(false);
 
-  const isAuthor = user?.id == review.UserId || user?.role == "admin";
+  const [productId, setProductId] = useState("");
+  const handleChange = (event: SelectChangeEvent) => {
+    setProductId(event.target.value as string);
+  };
+
+  const renderSelectGroup = useCallback(
+    (cat: string) => {
+      const items = products
+        .filter((p) => p.category == cat)
+        .map((p) => {
+          return (
+            <MenuItem key={p.id} value={p.id}>
+              {p.name}
+            </MenuItem>
+          );
+        });
+      return [<ListSubheader>{cat}</ListSubheader>, items];
+    },
+    [products]
+  );
+
   if (state == "loading" || loadingAuth) return <LoadingSpinner />;
-  if (!isAuthor) return <Navigate to={"/"} />;
+  if (!authenticated) return <Navigate to={"/"} />;
   return (
     <Container sx={{ py: 2 }}>
-      <editForm.Form
-        method="put"
+      <createForm.Form
+        method="POST"
         autoComplete="off"
         style={{ display: "flex", flexDirection: "column", rowGap: 10 }}
       >
+        <FormControl fullWidth>
+          <InputLabel id="productId-label">Review Subject</InputLabel>
+          <Select
+            labelId="productId-label"
+            id="productId"
+            name="productId"
+            value={productId}
+            label="Review Subject"
+            onChange={handleChange}
+            required
+          >
+            {categories.map((cat) => renderSelectGroup(cat))}
+          </Select>
+        </FormControl>
+
         <TextField
           name="reviewTitle"
           placeholder="Title"
@@ -94,24 +140,28 @@ const EditReview: FC = () => {
           />
         </Box>
 
-        <TagsAutocomplete tags={review.Tags?.map((tag) => tag.name)} />
-        <ReviewGallery images={review.Review_Images} canEdit={true} />
+        <TagsAutocomplete />
+        <ReviewGallery images={undefined} canEdit={true} />
         <Button fullWidth type="submit" variant="contained">
           Finish Editing
         </Button>
-      </editForm.Form>
+      </createForm.Form>
     </Container>
   );
 };
 
-export const editReviewAction: ActionFunction = async ({ params, request }) => {
-  if (request.method == "PUT") {
+export const CreateReviewAction: ActionFunction = async ({ request }) => {
+  if (request.method == "POST") {
     const formData = await request.formData();
-    if (!formData.has("reviewTitle")) return null;
-    if (!formData.has("reviewText")) return null;
+    if (!formData.has("reviewTitle") || formData.get("reviewTitle") == "")
+      return null;
+    if (!formData.has("reviewText") || formData.get("reviewText") == "")
+      return null;
     if (!formData.has("reviewRating")) return null;
-    await fetch(`/api/reviews/${params.id}`, {
-      method: "PUT",
+    if (!formData.has("productId") || formData.get("productId") == "")
+      return null;
+    const response = await fetch(`/api/reviews/`, {
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
@@ -119,11 +169,20 @@ export const editReviewAction: ActionFunction = async ({ params, request }) => {
         title: formData.get("reviewTitle"),
         text: formData.get("reviewText"),
         rating: parseFloat(formData.get("reviewRating") as string) * 2,
+        ProductId: formData.get("productId"),
         tags: JSON.parse(formData.get("reviewTags") as string),
       }),
     });
+    if (!response.ok) throw response;
+
+    const reviewId = await response.text();
+    return redirect(`/reviews/${reviewId}`);
   }
-  return redirect("../");
+  return null;
 };
 
-export default EditReview;
+export const CreateReviewLoader: LoaderFunction = async () => {
+  return fetch("/api/products");
+};
+
+export default CreateReview;

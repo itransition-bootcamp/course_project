@@ -3,7 +3,7 @@ import { FC, useEffect, useState } from "react";
 
 const TagsAutocomplete: FC<{ tags?: string[] }> = ({ tags }) => {
   const [options, setOptions] = useState([]);
-  const [inputTags, setInputTags] = useState(() => tags);
+  const [inputTags, setInputTags] = useState(() => tags || []);
   useEffect(() => {
     const abortController = new AbortController();
     fetch("/api/tags", { signal: abortController.signal })

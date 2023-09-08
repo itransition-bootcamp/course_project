@@ -4,9 +4,9 @@ import { User } from "../models/allModels";
 import crypto from "crypto";
 import logger from "../logger";
 import { StatusCodes } from "http-status-codes";
-const router = express.Router();
+const auth = express.Router();
 
-router.post("/login", (req, res, next) => {
+auth.post("/login", (req, res, next) => {
   passport.authenticate(
     "local",
     function (err: Error, user: User, message: { message: string }) {
@@ -27,7 +27,7 @@ router.post("/login", (req, res, next) => {
   )(req, res);
 });
 
-router.post("/register", async (req, res, next) => {
+auth.post("/register", async (req, res, next) => {
   const data = req.body;
   if (data.username == "" || data.password == "")
     return res
@@ -59,7 +59,7 @@ router.post("/register", async (req, res, next) => {
   }
 });
 
-router.get(
+auth.get(
   "/github",
   passport.authenticate("github", { scope: ["user:email"] }),
   function () {
@@ -68,7 +68,7 @@ router.get(
   }
 );
 
-router.get(
+auth.get(
   "/github/callback",
   passport.authenticate("github", {
     failureRedirect: "/auth/github",
@@ -78,7 +78,7 @@ router.get(
   }
 );
 
-router.all("/logout", (req, res, next) => {
+auth.all("/logout", (req, res, next) => {
   if (req.isAuthenticated()) {
     req.logout((err) => {
       if (err) {
@@ -91,4 +91,4 @@ router.all("/logout", (req, res, next) => {
     res.status(StatusCodes.FORBIDDEN).send("You are already not logged in");
 });
 
-export default router;
+export default auth;

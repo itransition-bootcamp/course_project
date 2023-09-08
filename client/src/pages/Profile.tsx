@@ -15,6 +15,7 @@ import {
   redirect,
   useFetcher,
   useLoaderData,
+  useNavigate,
   useNavigation,
 } from "react-router-dom";
 import { useAuth } from "../components/AuthProvider";
@@ -91,6 +92,7 @@ const Profile = () => {
     setAvatarInputValue(e.target.value);
   };
   const { state } = useNavigation();
+  const navigate = useNavigate();
   if (state === "loading") return <LoadingSpinner />;
   else
     return (
@@ -184,6 +186,11 @@ const Profile = () => {
                   save
                 </Button>
               </Box>
+              {isMyProfile && (
+                <Button onClick={() => navigate("/reviews/create")}>
+                  Create Review
+                </Button>
+              )}
             </Box>
           </Card>
         </fetcher.Form>

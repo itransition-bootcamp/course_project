@@ -1,4 +1,4 @@
-import express, { Response } from "express";
+import express, { RequestHandler, Response } from "express";
 import sequelize from "../sequelize";
 import {
   Review,
@@ -12,9 +12,9 @@ import {
 import { FindOptions, Includeable, InferAttributes } from "sequelize";
 import { StatusCodes } from "http-status-codes";
 
-const router = express.Router();
+const reviews = express.Router();
 
-router.get("/", async (req, res) => {
+reviews.get("/", async (req, res) => {
   const limit: number = parseInt(req.query.limit as string);
   const top = Object.prototype.hasOwnProperty.call(req.query, "top");
   const category = req.query.cat;
@@ -66,12 +66,36 @@ router.get("/", async (req, res) => {
   res.send(await Review.findAll(dbQuery));
 });
 
-router.all("/:id", async (req, res, next) => {
+reviews.post("/", async (req, res) => {
+  if (!req.isAuthenticated()) res.sendStatus(StatusCodes.UNAUTHORIZED);
+
+  const newReview = new Review({
+    title: req.body.title,
+    text: req.body.text,
+    rating: req.body.rating,
+    ProductId: req.body.ProductId,
+    UserId: req.user?.id,
+  });
+
+  const newTags = await Promise.all(
+    req.body.tags.map(async (tag: string) => {
+      const [newTag] = await Tag.findOrCreate({ where: { name: tag } });
+      return newTag;
+    })
+  );
+
+  await newReview.save();
+  await newReview.setTags(newTags);
+
+  res.status(200).send(newReview.id.toString());
+});
+
+reviews.all("/:id", async (req, res, next) => {
   if (isNaN(parseInt(req.params.id)))
     return res.sendStatus(StatusCodes.BAD_REQUEST);
   else next();
 });
-router.get("/:id", async (req, res) => {
+reviews.get("/:id", async (req, res) => {
   const dbQuery: FindOptions<InferAttributes<Review>> & {
     include: Includeable[];
   } = {
@@ -102,35 +126,32 @@ router.get("/:id", async (req, res) => {
   else res.send(result);
 });
 
-router.all("/:id", async (req, res, next) => {
-  if (req.method != "PUT" && req.method != "DELETE") return next();
-  if (!req.isAuthenticated()) return res.sendStatus(StatusCodes.UNAUTHORIZED);
-  const user = await User.findByPk(req.user.id);
-  const review = await Review.findByPk(req.params.id);
-  if (!review) return res.sendStatus(StatusCodes.NOT_FOUND);
-  if (user?.role != "admin" && !user?.hasReview(review))
-    return res.sendStatus(StatusCodes.UNAUTHORIZED);
-  if (req.method == "PUT") {
-    review.set({
-      title: req.body.title,
-      text: req.body.text,
-      rating: req.body.rating,
-    });
-
-    const newTags = await Promise.all(
-      req.body.tags.map(async (tag: string) => {
-        const [newTag] = await Tag.findOrCreate({ where: { name: tag } });
-        return newTag;
-      })
-    );
-
-    await review.setTags(newTags);
-    await review.save();
-  } else if (req.method == "DELETE") await review.destroy();
+reviews.delete("/:id", adminOrAuthor(), async (req, res) => {
+  await res.locals.review.destroy();
   res.send("OK");
 });
 
-router.get("/:id/like", async (req, res) => {
+reviews.put("/:id", adminOrAuthor(), async (req, res) => {
+  res.locals.review.set({
+    title: req.body.title,
+    text: req.body.text,
+    rating: req.body.rating,
+  });
+
+  const newTags = await Promise.all(
+    req.body.tags.map(async (tag: string) => {
+      const [newTag] = await Tag.findOrCreate({ where: { name: tag } });
+      return newTag;
+    })
+  );
+
+  await res.locals.review.setTags(newTags);
+  await res.locals.review.save();
+
+  res.send("OK");
+});
+
+reviews.get("/:id/like", async (req, res) => {
   if (isNaN(parseInt(req.params.id)))
     return res.sendStatus(StatusCodes.BAD_REQUEST);
   if (!req.isAuthenticated()) res.sendStatus(StatusCodes.UNAUTHORIZED);
@@ -145,7 +166,7 @@ router.get("/:id/like", async (req, res) => {
 
 const subscribers: { [key: string]: Response[] } = {};
 
-router.get("/:id/comments", (req, res) => {
+reviews.get("/:id/comments", (req, res) => {
   const reviewId = req.params.id;
   if (isNaN(parseInt(reviewId))) return res.sendStatus(StatusCodes.BAD_REQUEST);
 
@@ -168,10 +189,11 @@ router.get("/:id/comments", (req, res) => {
   });
 });
 
-router.post("/:id/comments", async (req, res) => {
+reviews.post("/:id/comments", async (req, res) => {
   if (!req.isAuthenticated() || !req.user)
     return res.sendStatus(StatusCodes.UNAUTHORIZED);
   const reviewId = parseInt(req.params.id);
+  if (isNaN(reviewId)) return res.sendStatus(StatusCodes.BAD_REQUEST);
 
   const newComment = await Comment.create({
     UserId: req.user.id,
@@ -190,4 +212,22 @@ router.post("/:id/comments", async (req, res) => {
   res.sendStatus(200);
 });
 
-export default router;
+function adminOrAuthor(): RequestHandler {
+  return async (req, res, next) => {
+    if (!req.isAuthenticated()) return res.sendStatus(StatusCodes.UNAUTHORIZED);
+
+    const user = await User.findByPk(req.user.id);
+    const review = await Review.findByPk(req.params.id);
+    if (!review) return res.sendStatus(StatusCodes.NOT_FOUND);
+
+    const isAdmin = user!.role == "admin";
+    const isAuthor = await user?.hasReview(review);
+    if (!isAdmin && !isAuthor) return res.sendStatus(StatusCodes.UNAUTHORIZED);
+
+    res.locals.user = user;
+    res.locals.review = review;
+    next();
+  };
+}
+
+export default reviews;

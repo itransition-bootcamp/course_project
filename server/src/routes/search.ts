@@ -3,8 +3,8 @@ import { Comment, Like, Review } from "../models/allModels";
 import sequelize from "../sequelize";
 import { Op } from "sequelize";
 
-const router = express.Router();
-router.post("/", async (req, res) => {
+const search = express.Router();
+search.post("/", async (req, res) => {
   const searchResults = await Review.findAll({
     attributes: { exclude: ["rating", "createdAt", "updatedAt"] },
     include: [Like, Comment],
@@ -60,4 +60,4 @@ router.post("/", async (req, res) => {
   res.json(formated);
 });
 
-export default router;
+export default search;

@@ -27,6 +27,10 @@ import ReviewRoot, {
   reviewRootAction,
   reviewRootLoader,
 } from "./pages/ReviewRoot";
+import CreateReview, {
+  CreateReviewAction,
+  CreateReviewLoader,
+} from "./pages/CreateReview";
 
 function WithHeader() {
   return (
@@ -78,6 +82,12 @@ function App() {
             element={<Profile />}
             action={profilePageAction}
             loader={profilePageLoader}
+          />
+          <Route
+            path="/reviews/create"
+            element={<CreateReview />}
+            action={CreateReviewAction}
+            loader={CreateReviewLoader}
           />
           <Route
             path="/reviews/:id"

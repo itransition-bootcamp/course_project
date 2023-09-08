@@ -10,10 +10,13 @@ export type Review = {
   likesCount?: number;
   Likes?: Like[];
   Tags?: Tag[];
+  User?: { avatar: string; username: string };
   Comments?: Opinion[];
   Review_Images?: Image[];
-  Product?: { id?: number; category: string; name: string };
+  Product?: Product;
 };
+
+export type Product = { id?: number; category: string; name: string };
 
 type Image = {
   id: number;

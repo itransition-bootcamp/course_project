@@ -3,8 +3,8 @@ import { Review, Tag } from "../models/allModels";
 import sequelize from "../sequelize";
 import { FindOptions, InferAttributes } from "sequelize";
 
-const router = express.Router();
-router.get("/", async (req, res) => {
+const tags = express.Router();
+tags.get("/", async (req, res) => {
   let dbQuery: FindOptions<
     InferAttributes<
       Tag,
@@ -31,4 +31,4 @@ router.get("/", async (req, res) => {
   res.send(await Tag.findAll(dbQuery));
 });
 
-export default router;
+export default tags;

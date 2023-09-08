@@ -4,6 +4,7 @@ import {
   Button,
   Chip,
   Container,
+  Link,
   List,
   ListItem,
   Paper,
@@ -16,6 +17,7 @@ import {
   useNavigate,
   useNavigation,
   useOutletContext,
+  Link as RouterLink,
 } from "react-router-dom";
 import { useAuth } from "../components/AuthProvider";
 import CommentsContainer from "../components/CommentsContainer";
@@ -38,27 +40,36 @@ const ReviewPage = () => {
     return (
       <Container sx={{ py: 2 }}>
         <Paper elevation={3} sx={{ p: 2 }}>
+          <Link
+            component={RouterLink}
+            variant="caption"
+            to={"/profile/" + review.UserId}
+          >
+            Author: {review.User?.username}
+          </Link>
           <Typography variant="h3">{review.title}</Typography>
+          <Box>
+            <MuiMarkdown>{review.text}</MuiMarkdown>
+          </Box>
           <Rating
             name="read-only"
             precision={0.5}
             value={review.rating / 2}
             readOnly
-            sx={{ py: 2 }}
+            sx={{ pt: 1 }}
           />
-          <Box>
-            <MuiMarkdown>{review.text}</MuiMarkdown>
-          </Box>
 
-          <List sx={{ display: "flex", flexWrap: "wrap", gap: 1, pt: 2 }}>
-            {review.Tags?.map((tag) => (
-              <ListItem key={tag.id} sx={{ width: "unset", p: 0 }}>
-                <Chip label={tag.name} />
-              </ListItem>
-            ))}
-          </List>
+          {review.Tags && review.Tags.length > 0 && (
+            <List sx={{ display: "flex", flexWrap: "wrap", gap: 1, pt: 1 }}>
+              {review.Tags.map((tag) => (
+                <ListItem key={tag.id} sx={{ width: "unset", p: 0 }}>
+                  <Chip label={tag.name} />
+                </ListItem>
+              ))}
+            </List>
+          )}
 
-          {review.Review_Images && review.Review_Images?.length > 0 && (
+          {review.Review_Images && review.Review_Images.length > 0 && (
             <ReviewGallery images={review.Review_Images} canEdit={false} />
           )}
 
