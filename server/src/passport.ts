@@ -1,8 +1,10 @@
 import passport, { Profile } from "passport";
 import passportLocal from "passport-local";
 import passportGithub from "passport-github2";
+import passportFacebook from "passport-facebook";
 const LocalStrategy = passportLocal.Strategy;
 const GitHubStrategy = passportGithub.Strategy;
+const FacebookStrategy = passportFacebook.Strategy;
 import crypto, { BinaryLike } from "crypto";
 import { Like, User as UserModel } from "./models/allModels";
 import { VerifyCallback } from "passport-oauth2";
@@ -35,7 +37,15 @@ passport.use(
       const currentUser = await UserModel.findOne({
         where: { githubId: profile.id },
         include: { model: Like, attributes: ["ReviewId"] },
-        attributes: { exclude: ["githubId, hashedPassword, salt, updatedAt"] },
+        attributes: {
+          exclude: [
+            "githubId",
+            "twitterId",
+            "hashedPassword",
+            "salt",
+            "updatedAt",
+          ],
+        },
       });
 
       if (currentUser) {
@@ -51,6 +61,61 @@ passport.use(
           username: profile.username,
           githubId: profile.id,
           avatar: profile.photos && profile.photos[0].value,
+        });
+
+        done(null, newUser.sanitize());
+      }
+    }
+  )
+);
+
+passport.use(
+  new FacebookStrategy(
+    {
+      clientID: process.env.FACEBOOK_APP_ID!,
+      clientSecret: process.env.FACEBOOK_APP_SECRET!,
+      callbackURL: "http://localhost:3000/auth/facebook/callback",
+    },
+    async function verify(
+      accessToken: string,
+      refreshToken: string,
+      profile: Profile,
+      done: VerifyCallback
+    ) {
+      // check if user already exists in our own db
+      const currentUser = await UserModel.findOne({
+        where: { twitterId: profile.id },
+        include: { model: Like, attributes: ["ReviewId"] },
+        attributes: {
+          exclude: [
+            "githubId",
+            "twitterId",
+            "hashedPassword",
+            "salt",
+            "updatedAt",
+          ],
+        },
+      });
+
+      if (currentUser) {
+        // already have this user
+        done(null, currentUser.sanitize());
+      } else {
+        // if not, create user in our db
+        if (!profile.displayName)
+          return done(null, undefined, {
+            message: "Facebook profile missing name",
+          });
+        const fbPfpUrl = await fetch(
+          `https://graph.facebook.com/${profile.id}/picture?type=large&redirect=false&access_token=${accessToken}`
+        )
+          .then((resp) => resp.json())
+          .then((json) => json.data.url);
+
+        const newUser = await UserModel.create({
+          username: profile.displayName,
+          twitterId: profile.id,
+          avatar: fbPfpUrl,
         });
 
         done(null, newUser.sanitize());

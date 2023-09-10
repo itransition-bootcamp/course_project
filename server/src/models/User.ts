@@ -94,7 +94,7 @@ class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
           type: DataTypes.CHAR(24),
         },
         avatar: {
-          type: DataTypes.STRING(127),
+          type: DataTypes.STRING,
         },
         role: {
           type: DataTypes.ENUM("admin", "user"),

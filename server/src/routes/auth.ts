@@ -78,6 +78,16 @@ auth.get(
   }
 );
 
+auth.get("/facebook", passport.authenticate("facebook", { scope: "email" }));
+
+auth.get(
+  "/facebook/callback",
+  passport.authenticate("facebook", { failureRedirect: "/login" }),
+  function (req, res) {
+    res.redirect("/");
+  }
+);
+
 auth.all("/logout", (req, res, next) => {
   if (req.isAuthenticated()) {
     req.logout((err) => {

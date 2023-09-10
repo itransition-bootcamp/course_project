@@ -8,7 +8,7 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import { FC, FormEventHandler, ReactElement } from "react";
 import { Divider } from "@mui/material";
-import { GitHub } from "@mui/icons-material";
+import { Facebook, GitHub } from "@mui/icons-material";
 
 export const LoginRegisterForm: FC<{
   handleSubmit: FormEventHandler<HTMLFormElement>;
@@ -76,6 +76,14 @@ export const LoginRegisterForm: FC<{
           sx={{ mt: 1, mb: 2 }}
         >
           sign in with github
+        </Button>
+        <Button
+          fullWidth
+          href="/auth/facebook"
+          variant="outlined"
+          startIcon={<Facebook />}
+        >
+          sign in with facebook
         </Button>
       </Box>
     </Box>
