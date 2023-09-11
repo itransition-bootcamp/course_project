@@ -14,6 +14,7 @@ import { Dispatch, FC, SetStateAction, useState } from "react";
 import { CloudUploadOutlined } from "@mui/icons-material";
 import { isMobile } from "react-device-detect";
 import { Image } from "../types";
+import { FormattedMessage } from "react-intl";
 
 const rootStyle: SxProps = {
   position: "absolute",
@@ -123,6 +124,17 @@ const ImageUpload: FC<ImageUploadSingle | ImageUploadMultiple> = ({
       ? "error"
       : "primary"
     : "action";
+  let message;
+
+  if (isMobile) {
+    if (multiple)
+      message = <FormattedMessage id="app.imageUploader.mobile.multiple" />;
+    else message = <FormattedMessage id="app.imageUploader.mobile.single" />;
+  } else {
+    if (multiple)
+      message = <FormattedMessage id="app.imageUploader.default.multiple" />;
+    else message = <FormattedMessage id="app.imageUploader.default.single" />;
+  }
 
   return (
     <Modal open={open} onClose={() => setOpen(false)}>
@@ -143,9 +155,7 @@ const ImageUpload: FC<ImageUploadSingle | ImageUploadMultiple> = ({
           <input {...getInputProps()} />
 
           <Typography variant="h6" mb={4}>
-            {isMobile
-              ? "Tap to select image from gallery"
-              : "Drag and drop image file here, or click to select from device"}
+            {message}
           </Typography>
           {loading && <CircularProgress />}
           {!loading && (

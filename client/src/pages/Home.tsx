@@ -24,13 +24,13 @@ const Home: React.FC = () => {
           <Grid item md={6}>
             <ReviewsContainer
               reviewsLoader={topReviews}
-              headline="Top Reviews:"
+              headline="app.home.topContainer.headline"
             />
           </Grid>
           <Grid item md={6}>
             <ReviewsContainer
               reviewsLoader={lastReviews}
-              headline="Last Reviews:"
+              headline="app.home.lastContainer.headline"
             />
           </Grid>
         </Grid>

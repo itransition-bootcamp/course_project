@@ -159,6 +159,7 @@ const generateData = async () => {
   }
 
   await generateUser("Adam", "123", "admin");
+  await generateUser("Eve", "123", "user");
 
   sequelize.close();
 };

@@ -31,6 +31,14 @@ import CreateReview, {
   CreateReviewAction,
   CreateReviewLoader,
 } from "./pages/CreateReview";
+import * as locales from "@mui/material/locale";
+import intlMessagesEN from "./translations/en.json";
+import intlMessagesRU from "./translations/ru.json";
+import intlMessagesES from "./translations/es.json";
+import intlMessagesUK from "./translations/uk.json";
+import intlMessagesPL from "./translations/pl.json";
+import { useLocalStorage } from "usehooks-ts";
+import { IntlProvider } from "react-intl";
 
 function WithHeader() {
   return (
@@ -51,15 +59,19 @@ function Root() {
 
 function App() {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
+  const [locale] = useLocalStorage<keyof typeof locales>("locale", "enUS");
 
   const theme = useMemo(
     () =>
-      createTheme({
-        palette: {
-          mode: prefersDarkMode ? "dark" : "light",
+      createTheme(
+        {
+          palette: {
+            mode: prefersDarkMode ? "dark" : "light",
+          },
         },
-      }),
-    [prefersDarkMode]
+        locales[locale]
+      ),
+    [prefersDarkMode, locale]
   );
 
   const router = createBrowserRouter(
@@ -125,13 +137,23 @@ function App() {
       </Route>
     )
   );
+  let intlProps = {
+    locale: "en",
+    messages: intlMessagesEN,
+  };
+  if (locale == "ruRU") intlProps = { locale: "ru", messages: intlMessagesRU };
+  if (locale == "esES") intlProps = { locale: "es", messages: intlMessagesES };
+  if (locale == "ukUA") intlProps = { locale: "uk", messages: intlMessagesUK };
+  if (locale == "plPL") intlProps = { locale: "pl", messages: intlMessagesPL };
   return (
-    <ThemeProvider theme={theme}>
-      <AuthProvider>
-        <CssBaseline />
-        <RouterProvider router={router} />
-      </AuthProvider>
-    </ThemeProvider>
+    <IntlProvider locale={intlProps.locale} messages={intlProps.messages}>
+      <ThemeProvider theme={theme}>
+        <AuthProvider>
+          <CssBaseline />
+          <RouterProvider router={router} />
+        </AuthProvider>
+      </ThemeProvider>
+    </IntlProvider>
   );
 }
 

@@ -24,6 +24,7 @@ import CommentsContainer from "../components/CommentsContainer";
 import { Review } from "../types";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ReviewGallery from "../components/ReviewGallery";
+import { FormattedMessage } from "react-intl";
 
 const ReviewPage = () => {
   const review = useOutletContext() as Review;
@@ -45,7 +46,10 @@ const ReviewPage = () => {
             variant="caption"
             to={"/profile/" + review.UserId}
           >
-            Author: {review.User?.username}
+            <FormattedMessage
+              id="app.review.author"
+              values={{ username: review.User?.username }}
+            />
           </Link>
           <Typography variant="h3">{review.title}</Typography>
           <Box>
@@ -80,7 +84,7 @@ const ReviewPage = () => {
                 variant="contained"
                 startIcon={<Edit />}
               >
-                Edit Review
+                <FormattedMessage id="app.review.button.edit" />
               </Button>
               <Form action="delete" method="DELETE">
                 <Button
@@ -89,7 +93,7 @@ const ReviewPage = () => {
                   color="error"
                   startIcon={<Delete />}
                 >
-                  Delete Review
+                  <FormattedMessage id="app.review.button.delete" />
                 </Button>
               </Form>
             </Box>

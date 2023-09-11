@@ -13,6 +13,7 @@ import { FC, useEffect, useState } from "react";
 import { Review } from "../types";
 import { Form, Link as RouterLink, useOutletContext } from "react-router-dom";
 import { useAuth } from "./AuthProvider";
+import { FormattedDate, FormattedMessage, FormattedTime } from "react-intl";
 
 const CommentsContainer: FC = () => {
   const { id, Comments } = useOutletContext() as Omit<Review, "Likes" | "Tags">;
@@ -60,7 +61,8 @@ const CommentsContainer: FC = () => {
               </Link>
               <Typography my={1}>{comment.text}</Typography>
               <Typography color={"GrayText"}>
-                {new Date(comment.createdAt).toLocaleString()}
+                <FormattedDate value={comment.createdAt} />{" "}
+                <FormattedTime value={comment.createdAt} />
               </Typography>
             </Grid>
           </Grid>
@@ -87,7 +89,7 @@ const CommentsContainer: FC = () => {
               onChange={(e) => setCommentInput(e.target.value)}
             />
             <Button type="submit" name="intent" value="add comment">
-              send
+              <FormattedMessage id="app.review.comments.button.send" />
             </Button>
           </Form>
         </>

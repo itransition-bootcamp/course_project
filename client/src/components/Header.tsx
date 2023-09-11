@@ -17,15 +17,19 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Select,
 } from "@mui/material";
 import Search from "./Search";
 import { NavLink, useNavigate } from "react-router-dom";
 import { Games, Home, LibraryBooks, Movie } from "@mui/icons-material";
+import { useLocalStorage } from "usehooks-ts";
+import { FormattedMessage } from "react-intl";
 
 const Header: FC = () => {
   const { user, authenticated, loading, logout } = useAuth();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [drawerOpened, setDrawerOpened] = useState(false);
+  const [locale, setLocale] = useLocalStorage("locale", "enUS");
   const navigate = useNavigate();
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -78,10 +82,31 @@ const Header: FC = () => {
                     {text === "Books" && <LibraryBooks />}
                     {text === "Games" && <Games />}
                   </ListItemIcon>
-                  <ListItemText primary={text} />
+                  <ListItemText
+                    primary={
+                      <FormattedMessage id={`app.header.drawer.${text}`} />
+                    }
+                  />
                 </ListItemButton>
               </ListItem>
             ))}
+            <ListItem>
+              <Select
+                size="small"
+                fullWidth
+                value={locale}
+                onChange={(e) => {
+                  setLocale(e.target.value);
+                  setDrawerOpened(false);
+                }}
+              >
+                <MenuItem value="enUS">English</MenuItem>
+                <MenuItem value="plPL">Polski</MenuItem>
+                <MenuItem value="ukUA">Українська</MenuItem>
+                <MenuItem value="ruRU">Русский</MenuItem>
+                <MenuItem value="esES">Español</MenuItem>
+              </Select>
+            </ListItem>
           </List>
         </Drawer>
         <Search />
@@ -91,7 +116,7 @@ const Header: FC = () => {
             sx={{ marginLeft: "auto" }}
             onClick={() => navigate("/login")}
           >
-            Login
+            <FormattedMessage id="app.header.button.login" />
           </Button>
         )}
         {authenticated && (
@@ -131,7 +156,7 @@ const Header: FC = () => {
                     handleClose();
                   }}
                 >
-                  Admin Panel
+                  <FormattedMessage id="app.header.profileMenu.admin" />
                 </MenuItem>
               )}
               <MenuItem
@@ -140,9 +165,11 @@ const Header: FC = () => {
                   handleClose();
                 }}
               >
-                Profile
+                <FormattedMessage id="app.header.profileMenu.profile" />
               </MenuItem>
-              <MenuItem onClick={handleLogout}>Logout</MenuItem>
+              <MenuItem onClick={handleLogout}>
+                <FormattedMessage id="app.header.profileMenu.logout" />
+              </MenuItem>
             </Menu>
           </Box>
         )}

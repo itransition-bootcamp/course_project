@@ -28,12 +28,14 @@ import LoadingSpinner from "../components/LoadingSpinner";
 import TagsAutocomplete from "../components/TagsAutocomplete";
 import ReviewGallery from "../components/ReviewGallery";
 import { Product } from "../types";
+import { FormattedMessage, useIntl } from "react-intl";
 
 const CreateReview: FC = () => {
   const { state } = useNavigation();
   const { authenticated, loading: loadingAuth } = useAuth();
   const createForm = useFetcher();
   const products = useLoaderData() as Product[];
+  const intl = useIntl();
 
   const categories = Array.from(
     new Set(products.map((product) => product.category))
@@ -60,7 +62,12 @@ const CreateReview: FC = () => {
             </MenuItem>
           );
         });
-      return [<ListSubheader>{cat}</ListSubheader>, items];
+      return [
+        <ListSubheader>
+          <FormattedMessage id={`app.createReview.subject.cat.${cat}`} />
+        </ListSubheader>,
+        items,
+      ];
     },
     [products]
   );
@@ -75,13 +82,15 @@ const CreateReview: FC = () => {
         style={{ display: "flex", flexDirection: "column", rowGap: 10 }}
       >
         <FormControl fullWidth>
-          <InputLabel id="productId-label">Review Subject</InputLabel>
+          <InputLabel id="productId-label">
+            {intl.formatMessage({ id: "app.createReview.label.subject" })}
+          </InputLabel>
           <Select
             labelId="productId-label"
             id="productId"
             name="productId"
             value={productId}
-            label="Review Subject"
+            label={intl.formatMessage({ id: "app.createReview.label.subject" })}
             onChange={handleChange}
             required
           >
@@ -91,10 +100,12 @@ const CreateReview: FC = () => {
 
         <TextField
           name="reviewTitle"
-          placeholder="Title"
+          placeholder={intl.formatMessage({
+            id: "app.createReview.placeholder.title",
+          })}
           fullWidth
           required
-          label="Title"
+          label={intl.formatMessage({ id: "app.createReview.label.title" })}
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           sx={{ mb: 1 }}
@@ -114,9 +125,11 @@ const CreateReview: FC = () => {
           <TextField
             multiline
             name="reviewText"
-            placeholder="Write your review here"
+            placeholder={intl.formatMessage({
+              id: "app.createReview.placeholder.text",
+            })}
             fullWidth
-            label="Text"
+            label={intl.formatMessage({ id: "app.createReview.label.text" })}
             required
             minRows={10}
             value={body}
@@ -128,10 +141,12 @@ const CreateReview: FC = () => {
           variant="outlined"
           onClick={() => setIsPreview((prev) => !prev)}
         >
-          Markdown Preview
+          {intl.formatMessage({ id: "app.createReview.button.preview" })}
         </Button>
         <Box display={"flex"} mb={1}>
-          <Typography display={"inline"}>Rating: </Typography>
+          <Typography display={"inline"}>
+            {intl.formatMessage({ id: "app.createReview.label.rating" })}
+          </Typography>
           <Rating
             name="reviewRating"
             value={rating / 2}
@@ -143,7 +158,7 @@ const CreateReview: FC = () => {
         <TagsAutocomplete />
         <ReviewGallery images={undefined} canEdit={true} />
         <Button fullWidth type="submit" variant="contained">
-          Finish Editing
+          {intl.formatMessage({ id: "app.createReview.button.finish" })}
         </Button>
       </createForm.Form>
     </Container>

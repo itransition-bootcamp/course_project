@@ -30,6 +30,7 @@ import ImageUpload from "../components/ImageUpload";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { Edit } from "@mui/icons-material";
 import ReviewsTable from "../components/ReviewsTable";
+import { FormattedDate, FormattedMessage } from "react-intl";
 
 type Profile = {
   id: number;
@@ -142,7 +143,7 @@ const Profile = () => {
                 </Badge>
               </Button>
               <TextField
-                label="Username"
+                label={<FormattedMessage id="app.profile.username" />}
                 size="small"
                 disabled={!canEdit}
                 name="username"
@@ -154,7 +155,7 @@ const Profile = () => {
 
               <TextField
                 type="email"
-                label="Email"
+                label={<FormattedMessage id="app.profile.email" />}
                 size="small"
                 disabled={!canEdit}
                 name="email"
@@ -171,19 +172,22 @@ const Profile = () => {
               />
 
               <Typography alignSelf={"flex-start"}>
-                Registration Date: {new Date(createdAt).toLocaleDateString()}
+                <FormattedMessage id="app.profile.regDate" />
+                <FormattedDate value={createdAt} />
               </Typography>
 
-              <Typography alignSelf={"flex-start"}>Role: {role}</Typography>
+              <Typography alignSelf={"flex-start"}>
+                <FormattedMessage id="app.profile.role" /> {role}
+              </Typography>
 
               <Box display={submitEnabled ? "block" : "none"}>
                 <Button
                   disabled={!canEdit}
-                  variant="outlined"
+                  variant="contained"
                   fullWidth
                   type="submit"
                 >
-                  save
+                  <FormattedMessage id="app.profile.save" />
                 </Button>
               </Box>
             </Box>
@@ -195,7 +199,7 @@ const Profile = () => {
             onClick={() => navigate("/reviews/create")}
             sx={{ mb: 2 }}
           >
-            Create Review
+            <FormattedMessage id="app.profile.createReview" />
           </Button>
         )}
         {Reviews.length > 0 && <ReviewsTable />}

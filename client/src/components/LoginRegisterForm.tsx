@@ -9,6 +9,7 @@ import Typography from "@mui/material/Typography";
 import { FC, FormEventHandler, ReactElement } from "react";
 import { Divider } from "@mui/material";
 import { Facebook, GitHub } from "@mui/icons-material";
+import { FormattedMessage } from "react-intl";
 
 export const LoginRegisterForm: FC<{
   handleSubmit: FormEventHandler<HTMLFormElement>;
@@ -36,7 +37,7 @@ export const LoginRegisterForm: FC<{
           required
           fullWidth
           id="username"
-          label="User Name"
+          label={<FormattedMessage id="app.loginRegister.label.username" />}
           name="username"
           autoFocus
         />
@@ -45,7 +46,7 @@ export const LoginRegisterForm: FC<{
           required
           fullWidth
           name="password"
-          label="Password"
+          label={<FormattedMessage id="app.loginRegister.label.password" />}
           type="password"
           id="password"
           autoComplete="current-password"
@@ -53,7 +54,7 @@ export const LoginRegisterForm: FC<{
         {rememberMe && (
           <FormControlLabel
             control={<Checkbox value="remember" />}
-            label="Remember me"
+            label={<FormattedMessage id="app.loginRegister.label.rememberMe" />}
           />
         )}
         <Button
@@ -75,7 +76,7 @@ export const LoginRegisterForm: FC<{
           startIcon={<GitHub />}
           sx={{ mt: 1, mb: 2 }}
         >
-          sign in with github
+          <FormattedMessage id="app.loginRegister.button.github" />
         </Button>
         <Button
           fullWidth
@@ -83,7 +84,7 @@ export const LoginRegisterForm: FC<{
           variant="outlined"
           startIcon={<Facebook />}
         >
-          sign in with facebook
+          <FormattedMessage id="app.loginRegister.button.facebook" />
         </Button>
       </Box>
     </Box>

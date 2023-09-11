@@ -1,5 +1,6 @@
 import { Autocomplete, Box, Input, TextField } from "@mui/material";
 import { FC, useEffect, useState } from "react";
+import { FormattedMessage } from "react-intl";
 
 const TagsAutocomplete: FC<{ tags?: string[] }> = ({ tags }) => {
   const [options, setOptions] = useState([]);
@@ -25,7 +26,11 @@ const TagsAutocomplete: FC<{ tags?: string[] }> = ({ tags }) => {
         value={inputTags}
         onChange={(_, newVal) => setInputTags(newVal)}
         renderInput={(params) => (
-          <TextField {...params} variant="outlined" label="Tags:" />
+          <TextField
+            {...params}
+            variant="outlined"
+            label={<FormattedMessage id="app.createEditReview.label.tags" />}
+          />
         )}
       />
       <Input

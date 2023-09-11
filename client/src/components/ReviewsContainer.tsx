@@ -2,6 +2,7 @@ import { Paper, Typography, Divider, Box } from "@mui/material";
 import { FC } from "react";
 import { Review } from "../types";
 import ReviewWrapper from "./ReviewWrapper";
+import { FormattedMessage } from "react-intl";
 
 const ReviewsContainer: FC<{
   reviewsLoader: Review[];
@@ -17,7 +18,7 @@ const ReviewsContainer: FC<{
       }}
     >
       <Typography color={"primary.dark"} variant="h5">
-        {headline}
+        <FormattedMessage id={headline} />
       </Typography>
       <Divider
         sx={{

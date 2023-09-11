@@ -4,6 +4,7 @@ import { FC, useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
 import { Review } from "../types";
 import { useAuth } from "./AuthProvider";
+import { FormattedDate, FormattedMessage } from "react-intl";
 
 const ReviewWrapper: FC<{
   reviewLoader: Review;
@@ -35,7 +36,10 @@ const ReviewWrapper: FC<{
     <Box>
       {review.Product && (
         <Typography color={"text.secondary"} variant="caption">
-          {review.Product.category}: {review.Product.name}
+          <FormattedMessage
+            id={`app.reviewWrapper.reviewSubject.category.${review.Product.category}`}
+            values={{ name: review.Product.name }}
+          />
         </Typography>
       )}
       <Box
@@ -57,7 +61,7 @@ const ReviewWrapper: FC<{
           </Typography>
 
           <Typography color={"text.secondary"} variant="overline">
-            {new Date(review.createdAt).toLocaleDateString()}
+            <FormattedDate value={review.createdAt} />
           </Typography>
         </Link>
         <IconButton disabled={!user} onClick={() => handleLike(review.id)}>

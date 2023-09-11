@@ -4,12 +4,14 @@ import { useState } from "react";
 import { LoginRegisterForm } from "../components/LoginRegisterForm";
 import { useNavigate, Link as RouterLink, Navigate } from "react-router-dom";
 import { useAuth } from "../components/AuthProvider";
+import { useIntl } from "react-intl";
 
 const Register = () => {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
   const { authenticated, register } = useAuth();
+  const intl = useIntl();
 
   const handleClose = (_: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === "clickaway") {
@@ -37,11 +39,13 @@ const Register = () => {
     <Container component="main" maxWidth="xs" sx={{ pt: 10 }}>
       <LoginRegisterForm
         handleSubmit={handleSubmit}
-        text="Sign up"
+        text={intl.formatMessage({ id: "app.loginRegister.button.signup" })}
         rememberMe={false}
         bottomLink={
           <Link component={RouterLink} to="/login" variant="body2">
-            {"Already have an account? Sign In"}
+            {intl.formatMessage({
+              id: "app.loginRegister.bottomLink.toSignin",
+            })}
           </Link>
         }
       />

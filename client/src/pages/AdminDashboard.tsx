@@ -14,6 +14,7 @@ import { DataGrid, GridColDef, useGridApiRef } from "@mui/x-data-grid";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { Block, Delete, Healing } from "@mui/icons-material";
 import { useState } from "react";
+import { useIntl } from "react-intl";
 
 type TableUser = {
   id: number;
@@ -22,24 +23,13 @@ type TableUser = {
   createdAt: Date;
 };
 
-const columns: GridColDef[] = [
-  { field: "id", headerName: "ID", type: "number" },
-  { field: "username", headerName: "Username", minWidth: 150, flex: 2 },
-  { field: "status", headerName: "Status" },
-  {
-    field: "createdAt",
-    headerName: "Registration Date",
-    type: "dateTime",
-    width: 180,
-  },
-];
-
 const AdminDashboard = () => {
   const { user, loading: authLoading, authenticated } = useAuth();
   const navigate = useNavigate();
   const submit = useSubmit();
   const users = useLoaderData() as TableUser[];
   const apiRef = useGridApiRef();
+  const intl = useIntl();
 
   const [selected, setSelected] = useState<number[]>([]);
 
@@ -80,7 +70,37 @@ const AdminDashboard = () => {
     );
     apiRef.current.setRowSelectionModel([]);
   };
-
+  const columns: GridColDef[] = [
+    {
+      field: "id",
+      headerName: intl.formatMessage({
+        id: "app.adminDashboard.tableHeader.id",
+      }),
+      type: "number",
+    },
+    {
+      field: "username",
+      headerName: intl.formatMessage({
+        id: "app.adminDashboard.tableHeader.username",
+      }),
+      minWidth: 150,
+      flex: 2,
+    },
+    {
+      field: "status",
+      headerName: intl.formatMessage({
+        id: "app.adminDashboard.tableHeader.status",
+      }),
+    },
+    {
+      field: "createdAt",
+      headerName: intl.formatMessage({
+        id: "app.adminDashboard.tableHeader.regDate",
+      }),
+      type: "dateTime",
+      width: 180,
+    },
+  ];
   if (authLoading) return <LoadingSpinner />;
   if (!authenticated || !user || user.role != "admin")
     return <Navigate to="/" />;
@@ -93,21 +113,21 @@ const AdminDashboard = () => {
             disabled={selected.length == 0}
             startIcon={<Block />}
           >
-            Block
+            {intl.formatMessage({ id: "app.adminDashboard.button.block" })}
           </Button>
           <Button
             onClick={handleUnblock}
             disabled={selected.length == 0}
             startIcon={<Healing />}
           >
-            Unblock
+            {intl.formatMessage({ id: "app.adminDashboard.button.unblock" })}
           </Button>
           <Button
             onClick={handleDelete}
             disabled={selected.length == 0}
             startIcon={<Delete />}
           >
-            Delete
+            {intl.formatMessage({ id: "app.adminDashboard.button.delete" })}
           </Button>
         </Box>
         <DataGrid

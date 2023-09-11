@@ -21,6 +21,7 @@ import { useAuth } from "../components/AuthProvider";
 import LoadingSpinner from "../components/LoadingSpinner";
 import TagsAutocomplete from "../components/TagsAutocomplete";
 import ReviewGallery from "../components/ReviewGallery";
+import { useIntl } from "react-intl";
 
 const EditReview: FC = () => {
   const { state } = useNavigation();
@@ -32,6 +33,7 @@ const EditReview: FC = () => {
   const [body, setbody] = useState(() => review.text);
   const [rating, setRating] = useState(() => review.rating);
   const [isPreview, setIsPreview] = useState(false);
+  const intl = useIntl();
 
   const isAuthor = user?.id == review.UserId || user?.role == "admin";
   if (state == "loading" || loadingAuth) return <LoadingSpinner />;
@@ -45,10 +47,12 @@ const EditReview: FC = () => {
       >
         <TextField
           name="reviewTitle"
-          placeholder="Title"
+          placeholder={intl.formatMessage({
+            id: "app.createReview.placeholder.title",
+          })}
           fullWidth
           required
-          label="Title"
+          label={intl.formatMessage({ id: "app.createReview.label.title" })}
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           sx={{ mb: 1 }}
@@ -68,9 +72,11 @@ const EditReview: FC = () => {
           <TextField
             multiline
             name="reviewText"
-            placeholder="Write your review here"
+            placeholder={intl.formatMessage({
+              id: "app.createReview.placeholder.text",
+            })}
             fullWidth
-            label="Text"
+            label={intl.formatMessage({ id: "app.createReview.label.text" })}
             required
             minRows={10}
             value={body}
@@ -82,10 +88,12 @@ const EditReview: FC = () => {
           variant="outlined"
           onClick={() => setIsPreview((prev) => !prev)}
         >
-          Markdown Preview
+          {intl.formatMessage({ id: "app.createReview.button.preview" })}
         </Button>
         <Box display={"flex"} mb={1}>
-          <Typography display={"inline"}>Rating: </Typography>
+          <Typography display={"inline"}>
+            {intl.formatMessage({ id: "app.createReview.label.rating" })}
+          </Typography>
           <Rating
             name="reviewRating"
             value={rating / 2}
@@ -97,7 +105,7 @@ const EditReview: FC = () => {
         <TagsAutocomplete tags={review.Tags?.map((tag) => tag.name)} />
         <ReviewGallery images={review.Review_Images} canEdit={true} />
         <Button fullWidth type="submit" variant="contained">
-          Finish Editing
+          {intl.formatMessage({ id: "app.editReview.button.finish" })}
         </Button>
       </editForm.Form>
     </Container>

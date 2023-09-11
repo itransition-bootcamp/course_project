@@ -14,6 +14,7 @@ import {
 import { FC, useMemo, useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
 import { Review } from "../types";
+import { FormattedMessage } from "react-intl";
 
 const SearchBar = styled("div")(({ theme }) => ({
   position: "relative",
@@ -111,7 +112,9 @@ const Search: FC = () => {
                 </ListItem>
               ))
             ) : (
-              <ListItem>"No Results"</ListItem>
+              <ListItem>
+                <FormattedMessage id="app.header.search.noResults" />
+              </ListItem>
             )}
           </List>
         </Popper>
