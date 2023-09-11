@@ -9,7 +9,7 @@ import {
   Review_Image,
   Product,
 } from "../models/allModels";
-import { FindOptions, Includeable, InferAttributes } from "sequelize";
+import { FindOptions, Includeable, InferAttributes, Op } from "sequelize";
 import { StatusCodes } from "http-status-codes";
 import multer from "multer";
 import { v2 as cloudinary } from "cloudinary";
@@ -86,16 +86,9 @@ reviews.post("/", authenticated(), async (req, res) => {
     UserId: req.user?.id,
   });
 
-  await Promise.all(
-    req.body.gallery.map(async (image: { id?: number; src: string }) => {
-      console.log(image.src);
-      const [newImage] = await Review_Image.findOrCreate({
-        where: {
-          ReviewId: newReview.id,
-          src: image.src,
-        },
-      });
-      return newImage;
+  Review_Image.bulkCreate(
+    req.body.gallery.map((img: { src: string }) => {
+      return { ...img, ReviewId: newReview.id };
     })
   );
 
@@ -205,13 +198,7 @@ reviews.delete("/:id", adminOrAuthor(), async (req, res) => {
 });
 
 reviews.put("/:id", adminOrAuthor(), async (req, res) => {
-  res.locals.review.set({
-    title: req.body.title,
-    text: req.body.text,
-    rating: req.body.rating,
-  });
-
-  await Promise.all(
+  const gallery = await Promise.all(
     req.body.gallery.map(async (image: { id?: number; src: string }) => {
       const [newImage] = await Review_Image.findOrCreate({
         where: {
@@ -223,12 +210,25 @@ reviews.put("/:id", adminOrAuthor(), async (req, res) => {
     })
   );
 
+  await Review_Image.destroy({
+    where: {
+      id: { [Op.notIn]: gallery.map((img) => img.id) },
+      ReviewId: res.locals.review.id,
+    },
+  });
+
   const newTags = await Promise.all(
     req.body.tags.map(async (tag: string) => {
       const [newTag] = await Tag.findOrCreate({ where: { name: tag } });
       return newTag;
     })
   );
+
+  res.locals.review.set({
+    title: req.body.title,
+    text: req.body.text,
+    rating: req.body.rating,
+  });
 
   await res.locals.review.setTags(newTags);
   await res.locals.review.save();

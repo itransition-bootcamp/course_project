@@ -193,6 +193,7 @@ const Profile = () => {
           <Button
             variant="outlined"
             onClick={() => navigate("/reviews/create")}
+            sx={{ mb: 2 }}
           >
             Create Review
           </Button>

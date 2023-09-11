@@ -55,7 +55,14 @@ const ReviewGallery: FC<GalleryProps> = ({ images, canEdit }) => {
               }
               actionIcon={
                 canEdit && (
-                  <IconButton size="medium" onClick={() => alert("click")}>
+                  <IconButton
+                    size="medium"
+                    onClick={() =>
+                      setGalleryInput((prev) =>
+                        prev.filter((_, index) => index != i)
+                      )
+                    }
+                  >
                     <Close fontSize="inherit" sx={{ color: "white" }} />
                   </IconButton>
                 )
