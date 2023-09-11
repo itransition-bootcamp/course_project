@@ -10,9 +10,10 @@ import {
   Typography,
 } from "@mui/material";
 import { useDropzone } from "react-dropzone";
-import { Dispatch, FC, SetStateAction, useCallback, useState } from "react";
+import { Dispatch, FC, SetStateAction, useState } from "react";
 import { CloudUploadOutlined } from "@mui/icons-material";
 import { isMobile } from "react-device-detect";
+import { Image } from "../types";
 
 const rootStyle: SxProps = {
   position: "absolute",
@@ -26,20 +27,69 @@ const rootStyle: SxProps = {
   p: 1,
 };
 
-const ImageUpload: FC<{
-  profileId: number;
+type ImageUploadSingle = {
+  multiple?: false;
+  appendInputValue?: boolean;
+  uploadUrl: string;
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
-  setInput: Dispatch<SetStateAction<string>>;
-}> = ({ profileId, open, setOpen, setInput }) => {
+  setInput:
+    | Dispatch<SetStateAction<string>>
+    | Dispatch<SetStateAction<string[]>>;
+};
+
+type ImageUploadMultiple = {
+  multiple: true;
+  appendInputValue?: boolean;
+  uploadUrl: string;
+  open: boolean;
+  setOpen: Dispatch<SetStateAction<boolean>>;
+  setInput: Dispatch<SetStateAction<Image[]>>;
+};
+
+const ImageUpload: FC<ImageUploadSingle | ImageUploadMultiple> = ({
+  multiple = false,
+  appendInputValue = false,
+  uploadUrl,
+  open,
+  setOpen,
+  setInput,
+}) => {
   const [loading, setLoading] = useState(false);
-  const onDrop = useCallback(
-    (acceptedFiles: File[]) => {
+  let onDrop;
+  if (multiple)
+    onDrop = (acceptedFiles: File[]) => {
+      if (acceptedFiles.length < 1) return;
+      setLoading(true);
+      const formData = new FormData();
+      acceptedFiles.map((image) => formData.append("gallery", image));
+      fetch(uploadUrl, {
+        method: "POST",
+        body: formData,
+      })
+        .then((response) => {
+          if (response.ok) return response.json();
+        })
+        .then((data) => {
+          if (data.urls) {
+            if (appendInputValue)
+              //@ts-ignore
+              setInput((prev: string[] | { src: string }[]) =>
+                prev ? [...prev, ...data.urls] : [...data.urls]
+              );
+            else setInput(data.urls);
+            setLoading(false);
+            setOpen(false);
+          }
+        });
+    };
+  else
+    onDrop = (acceptedFiles: File[]) => {
       if (acceptedFiles.length != 1) return;
       setLoading(true);
       const formData = new FormData();
       formData.append("avatar", acceptedFiles[0]);
-      fetch(`/api/users/${profileId}/avatar`, {
+      fetch(uploadUrl, {
         method: "POST",
         body: formData,
       })
@@ -53,9 +103,7 @@ const ImageUpload: FC<{
             setOpen(false);
           }
         });
-    },
-    [profileId]
-  );
+    };
 
   const {
     getRootProps,
@@ -66,7 +114,7 @@ const ImageUpload: FC<{
   } = useDropzone({
     onDrop,
     accept: { "image/png": [], "image/jpeg": [] },
-    maxFiles: 1,
+    maxFiles: multiple ? undefined : 1,
     maxSize: 1024 * 1024 * 3,
   });
 

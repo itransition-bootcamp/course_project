@@ -120,6 +120,7 @@ export const editReviewAction: ActionFunction = async ({ params, request }) => {
         text: formData.get("reviewText"),
         rating: parseFloat(formData.get("reviewRating") as string) * 2,
         tags: JSON.parse(formData.get("reviewTags") as string),
+        gallery: JSON.parse(formData.get("reviewGallery") as string),
       }),
     });
   }

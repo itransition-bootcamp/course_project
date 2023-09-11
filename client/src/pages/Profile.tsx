@@ -96,7 +96,7 @@ const Profile = () => {
   if (state === "loading") return <LoadingSpinner />;
   else
     return (
-      <Container sx={{ py: 2 }} maxWidth={false}>
+      <Container sx={{ textAlign: "center", py: 2 }} maxWidth={false}>
         <fetcher.Form
           method="PUT"
           onSubmit={mutateAuthUser}
@@ -186,19 +186,22 @@ const Profile = () => {
                   save
                 </Button>
               </Box>
-              {isMyProfile && (
-                <Button onClick={() => navigate("/reviews/create")}>
-                  Create Review
-                </Button>
-              )}
             </Box>
           </Card>
         </fetcher.Form>
+        {isMyProfile && (
+          <Button
+            variant="outlined"
+            onClick={() => navigate("/reviews/create")}
+          >
+            Create Review
+          </Button>
+        )}
         {Reviews.length > 0 && <ReviewsTable />}
         <ImageUpload
           open={openUploadWindow}
           setOpen={setOpenUploadWindow}
-          profileId={id}
+          uploadUrl={`/api/users/${id}/avatar`}
           setInput={setAvatarInputValue}
         />
       </Container>

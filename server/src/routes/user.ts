@@ -1,9 +1,10 @@
-import express, { RequestHandler } from "express";
+import express from "express";
 import { Review, User, Like, Product } from "../models/allModels";
 import { StatusCodes } from "http-status-codes";
 import { v2 as cloudinary } from "cloudinary";
 import { Readable } from "stream";
 import multer from "multer";
+import { validIdParam, authorized } from "./handlers";
 const upload = multer({});
 
 cloudinary.config({
@@ -109,31 +110,5 @@ user.post(
     stream.pipe(cldUploadStream);
   }
 );
-
-function validIdParam(): RequestHandler {
-  return async (req, res, next) => {
-    if (isNaN(parseInt(req.params.id)))
-      return res.sendStatus(StatusCodes.BAD_REQUEST);
-    else next();
-  };
-}
-
-function authorized(): RequestHandler {
-  return async (req, res, next) => {
-    if (!req.isAuthenticated()) return res.sendStatus(StatusCodes.UNAUTHORIZED);
-    const me = await User.findByPk(req.user.id);
-    const user =
-      req.user.id!.toString() == req.params.id
-        ? me
-        : await User.findByPk(req.params.id);
-    if (!user || !me) return res.sendStatus(StatusCodes.NOT_FOUND);
-    if (me.id != user.id && me.role != "admin")
-      return res.sendStatus(StatusCodes.UNAUTHORIZED);
-    else {
-      req.user = user;
-      next();
-    }
-  };
-}
 
 export default user;

@@ -171,6 +171,7 @@ export const CreateReviewAction: ActionFunction = async ({ request }) => {
         rating: parseFloat(formData.get("reviewRating") as string) * 2,
         ProductId: formData.get("productId"),
         tags: JSON.parse(formData.get("reviewTags") as string),
+        gallery: JSON.parse(formData.get("reviewGallery") as string),
       }),
     });
     if (!response.ok) throw response;

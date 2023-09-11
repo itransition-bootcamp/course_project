@@ -18,8 +18,8 @@ export type Review = {
 
 export type Product = { id?: number; category: string; name: string };
 
-type Image = {
-  id: number;
+export type Image = {
+  id?: number;
   src: string;
 };
 
