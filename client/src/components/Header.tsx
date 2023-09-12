@@ -1,15 +1,11 @@
 import AppBar from "@mui/material/AppBar";
-import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
 import MenuItem from "@mui/material/MenuItem";
-import Menu from "@mui/material/Menu";
 import { FC, useState } from "react";
 import { useAuth } from "./AuthProvider";
 import {
-  Avatar,
   Button,
   Drawer,
   List,
@@ -24,27 +20,13 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { Games, Home, LibraryBooks, Movie } from "@mui/icons-material";
 import { useLocalStorage } from "usehooks-ts";
 import { FormattedMessage } from "react-intl";
+import ProfileMenu from "./ProfileMenu";
 
 const Header: FC = () => {
-  const { user, authenticated, loading, logout } = useAuth();
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const { authenticated, loading } = useAuth();
   const [drawerOpened, setDrawerOpened] = useState(false);
   const [locale, setLocale] = useLocalStorage("locale", "enUS");
   const navigate = useNavigate();
-
-  const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleLogout = () => {
-    logout();
-    setAnchorEl(null);
-    navigate("/");
-  };
 
   return (
     <AppBar position="sticky">
@@ -119,60 +101,7 @@ const Header: FC = () => {
             <FormattedMessage id="app.header.button.login" />
           </Button>
         )}
-        {authenticated && (
-          <Box
-            sx={{ display: "flex", alignItems: "center", marginLeft: "auto" }}
-          >
-            <Typography variant="h6" mr={2}>
-              {user?.username}
-            </Typography>
-            <Avatar
-              onClick={handleMenu}
-              alt={user?.username}
-              src={user?.avatar}
-            >
-              {user?.username.charAt(0)}
-            </Avatar>
-
-            <Menu
-              id="menu-appbar"
-              anchorEl={anchorEl}
-              anchorOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              open={Boolean(anchorEl)}
-              onClose={handleClose}
-            >
-              {user?.role == "admin" && (
-                <MenuItem
-                  onClick={() => {
-                    navigate("/admin");
-                    handleClose();
-                  }}
-                >
-                  <FormattedMessage id="app.header.profileMenu.admin" />
-                </MenuItem>
-              )}
-              <MenuItem
-                onClick={() => {
-                  navigate("/profile/" + user?.id);
-                  handleClose();
-                }}
-              >
-                <FormattedMessage id="app.header.profileMenu.profile" />
-              </MenuItem>
-              <MenuItem onClick={handleLogout}>
-                <FormattedMessage id="app.header.profileMenu.logout" />
-              </MenuItem>
-            </Menu>
-          </Box>
-        )}
+        <ProfileMenu />
       </Toolbar>
     </AppBar>
   );
