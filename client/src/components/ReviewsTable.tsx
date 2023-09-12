@@ -33,6 +33,7 @@ const ReviewsTable = () => {
       rows={Reviews}
       columns={columns}
       apiRef={apiRef}
+      rowSelection={false}
       onRowDoubleClick={(props) => navigate("/reviews/" + props.row.id)}
       initialState={{
         pagination: {

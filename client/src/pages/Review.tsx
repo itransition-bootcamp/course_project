@@ -25,14 +25,13 @@ import { Review } from "../types";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ReviewGallery from "../components/ReviewGallery";
 import { FormattedMessage } from "react-intl";
+import Like from "../components/Like";
 
 const ReviewPage = () => {
   const review = useOutletContext() as Review;
-
+  const { user } = useAuth();
   const { state } = useNavigation();
   const navigate = useNavigate();
-
-  const { user } = useAuth();
 
   const isAuthor = user?.id == review.UserId || user?.role == "admin";
 
@@ -51,10 +50,13 @@ const ReviewPage = () => {
               values={{ username: review.User?.username }}
             />
           </Link>
-          <Typography variant="h3">{review.title}</Typography>
-          <Box>
-            <MuiMarkdown>{review.text}</MuiMarkdown>
+          <Box display={"flex"} justifyContent={"space-between"} mb={1}>
+            <Typography variant="h4" fontWeight={"bold"}>
+              {review.title}
+            </Typography>
+            <Like reviewId={review.id} likesCount={review.likesCount!} />
           </Box>
+          <MuiMarkdown>{review.text}</MuiMarkdown>
           <Rating
             name="read-only"
             precision={0.5}

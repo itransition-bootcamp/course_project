@@ -37,7 +37,11 @@ export const reviewRootLoader: LoaderFunction = async ({ params, request }) => {
     signal: request.signal,
   });
   if (!resp.ok) return redirect("/");
-  else return resp;
+  else {
+    const review = await resp.json();
+    review.likesCount = review.Likes.length;
+    return review;
+  }
 };
 
 export default ReviewRoot;

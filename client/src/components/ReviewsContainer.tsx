@@ -32,7 +32,7 @@ const ReviewsContainer: FC<{
         }}
       >
         {reviewsLoader.map((review, i) => (
-          <ReviewWrapper reviewLoader={review} key={i} />
+          <ReviewWrapper review={review} key={i} />
         ))}
       </Box>
     </Paper>
