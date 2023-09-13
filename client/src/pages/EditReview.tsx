@@ -62,8 +62,10 @@ const EditReview: FC = () => {
             sx={{
               p: 2,
               border: 1,
+              mb: 1,
               borderRadius: 1,
               borderColor: "action.disabled",
+              minHeight: "263px",
             }}
           >
             <MuiMarkdown>{body}</MuiMarkdown>

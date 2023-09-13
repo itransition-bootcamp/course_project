@@ -56,7 +56,9 @@ const ReviewPage = () => {
             </Typography>
             <Like reviewId={review.id} likesCount={review.likesCount!} />
           </Box>
-          <MuiMarkdown>{review.text}</MuiMarkdown>
+          <Box>
+            <MuiMarkdown>{review.text}</MuiMarkdown>
+          </Box>
           <Rating
             name="read-only"
             precision={0.5}
