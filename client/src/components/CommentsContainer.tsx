@@ -1,19 +1,20 @@
 import {
-  Paper,
-  Grid,
   Avatar,
-  Divider,
-  Typography,
   Box,
-  Link,
-  TextField,
   Button,
+  Divider,
+  Grid,
+  Link,
+  Paper,
+  TextField,
+  Typography,
 } from "@mui/material";
 import { FC, useEffect, useState } from "react";
-import { Review } from "../types";
-import { Form, Link as RouterLink, useOutletContext } from "react-router-dom";
-import { useAuth } from "./AuthProvider";
 import { FormattedDate, FormattedMessage, FormattedTime } from "react-intl";
+import { Form, Link as RouterLink, useOutletContext } from "react-router-dom";
+import { useUpdateEffect } from "usehooks-ts";
+import { Review } from "../types";
+import { useAuth } from "./AuthProvider";
 
 const CommentsContainer: FC = () => {
   const { id, Comments } = useOutletContext() as Omit<Review, "Likes" | "Tags">;
@@ -34,7 +35,7 @@ const CommentsContainer: FC = () => {
     return () => eventSource.close();
   }, []);
 
-  useEffect(() => {
+  useUpdateEffect(() => {
     if (
       document.body.scrollHeight - (window.scrollY + window.innerHeight) <
       500

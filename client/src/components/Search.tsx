@@ -1,21 +1,21 @@
 import { SearchOutlined } from "@mui/icons-material";
 import {
+  ClickAwayListener,
+  Link,
+  List,
+  ListItem,
+  Paper,
   Popper,
   TextField,
-  Link,
   alpha,
   debounce,
   styled,
-  List,
-  ListItem,
-  ClickAwayListener,
-  Paper,
 } from "@mui/material";
 import { FC, useMemo, useState } from "react";
+import { isMobile } from "react-device-detect";
+import { FormattedMessage } from "react-intl";
 import { Link as RouterLink } from "react-router-dom";
 import { Review } from "../types";
-import { FormattedMessage } from "react-intl";
-import { isMobile } from "react-device-detect";
 
 const SearchBar = styled("div")(({ theme }) => ({
   position: "relative",

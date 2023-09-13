@@ -118,9 +118,10 @@ const ReviewGallery: FC<GalleryProps> = ({ images, canEdit }) => {
             position={"absolute"}
             top={"50%"}
             left={"50%"}
-            sx={{ transform: "translate(-50%, -50%)" }}
+            sx={{ transform: "translate(-50%, -50%)", outline: "none" }}
           >
             <ImageGallery
+              lazyLoad
               showPlayButton={false}
               slideDuration={150}
               startIndex={startIndex}

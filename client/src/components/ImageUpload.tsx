@@ -1,3 +1,4 @@
+import { CloudUploadOutlined } from "@mui/icons-material";
 import {
   Box,
   Card,
@@ -9,12 +10,11 @@ import {
   SxProps,
   Typography,
 } from "@mui/material";
-import { useDropzone } from "react-dropzone";
 import { Dispatch, FC, SetStateAction, useState } from "react";
-import { CloudUploadOutlined } from "@mui/icons-material";
 import { isMobile } from "react-device-detect";
-import { Image } from "../types";
+import { useDropzone } from "react-dropzone";
 import { FormattedMessage } from "react-intl";
+import { Image } from "../types";
 
 const rootStyle: SxProps = {
   position: "absolute",

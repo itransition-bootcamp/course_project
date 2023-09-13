@@ -1,10 +1,5 @@
-import AppBar from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
-import IconButton from "@mui/material/IconButton";
+import { Games, Home, LibraryBooks, Movie } from "@mui/icons-material";
 import MenuIcon from "@mui/icons-material/Menu";
-import MenuItem from "@mui/material/MenuItem";
-import { FC, useState } from "react";
-import { useAuth } from "./AuthProvider";
 import {
   Button,
   Drawer,
@@ -15,12 +10,17 @@ import {
   ListItemText,
   Select,
 } from "@mui/material";
-import Search from "./Search";
-import { NavLink, useNavigate } from "react-router-dom";
-import { Games, Home, LibraryBooks, Movie } from "@mui/icons-material";
-import { useLocalStorage } from "usehooks-ts";
+import AppBar from "@mui/material/AppBar";
+import IconButton from "@mui/material/IconButton";
+import MenuItem from "@mui/material/MenuItem";
+import Toolbar from "@mui/material/Toolbar";
+import { FC, useState } from "react";
 import { FormattedMessage } from "react-intl";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useLocalStorage } from "usehooks-ts";
+import { useAuth } from "./AuthProvider";
 import ProfileMenu from "./ProfileMenu";
+import Search from "./Search";
 
 const Header: FC = () => {
   const { authenticated, loading } = useAuth();

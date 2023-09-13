@@ -1,8 +1,8 @@
-import { Box, Typography, Avatar, Menu, MenuItem } from "@mui/material";
-import { FormattedMessage } from "react-intl";
-import { useAuth } from "./AuthProvider";
+import { Avatar, Box, Menu, MenuItem, Typography } from "@mui/material";
 import { useState } from "react";
+import { FormattedMessage } from "react-intl";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "./AuthProvider";
 
 const ProfileMenu = () => {
   const { user, authenticated, logout } = useAuth();

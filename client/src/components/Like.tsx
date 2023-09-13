@@ -1,8 +1,8 @@
 import { Star } from "@mui/icons-material";
 import { IconButton } from "@mui/material";
-import { useAuth } from "./AuthProvider";
 import { FC, useState } from "react";
 import { Review } from "../types";
+import { useAuth } from "./AuthProvider";
 
 type LikeProps = {
   reviewId: Review["id"];

@@ -1,8 +1,8 @@
-import { Box, Typography, Divider, Link } from "@mui/material";
+import { Box, Divider, Link, Typography } from "@mui/material";
 import { FC } from "react";
+import { FormattedDate, FormattedMessage } from "react-intl";
 import { Link as RouterLink } from "react-router-dom";
 import { Review } from "../types";
-import { FormattedDate, FormattedMessage } from "react-intl";
 import Like from "./Like";
 
 const ReviewWrapper: FC<{

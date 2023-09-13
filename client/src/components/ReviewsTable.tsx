@@ -1,5 +1,5 @@
-import { useLoaderData, useNavigate } from "react-router-dom";
 import { DataGrid, GridColDef, useGridApiRef } from "@mui/x-data-grid";
+import { useLoaderData, useNavigate } from "react-router-dom";
 import Profile from "../pages/Profile";
 
 const columns: GridColDef[] = [

@@ -1,8 +1,8 @@
-import { Paper, Typography, Divider, Box } from "@mui/material";
+import { Box, Divider, Paper, Typography } from "@mui/material";
 import { FC } from "react";
+import { FormattedMessage } from "react-intl";
 import { Review } from "../types";
 import ReviewWrapper from "./ReviewWrapper";
-import { FormattedMessage } from "react-intl";
 
 const ReviewsContainer: FC<{
   reviewsLoader: Review[];

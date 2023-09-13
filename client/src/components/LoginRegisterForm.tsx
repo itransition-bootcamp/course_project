@@ -1,14 +1,14 @@
-import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
-import Box from "@mui/material/Box";
+import { Facebook, GitHub } from "@mui/icons-material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import { Divider } from "@mui/material";
+import Avatar from "@mui/material/Avatar";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Checkbox from "@mui/material/Checkbox";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { FC, FormEventHandler, ReactElement } from "react";
-import { Divider } from "@mui/material";
-import { Facebook, GitHub } from "@mui/icons-material";
 import { FormattedMessage } from "react-intl";
 
 export const LoginRegisterForm: FC<{
