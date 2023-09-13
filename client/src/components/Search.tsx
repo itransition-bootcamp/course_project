@@ -15,6 +15,7 @@ import { FC, useMemo, useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
 import { Review } from "../types";
 import { FormattedMessage } from "react-intl";
+import { isMobile } from "react-device-detect";
 
 const SearchBar = styled("div")(({ theme }) => ({
   position: "relative",
@@ -64,7 +65,10 @@ const Search: FC = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ search: newInputValue, limit: 10 }),
+          body: JSON.stringify({
+            search: newInputValue,
+            limit: isMobile ? 10 : 20,
+          }),
         });
         const json = await res.json();
         setOptions(json);
@@ -99,12 +103,21 @@ const Search: FC = () => {
           <List component={Paper} elevation={8}>
             {options.length > 0 ? (
               options.map((option) => (
-                <ListItem key={option.id}>
+                <ListItem
+                  key={option.id}
+                  dense={!isMobile}
+                  sx={{
+                    "&:hover": {
+                      bgcolor: "primary.light",
+                      color: "primary.contrastText",
+                    },
+                  }}
+                >
                   <Link
                     component={RouterLink}
                     to={"/reviews/" + option.id}
-                    color="inherit"
                     underline="none"
+                    color={"inherit"}
                     onClick={() => setOpen(false)}
                   >
                     {option.title}
