@@ -1,55 +1,41 @@
 import express from "express";
 import { Comment, Like, Review } from "../models/allModels";
 import sequelize from "../sequelize";
-import { Op } from "sequelize";
 
 const search = express.Router();
 search.post("/", async (req, res) => {
   const searchResults = await Review.findAll({
-    attributes: { exclude: ["rating", "createdAt", "updatedAt"] },
-    include: [Like, Comment],
-    where: {
-      [Op.or]: [
-        {
-          vector: {
-            [Op.match]: sequelize.fn(
-              "plainto_tsquery",
-              "english",
-              req.body.search
-            ),
-          },
-        },
-        {
-          "$Comments.vector$": {
-            [Op.match]: sequelize.fn(
-              "plainto_tsquery",
-              "english",
-              req.body.search
-            ),
-          },
-        },
-      ],
-    },
-    order: [
+    attributes: [
+      "id",
+      "title",
       [
         sequelize.fn(
-          "ts_rank",
-          sequelize.col("Review.vector"),
-          sequelize.fn("plainto_tsquery", "english", req.body.search)
+          "MAX",
+          sequelize.fn(
+            "ts_rank",
+            sequelize.literal(
+              `"Review"."vector" || coalesce("Comments"."vector", '')`
+            ),
+            sequelize.fn("plainto_tsquery", "english", req.body.search)
+          )
         ),
-        "DESC",
-      ],
-      [
-        sequelize.fn(
-          "ts_rank",
-          sequelize.col("Comments.vector"),
-          sequelize.fn("plainto_tsquery", "english", req.body.search)
-        ),
-        "DESC",
+        "rankV",
       ],
     ],
+    include: [
+      {
+        model: Comment,
+        attributes: [],
+        subQuery: true,
+      },
+      Like,
+    ],
+    where: sequelize.literal(
+      `"Review"."vector" || coalesce("Comments"."vector", '') @@ plainto_tsquery('english', '${req.body.search}')`
+    ),
+    group: [sequelize.col(`Review.id`)],
+    order: [[sequelize.col(`rankV`), "DESC"]],
     limit: req.body.limit,
-    subQuery: false,
   });
   type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
   const formated = searchResults.map((review) => review.toJSON()) as Optional<
