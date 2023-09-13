@@ -44,5 +44,5 @@ type Opinion = {
   updatedAt: string;
   UserId: number;
   ReviewId: Review["id"];
-  User?: { avatar?: string; username: string };
+  User: { avatar?: string; username: string };
 };

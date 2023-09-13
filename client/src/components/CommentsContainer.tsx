@@ -1,15 +1,19 @@
+import { Close } from "@mui/icons-material";
 import {
   Avatar,
   Box,
   Button,
   Divider,
-  Grid,
+  IconButton,
   Link,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
   Paper,
   TextField,
-  Typography,
 } from "@mui/material";
-import { FC, useEffect, useState } from "react";
+import React, { FC, useCallback, useEffect, useState } from "react";
 import { FormattedDate, FormattedMessage, FormattedTime } from "react-intl";
 import { Form, Link as RouterLink, useOutletContext } from "react-router-dom";
 import { useUpdateEffect } from "usehooks-ts";
@@ -22,7 +26,15 @@ const CommentsContainer: FC = () => {
   const [comments, setComments] = useState<Review["Comments"]>(() => Comments);
   const [commentInput, setCommentInput] = useState("");
 
-  const { authenticated } = useAuth();
+  const { user, authenticated } = useAuth();
+
+  const canEdit = useCallback(
+    (commentUserId: number) => {
+      if (!authenticated) return null;
+      else return user?.role == "admin" || user!.id == commentUserId;
+    },
+    [user]
+  );
 
   useEffect(() => {
     const eventSource = new EventSource(`/api/reviews/${id}/comments`);
@@ -44,43 +56,74 @@ const CommentsContainer: FC = () => {
   }, [comments]);
 
   return (
-    <Paper elevation={2} sx={{ mt: 2, p: { xs: 2, sm: 3 } }}>
-      {comments?.map((comment, index) => (
-        <Box key={index}>
-          <Grid container wrap="nowrap" spacing={2}>
-            <Grid item component={RouterLink} to={`/profile/${comment.UserId}`}>
-              <Avatar alt={comment.User?.username} src={comment.User?.avatar} />
-            </Grid>
-            <Grid item xs zeroMinWidth>
-              <Link
-                underline="none"
-                component={RouterLink}
-                to={`/profile/${comment.UserId}`}
-                variant="h5"
-              >
-                {comment.User?.username}
-              </Link>
-              <Typography my={1}>{comment.text}</Typography>
-              <Typography color={"GrayText"}>
-                <FormattedDate value={comment.createdAt} />{" "}
-                <FormattedTime value={comment.createdAt} />
-              </Typography>
-            </Grid>
-          </Grid>
-          {index != comments.length - 1 && (
-            <Divider light variant="fullWidth" sx={{ my: 2 }} />
-          )}
-        </Box>
-      ))}
+    <Paper elevation={2} sx={{ mt: 2, pr: 2 }}>
+      <List>
+        {comments?.map((comm, index) => (
+          <>
+            <ListItem
+              secondaryAction={
+                canEdit(comm.UserId) && (
+                  <IconButton
+                    edge="end"
+                    size="small"
+                    aria-label="delete comment"
+                  >
+                    <Close />
+                  </IconButton>
+                )
+              }
+              alignItems="flex-start"
+              key={index}
+            >
+              <ListItemAvatar>
+                <Link component={RouterLink} to={`/profile/${comm.UserId}`}>
+                  <Avatar alt={comm.User.username} src={comm.User.avatar} />
+                </Link>
+              </ListItemAvatar>
+              <ListItemText
+                primary={
+                  <Box mb={1}>
+                    <Link
+                      display={"block"}
+                      underline="none"
+                      component={RouterLink}
+                      to={`/profile/${comm.UserId}`}
+                      variant="h6"
+                    >
+                      {comm.User?.username}
+                    </Link>
+                    {comm.text}
+                  </Box>
+                }
+                secondary={
+                  <React.Fragment>
+                    <FormattedDate value={comm.createdAt} />{" "}
+                    <FormattedTime value={comm.createdAt} />
+                  </React.Fragment>
+                }
+              />
+            </ListItem>
+            {index != comments.length - 1 && (
+              <Divider component={"li"} variant="inset" />
+            )}
+          </>
+        ))}
+      </List>
+
       {authenticated && (
         <>
-          <Divider light variant="fullWidth" sx={{ my: 2 }} />
+          <Divider light variant="fullWidth" sx={{ mb: 2 }} />
           <Form
             method="POST"
             onSubmit={() => {
               setCommentInput("");
             }}
-            style={{ display: "flex", gap: 10 }}
+            style={{
+              display: "flex",
+              gap: 10,
+              marginLeft: "18px",
+              paddingBottom: "18px",
+            }}
           >
             <TextField
               autoComplete="off"
