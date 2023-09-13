@@ -114,6 +114,7 @@ const Search: FC = () => {
                   }}
                 >
                   <Link
+                    width={"100%"}
                     component={RouterLink}
                     to={"/reviews/" + option.id}
                     underline="none"

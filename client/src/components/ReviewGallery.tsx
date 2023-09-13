@@ -1,24 +1,25 @@
 import {
+  Box,
   Button,
   IconButton,
   ImageList,
   ImageListItem,
   ImageListItemBar,
   Input,
+  Modal,
 } from "@mui/material";
-import { FC, useState } from "react";
+import { FC, MouseEventHandler, useState } from "react";
 import { Review } from "../types";
 import { AddAPhoto, Close } from "@mui/icons-material";
 import ImageUpload from "./ImageUpload";
+import ImageGallery from "react-image-gallery";
+import "react-image-gallery/styles/css/image-gallery.css";
 
-type GalleryProps = {
-  images: Review["Review_Images"];
-  canEdit: boolean;
-};
-
-export const GalleryImage: FC<{ src: string }> = ({ src }) => (
+export const GalleryImage: FC<{ src: string; onClick: MouseEventHandler }> = (
+  props
+) => (
   <img
-    src={src}
+    {...props}
     loading="lazy"
     style={{
       maxHeight: "100px",
@@ -26,9 +27,19 @@ export const GalleryImage: FC<{ src: string }> = ({ src }) => (
   />
 );
 
+type GalleryProps = {
+  images: Review["Review_Images"];
+  canEdit: boolean;
+};
+
 const ReviewGallery: FC<GalleryProps> = ({ images, canEdit }) => {
   const [openUploadWindow, setOpenUploadWindow] = useState(false);
   const [galleryInput, setGalleryInput] = useState(() => images || []);
+  const [startIndex, setStartIndex] = useState(0);
+
+  const [open, setOpen] = useState(false);
+  const openCarousel = () => setOpen(true);
+  const closeCarousel = () => setOpen(false);
 
   return (
     <>
@@ -41,7 +52,13 @@ const ReviewGallery: FC<GalleryProps> = ({ images, canEdit }) => {
       >
         {galleryInput?.map((image, i) => (
           <ImageListItem key={i} sx={{ width: "fit-content" }}>
-            <GalleryImage src={image.src} />
+            <GalleryImage
+              src={image.src}
+              onClick={() => {
+                openCarousel();
+                setStartIndex(i);
+              }}
+            />
             <ImageListItemBar
               position="top"
               sx={
@@ -95,6 +112,28 @@ const ReviewGallery: FC<GalleryProps> = ({ images, canEdit }) => {
         name="reviewGallery"
         value={JSON.stringify(galleryInput)}
       />
+      {galleryInput && galleryInput.length > 0 && (
+        <Modal open={open} onClose={closeCarousel}>
+          <Box
+            position={"absolute"}
+            top={"50%"}
+            left={"50%"}
+            sx={{ transform: "translate(-50%, -50%)" }}
+          >
+            <ImageGallery
+              showPlayButton={false}
+              slideDuration={150}
+              startIndex={startIndex}
+              items={galleryInput.map((img) => {
+                return {
+                  original: img.src,
+                  thumbnail: img.src,
+                };
+              })}
+            />
+          </Box>
+        </Modal>
+      )}
     </>
   );
 };
