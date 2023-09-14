@@ -52,7 +52,7 @@ function createRandomComment() {
 
 function createRandomReviewImage() {
   return {
-    src: fakerEN.image.urlLoremFlickr({ category: "movie" }),
+    src: fakerEN.image.urlLoremFlickr({ category: "movies" }),
   };
 }
 
@@ -104,7 +104,7 @@ const generateData = async () => {
 
   await User.bulkCreate(
     faker.helpers.multiple(createRandomUser, {
-      count: faker.number.int({ min: 5, max: 10 }),
+      count: 15,
     })
   );
 
@@ -117,46 +117,41 @@ const generateData = async () => {
         count: faker.number.int({ min: 2, max: 5 }),
       }
     );
-    for (let k = 0; k < reviews.length; k++) {
-      const review = reviews[k];
-      await user.createReview(review);
-    }
+    await Promise.all(reviews.map(async (review) => user.createReview(review)));
   }
 
   const allReviews = await Review.findAll({ include: User });
   for (let i = 0; i < allReviews.length; i++) {
     const review = allReviews[i];
     const comments = faker.helpers.multiple(createRandomComment, {
-      count: faker.number.int({ min: 1, max: 4 }),
+      count: faker.number.int({ min: 0, max: 10 }),
     });
-    for (let k = 0; k < comments.length; k++) {
-      const comment = comments[k];
-      await Comment.create({
-        ...comment,
-        UserId: faker.helpers.arrayElement(allUsers).id,
-        ReviewId: review.id,
-      });
-    }
+    await Comment.bulkCreate(
+      comments.map((comment) => {
+        return {
+          ...comment,
+          UserId: faker.helpers.arrayElement(allUsers).id,
+          ReviewId: review.id,
+        };
+      })
+    );
     const reviewImages = faker.helpers.multiple(createRandomReviewImage, {
-      count: faker.number.int({ min: 1, max: 4 }),
+      count: faker.number.int({ min: 0, max: 5 }),
     });
-    for (let k = 0; k < reviewImages.length; k++) {
-      const reviewImage = reviewImages[k];
-      await Review_Image.create({
-        ...reviewImage,
-        ReviewId: review.id,
-      });
-    }
-  }
-
-  await Tag.bulkCreate(faker.helpers.multiple(createRandomTag, { count: 10 }));
-  const allTags = await Tag.findAll();
-  for (let i = 0; i < allReviews.length; i++) {
-    const review = allReviews[i];
-    await review.setTags(
-      faker.helpers.arrayElements(allTags, { min: 0, max: 5 })
+    await Review_Image.bulkCreate(
+      reviewImages.map((image) => {
+        return { ...image, ReviewId: review.id };
+      })
     );
   }
+
+  await Tag.bulkCreate(faker.helpers.multiple(createRandomTag, { count: 20 }));
+  const allTags = await Tag.findAll();
+  await Promise.all(
+    allReviews.map(async (review) =>
+      review.setTags(faker.helpers.arrayElements(allTags, { min: 0, max: 5 }))
+    )
+  );
 
   await generateUser("Adam", "123", "admin");
   await generateUser("Eve", "123", "user");
