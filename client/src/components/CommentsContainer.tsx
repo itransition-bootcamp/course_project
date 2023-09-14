@@ -64,6 +64,7 @@ const CommentsContainer: FC = () => {
       window.scrollTo(0, document.body.scrollHeight);
   }, [comments]);
 
+  if (comments?.length == 0 && !authenticated) return null;
   return (
     <Paper elevation={2} sx={{ mt: 2, pr: 2 }}>
       <List>
