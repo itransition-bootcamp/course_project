@@ -295,4 +295,20 @@ reviews.post(
   }
 );
 
+reviews.delete(
+  "/:id/comments/:commentId",
+  authenticated(),
+  validIdParam(),
+  async (req, res) => {
+    const commentId = parseInt(req.params.commentId);
+    const user = await User.findByPk(req.user!.id);
+    const comment = await Comment.findByPk(commentId);
+    if (!user || !comment) return res.sendStatus(StatusCodes.NOT_FOUND);
+    if (comment.UserId != user.id && user.role != "admin")
+      res.sendStatus(StatusCodes.UNAUTHORIZED);
+    else await comment?.destroy();
+    res.sendStatus(200);
+  }
+);
+
 export default reviews;
