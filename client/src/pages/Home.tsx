@@ -1,6 +1,11 @@
 import ReviewsContainer from "./../components/ReviewsContainer";
 import { Container, Grid, styled } from "@mui/material";
-import { LoaderFunction, useLoaderData, useNavigation } from "react-router-dom";
+import {
+  LoaderFunction,
+  useLoaderData,
+  useNavigation,
+  useSearchParams,
+} from "react-router-dom";
 import { TagCloud } from "react-tagcloud";
 import { Review } from "../types";
 import LoadingSpinner from "../components/LoadingSpinner";
@@ -15,6 +20,7 @@ const StyledTagCloud = styled(TagCloud)(() => ({
 
 const Home: React.FC = () => {
   const [topReviews, lastReviews, tags] = useLoaderData() as LoaderData;
+  const [, setSearchParams] = useSearchParams();
   const { state } = useNavigation();
   if (state === "loading") return <LoadingSpinner />;
   else
@@ -38,7 +44,7 @@ const Home: React.FC = () => {
           minSize={15}
           maxSize={60}
           tags={tags}
-          onClick={(tag: TagCount) => alert(`'${tag.value}' was selected!`)}
+          onClick={(tag: TagCount) => setSearchParams({ tags: tag.value })}
         />
       </Container>
     );
@@ -51,8 +57,13 @@ export const homePageLoader: LoaderFunction = async ({ params, request }) => {
   else if (category == "games") category = "Videogame";
   else category = undefined;
 
-  const fetchUrl = `/api/reviews?limit=10${category ? "&cat=" + category : ""}`;
-  const topReviews = await fetch(`${fetchUrl}&top`, {
+  const tagsSearchParam = new URL(request.url).searchParams.getAll("tags");
+
+  let fetchUrl = `/api/reviews?limit=10`;
+  if (category) fetchUrl += "&cat=" + category;
+  if (tagsSearchParam)
+    fetchUrl += tagsSearchParam.map((tag) => "&tags=" + tag).join("");
+  const topReviews = await fetch(fetchUrl + "&top", {
     signal: request.signal,
   }).then((res) => res.json());
   const lastReviews = await fetch(fetchUrl, {

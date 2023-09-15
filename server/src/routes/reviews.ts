@@ -29,9 +29,8 @@ reviews.get("/", async (req, res) => {
   const limit: number = parseInt(req.query.limit as string);
   const top = Object.prototype.hasOwnProperty.call(req.query, "top");
   const category = req.query.cat;
-
   if (category && typeof category != "string") return;
-
+  const tags = req.query.tags;
   const dbQuery: FindOptions<
     InferAttributes<
       Review,
@@ -72,6 +71,26 @@ reviews.get("/", async (req, res) => {
     dbQuery.where = {
       "$Product.category$": category,
     };
+  }
+  if (tags) {
+    dbQuery.include = [
+      ...(dbQuery.include as Includeable[]),
+      {
+        model: Tag,
+        attributes: [],
+        through: { attributes: [] },
+      },
+    ];
+
+    dbQuery.having = sequelize.where(
+      sequelize.fn("ARRAY_AGG", sequelize.col("Tags.name")),
+      {
+        [Op.contains]: sequelize.cast(
+          Array.isArray(tags) ? tags : [tags],
+          "varchar[]"
+        ),
+      }
+    );
   }
   if (limit) Object.assign(dbQuery, { limit: limit, subQuery: false });
   res.send(await Review.findAll(dbQuery));
