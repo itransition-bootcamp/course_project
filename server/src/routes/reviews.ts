@@ -97,15 +97,24 @@ reviews.get("/", async (req, res) => {
 });
 
 reviews.post("/", authenticated(), async (req, res) => {
-  const newReview = await Review.create({
+  const newReviewValues = {
     title: req.body.title,
     text: req.body.text,
     rating: req.body.rating,
     ProductId: req.body.ProductId,
-    UserId: req.user?.id,
-  });
+    UserId: req.user!.id,
+  };
 
-  Review_Image.bulkCreate(
+  if (
+    Object.values(newReviewValues).some(
+      (value) => value === undefined || value === null
+    )
+  )
+    return res.sendStatus(StatusCodes.BAD_REQUEST);
+
+  const newReview = await Review.create(newReviewValues);
+
+  await Review_Image.bulkCreate(
     req.body.gallery.map((img: { src: string }) => {
       return { ...img, ReviewId: newReview.id };
     })

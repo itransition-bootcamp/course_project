@@ -50,16 +50,16 @@ Review.hasMany(Review_Image, {
   onDelete: "CASCADE",
 });
 Review.belongsToMany(Tag, { through: Review_Tag });
-Review.belongsTo(Product);
+Review.belongsTo(Product, {
+  foreignKey: { allowNull: false },
+  onDelete: "CASCADE",
+});
 
 Tag.belongsToMany(Review, { through: Review_Tag });
 
 Review_Image.belongsTo(Review);
 
-Product.hasMany(Review, {
-  foreignKey: { allowNull: false },
-  onDelete: "CASCADE",
-});
+Product.hasMany(Review);
 
 Comment.belongsTo(User);
 Comment.belongsTo(Review);
