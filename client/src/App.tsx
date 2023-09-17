@@ -11,26 +11,10 @@ import {
 import { useMemo } from "react";
 import AuthProvider from "./components/AuthProvider";
 import Header from "./components/Header";
-import Home, { homePageLoader } from "./pages/Home";
 import LogIn from "./pages/Login";
-import Profile, { profilePageAction, profilePageLoader } from "./pages/Profile";
 import Register from "./pages/Register";
 
 import { Outlet } from "react-router-dom";
-import AdminDashboard, {
-  adminPageAction,
-  adminPageLoader,
-} from "./pages/AdminDashboard";
-import EditReview, { editReviewAction } from "./pages/EditReview";
-import Review from "./pages/Review";
-import ReviewRoot, {
-  reviewRootAction,
-  reviewRootLoader,
-} from "./pages/ReviewRoot";
-import CreateReview, {
-  CreateReviewAction,
-  CreateReviewLoader,
-} from "./pages/CreateReview";
 import * as locales from "@mui/material/locale";
 import intlMessagesEN from "./translations/en.json";
 import intlMessagesRU from "./translations/ru.json";
@@ -78,44 +62,25 @@ function App() {
     createRoutesFromElements(
       <Route element={<Root />}>
         <Route element={<WithHeader />}>
-          <Route
-            path="/:category?"
-            element={<Home />}
-            loader={homePageLoader}
-          />
-          <Route
-            path="/admin"
-            element={<AdminDashboard />}
-            action={adminPageAction}
-            loader={adminPageLoader}
-          />
-          <Route
-            path="/profile/:id"
-            element={<Profile />}
-            action={profilePageAction}
-            loader={profilePageLoader}
-          />
+          <Route path="/:category?" lazy={() => import("./pages/Home")} />
+          <Route path="/admin" lazy={() => import("./pages/AdminDashboard")} />
+          <Route path="/profile/:id" lazy={() => import("./pages/Profile")} />
           <Route
             path="/reviews/create"
-            element={<CreateReview />}
-            action={CreateReviewAction}
-            loader={CreateReviewLoader}
+            lazy={() => import("./pages/CreateReview")}
           />
           <Route
             path="/reviews/:id"
-            action={reviewRootAction}
-            loader={reviewRootLoader}
-            element={<ReviewRoot />}
+            lazy={() => import("./pages/ReviewRoot")}
             shouldRevalidate={({ formData, defaultShouldRevalidate }) => {
               if (formData?.get("intent") === "add comment") return false;
               else return defaultShouldRevalidate;
             }}
           >
-            <Route path="" element={<Review />} />
+            <Route path="" lazy={() => import("./pages/Review")} />
             <Route
               path="edit"
-              action={editReviewAction}
-              element={<EditReview />}
+              lazy={() => import("./pages/EditReview")}
             ></Route>
             <Route
               path="delete"

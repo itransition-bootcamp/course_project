@@ -23,7 +23,7 @@ import TagsAutocomplete from "../components/TagsAutocomplete";
 import ReviewGallery from "../components/ReviewGallery";
 import { useIntl } from "react-intl";
 
-const EditReview: FC = () => {
+export const Component: FC = () => {
   const { state } = useNavigation();
   const { user, loading: loadingAuth } = useAuth();
   const editForm = useFetcher();
@@ -114,7 +114,7 @@ const EditReview: FC = () => {
   );
 };
 
-export const editReviewAction: ActionFunction = async ({ params, request }) => {
+export const action: ActionFunction = async ({ params, request }) => {
   if (request.method == "PUT") {
     const formData = await request.formData();
     if (!formData.has("reviewTitle")) return null;
@@ -136,5 +136,3 @@ export const editReviewAction: ActionFunction = async ({ params, request }) => {
   }
   return redirect("../");
 };
-
-export default EditReview;

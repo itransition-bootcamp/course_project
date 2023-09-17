@@ -32,7 +32,7 @@ import { Edit } from "@mui/icons-material";
 import ReviewsTable from "../components/ReviewsTable";
 import { FormattedDate, FormattedMessage } from "react-intl";
 
-type Profile = {
+export type Profile = {
   id: number;
   username: string;
   role: string;
@@ -42,7 +42,7 @@ type Profile = {
   Reviews: Review[];
 };
 
-const Profile = () => {
+export const Component = () => {
   const profile = useLoaderData() as Profile;
   const { username, id, avatar, email, role, createdAt, Reviews } = profile;
   const [usernameInputValue, setUsernameInputValue] = useState("");
@@ -212,10 +212,7 @@ const Profile = () => {
     );
 };
 
-export const profilePageAction: ActionFunction = async ({
-  params,
-  request,
-}) => {
+export const action: ActionFunction = async ({ params, request }) => {
   if (request.method == "DELETE")
     return fetch(`/api/users/${params.id}`, {
       method: "DELETE",
@@ -236,15 +233,10 @@ export const profilePageAction: ActionFunction = async ({
   }
 };
 
-export const profilePageLoader: LoaderFunction = async ({
-  params,
-  request,
-}) => {
+export const loader: LoaderFunction = async ({ params, request }) => {
   const resp = await fetch(`/api/users/${params.id}`, {
     signal: request.signal,
   });
   if (!resp.ok) return redirect("/");
   else return resp;
 };
-
-export default Profile;

@@ -1,6 +1,6 @@
 import { DataGrid, GridColDef, useGridApiRef } from "@mui/x-data-grid";
 import { useLoaderData, useNavigate } from "react-router-dom";
-import Profile from "../pages/Profile";
+import { Profile } from "../pages/Profile";
 
 const columns: GridColDef[] = [
   { field: "id", headerName: "ID", type: "number" },

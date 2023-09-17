@@ -30,7 +30,7 @@ import ReviewGallery from "../components/ReviewGallery";
 import { Product } from "../types";
 import { FormattedMessage, useIntl } from "react-intl";
 
-const CreateReview: FC = () => {
+export const Component: FC = () => {
   const { state } = useNavigation();
   const { authenticated, loading: loadingAuth } = useAuth();
   const createForm = useFetcher();
@@ -167,7 +167,7 @@ const CreateReview: FC = () => {
   );
 };
 
-export const CreateReviewAction: ActionFunction = async ({ request }) => {
+export const action: ActionFunction = async ({ request }) => {
   if (request.method == "POST") {
     const formData = await request.formData();
     if (!formData.has("reviewTitle") || formData.get("reviewTitle") == "")
@@ -199,8 +199,6 @@ export const CreateReviewAction: ActionFunction = async ({ request }) => {
   return null;
 };
 
-export const CreateReviewLoader: LoaderFunction = async () => {
+export const loader: LoaderFunction = async () => {
   return fetch("/api/products");
 };
-
-export default CreateReview;

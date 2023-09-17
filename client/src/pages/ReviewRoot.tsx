@@ -6,13 +6,13 @@ import {
   useLoaderData,
 } from "react-router-dom";
 
-const ReviewRoot = () => {
+export const Component = () => {
   const review = useLoaderData();
 
   return <Outlet context={review} />;
 };
 
-export const reviewRootAction: ActionFunction = async ({ params, request }) => {
+export const action: ActionFunction = async ({ params, request }) => {
   if (request.method == "POST") {
     const formData = await request.formData();
     const intent = formData.get("intent");
@@ -32,7 +32,7 @@ export const reviewRootAction: ActionFunction = async ({ params, request }) => {
   } else return null;
 };
 
-export const reviewRootLoader: LoaderFunction = async ({ params, request }) => {
+export const loader: LoaderFunction = async ({ params, request }) => {
   const resp = await fetch(`/api/reviews/${params.id}?user&comments&gallery`, {
     signal: request.signal,
   });
@@ -43,5 +43,3 @@ export const reviewRootLoader: LoaderFunction = async ({ params, request }) => {
     return review;
   }
 };
-
-export default ReviewRoot;

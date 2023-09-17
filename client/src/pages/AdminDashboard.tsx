@@ -23,7 +23,7 @@ type TableUser = {
   createdAt: Date;
 };
 
-const AdminDashboard = () => {
+export const Component = () => {
   const { user, loading: authLoading, authenticated } = useAuth();
   const navigate = useNavigate();
   const submit = useSubmit();
@@ -151,7 +151,7 @@ const AdminDashboard = () => {
     );
 };
 
-export const adminPageAction: ActionFunction = async ({ request }) => {
+export const action: ActionFunction = async ({ request }) => {
   if (request.method == "PUT")
     return fetch("/api/users", {
       method: "PUT",
@@ -171,7 +171,7 @@ export const adminPageAction: ActionFunction = async ({ request }) => {
   else return null;
 };
 
-export const adminPageLoader: LoaderFunction = async ({ request }) => {
+export const loader: LoaderFunction = async ({ request }) => {
   const resp = await fetch(`/api/users/`, {
     signal: request.signal,
   });
@@ -183,5 +183,3 @@ export const adminPageLoader: LoaderFunction = async ({ request }) => {
   );
   return users;
 };
-
-export default AdminDashboard;

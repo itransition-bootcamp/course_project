@@ -27,7 +27,7 @@ import ReviewGallery from "../components/ReviewGallery";
 import { FormattedMessage } from "react-intl";
 import Like from "../components/Like";
 
-const ReviewPage = () => {
+export const Component = () => {
   const review = useOutletContext() as Review;
   const { user } = useAuth();
   const { state } = useNavigation();
@@ -108,5 +108,3 @@ const ReviewPage = () => {
       </Container>
     );
 };
-
-export default ReviewPage;

@@ -18,7 +18,7 @@ const StyledTagCloud = styled(TagCloud)(() => ({
   "& .tag-cloud-tag": { cursor: "pointer" },
 }));
 
-const Home: React.FC = () => {
+export const Component: React.FC = () => {
   const [topReviews, lastReviews, tags] = useLoaderData() as LoaderData;
   const [, setSearchParams] = useSearchParams();
   const { state } = useNavigation();
@@ -50,7 +50,7 @@ const Home: React.FC = () => {
     );
 };
 
-export const homePageLoader: LoaderFunction = async ({ params, request }) => {
+export const loader: LoaderFunction = async ({ params, request }) => {
   let category = params.category;
   if (category == "books") category = "Book";
   else if (category == "movies") category = "Movie";
@@ -74,5 +74,3 @@ export const homePageLoader: LoaderFunction = async ({ params, request }) => {
   }).then((res) => res.json());
   return [topReviews, lastReviews, tags];
 };
-
-export default Home;
