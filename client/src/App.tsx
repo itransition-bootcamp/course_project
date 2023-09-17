@@ -1,4 +1,4 @@
-import { CssBaseline, Paper, useMediaQuery } from "@mui/material";
+import { CssBaseline, Paper } from "@mui/material";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import {
   Route,
@@ -21,7 +21,7 @@ import intlMessagesRU from "./translations/ru.json";
 import intlMessagesES from "./translations/es.json";
 import intlMessagesUK from "./translations/uk.json";
 import intlMessagesPL from "./translations/pl.json";
-import { useLocalStorage } from "usehooks-ts";
+import { useDarkMode, useLocalStorage } from "usehooks-ts";
 import { IntlProvider } from "react-intl";
 
 function WithHeader() {
@@ -42,27 +42,28 @@ function Root() {
 }
 
 function App() {
-  const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
   const [locale] = useLocalStorage<keyof typeof locales>("locale", "enUS");
+  const { isDarkMode } = useDarkMode();
 
   const theme = useMemo(
     () =>
       createTheme(
         {
           palette: {
-            mode: prefersDarkMode ? "dark" : "light",
+            mode: isDarkMode ? "dark" : "light",
           },
         },
         locales[locale]
       ),
-    [prefersDarkMode, locale]
+    [isDarkMode, locale]
   );
 
   const router = createBrowserRouter(
     createRoutesFromElements(
       <Route element={<Root />}>
         <Route element={<WithHeader />}>
-          <Route path="/:category?" lazy={() => import("./pages/Home")} />
+          <Route path="/" lazy={() => import("./pages/Home")} />
+          <Route path="/:category" lazy={() => import("./pages/Home")} />
           <Route path="/admin" lazy={() => import("./pages/AdminDashboard")} />
           <Route path="/profile/:id" lazy={() => import("./pages/Profile")} />
           <Route

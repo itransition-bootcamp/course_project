@@ -1,4 +1,11 @@
-import { Games, Home, LibraryBooks, Movie } from "@mui/icons-material";
+import {
+  DarkMode,
+  Games,
+  Home,
+  LibraryBooks,
+  LightMode,
+  Movie,
+} from "@mui/icons-material";
 import MenuIcon from "@mui/icons-material/Menu";
 import {
   Button,
@@ -17,7 +24,7 @@ import Toolbar from "@mui/material/Toolbar";
 import { FC, useState } from "react";
 import { FormattedMessage } from "react-intl";
 import { NavLink, useNavigate } from "react-router-dom";
-import { useLocalStorage } from "usehooks-ts";
+import { useDarkMode, useLocalStorage } from "usehooks-ts";
 import { useAuth } from "./AuthProvider";
 import ProfileMenu from "./ProfileMenu";
 import Search from "./Search";
@@ -26,6 +33,7 @@ const Header: FC = () => {
   const { authenticated, loading } = useAuth();
   const [drawerOpened, setDrawerOpened] = useState(false);
   const [locale, setLocale] = useLocalStorage("locale", "enUS");
+  const { isDarkMode, toggle: toggleDarkMode } = useDarkMode();
   const navigate = useNavigate();
 
   return (
@@ -54,7 +62,7 @@ const Header: FC = () => {
                   to={text === "Home" ? "/" : text.toLowerCase()}
                   sx={{
                     "&.active": {
-                      bgcolor: "ActiveBorder",
+                      bgcolor: "action.selected",
                     },
                   }}
                 >
@@ -88,6 +96,23 @@ const Header: FC = () => {
                 <MenuItem value="ruRU">Русский</MenuItem>
                 <MenuItem value="esES">Español</MenuItem>
               </Select>
+            </ListItem>
+            <ListItem>
+              <ListItemButton
+                onClick={() => {
+                  toggleDarkMode();
+                  setDrawerOpened(false);
+                }}
+              >
+                <ListItemText
+                  primary={
+                    <FormattedMessage id={"app.header.drawer.themeToggle"} />
+                  }
+                />
+                <ListItemIcon>
+                  {isDarkMode ? <DarkMode /> : <LightMode />}
+                </ListItemIcon>
+              </ListItemButton>
             </ListItem>
           </List>
         </Drawer>

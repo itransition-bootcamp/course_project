@@ -6,6 +6,7 @@
   "app.header.drawer.Movies": "Películas",
   "app.header.drawer.Books": "Libros",
   "app.header.drawer.Games": "Juegos",
+  "app.header.drawer.themeToggle": "Alternar tema",
   "app.header.button.login": "Iniciar sesión",
   "app.header.search.noResults": "No se encontró nada",
   "app.header.profileMenu.admin": "Panel de administración",

@@ -6,6 +6,7 @@
   "app.header.drawer.Movies": "Фильмы",
   "app.header.drawer.Books": "Книги",
   "app.header.drawer.Games": "Игры",
+  "app.header.drawer.themeToggle": "Переключить тему",
   "app.header.button.login": "Войти",
   "app.header.search.noResults": "Ничего не найдено",
   "app.header.profileMenu.admin": "Панель администратора",
