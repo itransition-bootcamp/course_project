@@ -16,7 +16,7 @@ search.post("/", async (req, res) => {
             sequelize.literal(
               `"Review"."vector" || coalesce("Comments"."vector", '')`
             ),
-            sequelize.fn("plainto_tsquery", "english", req.body.search)
+            sequelize.fn("websearch_to_tsquery", "english", req.body.search)
           )
         ),
         "rankV",
@@ -31,7 +31,7 @@ search.post("/", async (req, res) => {
       Like,
     ],
     where: sequelize.literal(
-      `"Review"."vector" || coalesce("Comments"."vector", '') @@ plainto_tsquery('english', '${req.body.search}')`
+      `"Review"."vector" || coalesce("Comments"."vector", '') @@ websearch_to_tsquery('english', '${req.body.search}')`
     ),
     group: [sequelize.col(`Review.id`)],
     order: [[sequelize.col(`rankV`), "DESC"]],
