@@ -94,6 +94,9 @@ class Review extends Model<
             fields: ["vector"],
             using: "GIN",
           },
+          {
+            fields: ["UserId"],
+          },
         ],
       }
     );

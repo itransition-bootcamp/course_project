@@ -53,6 +53,9 @@ class Comment extends Model<
             fields: ["vector"],
             using: "GIN",
           },
+          {
+            fields: ["ReviewId"],
+          },
         ],
       }
     );
