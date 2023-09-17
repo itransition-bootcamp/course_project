@@ -3,6 +3,7 @@ import { useState } from "react";
 import { FormattedMessage } from "react-intl";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthProvider";
+import { Star } from "@mui/icons-material";
 
 const ProfileMenu = () => {
   const { user, authenticated, logout } = useAuth();
@@ -22,15 +23,17 @@ const ProfileMenu = () => {
     setAnchorEl(null);
     navigate("/");
   };
-  if (!authenticated) return null;
+  if (!authenticated || !user) return null;
   else
     return (
       <Box sx={{ display: "flex", alignItems: "center", marginLeft: "auto" }}>
-        <Typography variant="h6" mr={2}>
-          {user?.username}
+        <Typography display={"flex"} alignItems={"center"} variant="h6" mr={2}>
+          {user.username}
+          <Star sx={{ ml: 1 }} />
+          {user.likesCount}
         </Typography>
-        <Avatar onClick={handleMenu} alt={user?.username} src={user?.avatar}>
-          {user?.username.charAt(0)}
+        <Avatar onClick={handleMenu} alt={user.username} src={user.avatar}>
+          {user.username.charAt(0)}
         </Avatar>
 
         <Menu
@@ -60,7 +63,7 @@ const ProfileMenu = () => {
           )}
           <MenuItem
             onClick={() => {
-              navigate("/profile/" + user?.id);
+              navigate("/profile/" + user.id);
               handleClose();
             }}
           >

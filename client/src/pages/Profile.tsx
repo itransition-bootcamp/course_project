@@ -45,7 +45,6 @@ type Profile = {
 const Profile = () => {
   const profile = useLoaderData() as Profile;
   const { username, id, avatar, email, role, createdAt, Reviews } = profile;
-
   const [usernameInputValue, setUsernameInputValue] = useState("");
   const [emailInputValue, setEmailInputValue] = useState("");
   const [avatarInputValue, setAvatarInputValue] = useState("");

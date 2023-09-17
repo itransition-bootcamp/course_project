@@ -5,6 +5,7 @@ import { v2 as cloudinary } from "cloudinary";
 import { Readable } from "stream";
 import multer from "multer";
 import { validIdParam, authorized } from "./handlers";
+import sequelize from "../sequelize";
 const upload = multer({});
 
 cloudinary.config({
@@ -17,8 +18,33 @@ const user = express.Router();
 
 user.get("/me", (req, res) => {
   User.findByPk(req.user?.id, {
-    attributes: { exclude: ["hashedPassword", "salt"] },
-    include: { model: Like, attributes: ["ReviewId"] },
+    attributes: {
+      exclude: ["hashedPassword", "salt", "githubId", "twitterId"],
+      include: [
+        [
+          sequelize.literal(`(
+            SELECT
+            coalesce(SUM("likesPerReview"), '0')::integer
+            FROM
+              (
+                SELECT
+                  id,
+                  COUNT("User->Reviews->Likes"."ReviewId") AS "likesPerReview"
+                FROM
+                  "Reviews" AS "User->Reviews"
+                  LEFT OUTER JOIN "Likes" AS "User->Reviews->Likes" ON "User->Reviews"."id" = "User->Reviews->Likes"."ReviewId"
+                WHERE
+                  "User->Reviews"."UserId" = "User"."id"
+                GROUP BY
+                  "User->Reviews"."id"
+              ) "User->Reviews->Likes.likesPerReview"
+          )`),
+
+          "likesCount",
+        ],
+      ],
+    },
+    include: [{ model: Like, attributes: ["ReviewId"] }],
   }).then((user) => {
     if (!user || user.status == "banned") {
       req.session = null;
@@ -28,7 +54,7 @@ user.get("/me", (req, res) => {
     }
     res.json({
       authenticated: req.isAuthenticated(),
-      user: user?.sanitize(),
+      user: user,
     });
   });
 });

@@ -194,26 +194,80 @@ reviews.get("/:id", async (req, res) => {
     include: Includeable[];
   } = {
     attributes: { exclude: ["updatedAt", "vector"] },
-    include: [Like, Tag],
+    include: [Like, Tag, Product],
   };
-  if (Object.prototype.hasOwnProperty.call(req.query, "comments")) {
-    dbQuery.include.push({
-      model: Comment,
-      include: [{ model: User, attributes: ["username", "avatar"] }],
-    });
-    dbQuery.order = [sequelize.col("Comments.createdAt")];
-  }
-  if (Object.prototype.hasOwnProperty.call(req.query, "user")) {
+  const userInReq = Object.prototype.hasOwnProperty.call(req.query, "user");
+  const galleryInReq = Object.prototype.hasOwnProperty.call(
+    req.query,
+    "gallery"
+  );
+  const commentsInReq = Object.prototype.hasOwnProperty.call(
+    req.query,
+    "comments"
+  );
+
+  if (userInReq) {
     dbQuery.include.push({
       model: User,
       attributes: ["username", "avatar"],
     });
   }
-  if (Object.prototype.hasOwnProperty.call(req.query, "gallery")) {
+  if (galleryInReq) {
     dbQuery.include.push({
       model: Review_Image,
       attributes: ["id", "src"],
     });
+  }
+  if (commentsInReq) {
+    dbQuery.group = [
+      "Review.id",
+      "Likes.ReviewId",
+      "Likes.UserId",
+      "Tags.id",
+      "Tags.Review_Tags.ReviewId",
+      "Tags.Review_Tags.TagId",
+      "Product.id",
+      "Comments.id",
+      "Comments.User.id",
+    ];
+    if (userInReq) dbQuery.group.push("User.id");
+    if (galleryInReq) dbQuery.group.push("Review_Images.id");
+    dbQuery.include.push({
+      model: Comment,
+      attributes: { exclude: ["updatedAt", "vector", "UserId"] },
+      include: [
+        {
+          model: User,
+          attributes: [
+            "id",
+            "username",
+            "avatar",
+            [
+              sequelize.literal(`(
+                  SELECT
+                  coalesce(SUM("likesPerReview"), '0')::integer
+                  FROM
+                    (
+                      SELECT
+                        id,
+                        COUNT("Comments->User->Reviews->Likes"."ReviewId") AS "likesPerReview"
+                      FROM
+                        "Reviews" AS "Comments->User->Reviews"
+                        LEFT OUTER JOIN "Likes" AS "Comments->User->Reviews->Likes" ON "Comments->User->Reviews"."id" = "Comments->User->Reviews->Likes"."ReviewId"
+                      WHERE
+                        "Comments->User->Reviews"."UserId" = "Comments->User"."id"
+                      GROUP BY
+                        "Comments->User->Reviews"."id"
+                    ) "Comments->User->Reviews->Likes.likesPerReview"
+                )`),
+
+              "likesCount",
+            ],
+          ],
+        },
+      ],
+    });
+    dbQuery.order = [sequelize.col("Comments.createdAt")];
   }
   const result = await Review.findByPk(req.params.id, dbQuery);
   if (!result) res.sendStatus(StatusCodes.NOT_FOUND);

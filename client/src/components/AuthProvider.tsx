@@ -14,6 +14,7 @@ type User = {
   avatar?: string;
   Likes: number[];
   role: string;
+  likesCount: number;
 };
 
 type UnformattedUser = Omit<User, "Likes"> & {

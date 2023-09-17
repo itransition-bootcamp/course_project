@@ -42,7 +42,6 @@ type Opinion = {
   text: string;
   createdAt: string;
   updatedAt: string;
-  UserId: number;
   ReviewId: Review["id"];
-  User: { avatar?: string; username: string };
+  User: { id: number; avatar?: string; username: string; likesCount: number };
 };

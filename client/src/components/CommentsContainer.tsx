@@ -1,4 +1,4 @@
-import { Close } from "@mui/icons-material";
+import { Close, Star } from "@mui/icons-material";
 import {
   Avatar,
   Box,
@@ -12,6 +12,7 @@ import {
   ListItemText,
   Paper,
   TextField,
+  Typography,
 } from "@mui/material";
 import React, { FC, useCallback, useEffect, useState } from "react";
 import { FormattedDate, FormattedMessage, FormattedTime } from "react-intl";
@@ -72,7 +73,7 @@ const CommentsContainer: FC = () => {
           <React.Fragment key={comm.id}>
             <ListItem
               secondaryAction={
-                canEdit(comm.UserId) && (
+                canEdit(comm.User.id) && (
                   <IconButton
                     edge="end"
                     size="small"
@@ -93,7 +94,7 @@ const CommentsContainer: FC = () => {
               }}
             >
               <ListItemAvatar>
-                <Link component={RouterLink} to={`/profile/${comm.UserId}`}>
+                <Link component={RouterLink} to={`/profile/${comm.User.id}`}>
                   <Avatar alt={comm.User.username} src={comm.User.avatar} />
                 </Link>
               </ListItemAvatar>
@@ -101,15 +102,22 @@ const CommentsContainer: FC = () => {
                 primary={
                   <Box mb={1}>
                     <Link
-                      display={"block"}
+                      display={"inline-flex"}
+                      alignItems={"center"}
                       underline="none"
                       component={RouterLink}
-                      to={`/profile/${comm.UserId}`}
+                      to={`/profile/${comm.User.id}`}
                       variant="h6"
                     >
-                      {comm.User?.username}
+                      {comm.User.username}
+                      {!!comm.User.likesCount && (
+                        <>
+                          <Star fontSize={"small"} />
+                          {comm.User.likesCount}
+                        </>
+                      )}
                     </Link>
-                    {comm.text}
+                    <Typography>{comm.text}</Typography>
                   </Box>
                 }
                 secondary={
@@ -129,7 +137,9 @@ const CommentsContainer: FC = () => {
 
       {authenticated && (
         <>
-          <Divider light variant="fullWidth" sx={{ mb: 2 }} />
+          {comments && comments.length > 0 && (
+            <Divider light variant="fullWidth" sx={{ mb: 2 }} />
+          )}
           <Form
             method="POST"
             onSubmit={() => {
