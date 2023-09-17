@@ -70,7 +70,11 @@ export const Component = () => {
           {review.Tags && review.Tags.length > 0 && (
             <List sx={{ display: "flex", flexWrap: "wrap", gap: 1, pt: 1 }}>
               {review.Tags.map((tag) => (
-                <ListItem key={tag.id} sx={{ width: "unset", p: 0 }}>
+                <ListItem
+                  key={tag.id}
+                  sx={{ width: "unset", p: 0, cursor: "pointer" }}
+                  onClick={() => navigate("/?tags=" + tag.name)}
+                >
                   <Chip label={tag.name} />
                 </ListItem>
               ))}
