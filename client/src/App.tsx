@@ -1,48 +1,24 @@
-import { CssBaseline, Paper } from "@mui/material";
+import { CssBaseline } from "@mui/material";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
-import {
-  Route,
-  RouterProvider,
-  createBrowserRouter,
-  createRoutesFromElements,
-  redirect,
-} from "react-router-dom";
-
+import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import routes from "./routes";
 import { useMemo } from "react";
 import AuthProvider from "./components/AuthProvider";
-import Header from "./components/Header";
-import LogIn from "./pages/Login";
-import Register from "./pages/Register";
 
-import { Outlet } from "react-router-dom";
 import * as locales from "@mui/material/locale";
-import intlMessagesEN from "./translations/en.json";
-import intlMessagesRU from "./translations/ru.json";
-import intlMessagesES from "./translations/es.json";
-import intlMessagesUK from "./translations/uk.json";
-import intlMessagesPL from "./translations/pl.json";
-import { useDarkMode, useLocalStorage } from "usehooks-ts";
 import { IntlProvider } from "react-intl";
-
-function WithHeader() {
-  return (
-    <>
-      <Header />
-      <Outlet />
-    </>
-  );
-}
-
-function Root() {
-  return (
-    <Paper sx={{ minHeight: "100dvh" }}>
-      <Outlet />
-    </Paper>
-  );
-}
+import { useDarkMode, useLocalStorage } from "usehooks-ts";
+import intlMessagesEN from "./translations/en.json";
+import intlMessagesES from "./translations/es.json";
+import intlMessagesPL from "./translations/pl.json";
+import intlMessagesRU from "./translations/ru.json";
+import intlMessagesUK from "./translations/uk.json";
 
 function App() {
-  const [locale] = useLocalStorage<keyof typeof locales>("locale", "enUS");
+  const [locale] = useLocalStorage<keyof typeof localeMessages>(
+    "locale",
+    "enUS"
+  );
   const { isDarkMode } = useDarkMode();
 
   const theme = useMemo(
@@ -58,59 +34,18 @@ function App() {
     [isDarkMode, locale]
   );
 
-  const router = createBrowserRouter(
-    createRoutesFromElements(
-      <Route element={<Root />}>
-        <Route element={<WithHeader />}>
-          <Route path="/" lazy={() => import("./pages/Home")} />
-          <Route path="/:category" lazy={() => import("./pages/Home")} />
-          <Route path="/admin" lazy={() => import("./pages/AdminDashboard")} />
-          <Route path="/profile/:id" lazy={() => import("./pages/Profile")} />
-          <Route
-            path="/reviews/create"
-            lazy={() => import("./pages/CreateReview")}
-          />
-          <Route
-            path="/reviews/:id"
-            lazy={() => import("./pages/ReviewRoot")}
-            shouldRevalidate={({ formData, defaultShouldRevalidate }) => {
-              if (formData?.get("intent") === "add comment") return false;
-              else return defaultShouldRevalidate;
-            }}
-          >
-            <Route path="" lazy={() => import("./pages/Review")} />
-            <Route
-              path="edit"
-              lazy={() => import("./pages/EditReview")}
-            ></Route>
-            <Route
-              path="delete"
-              action={async ({ params, request }) => {
-                if (request.method == "DELETE") {
-                  await fetch(`/api/reviews/${params.id}`, {
-                    method: "DELETE",
-                  });
-                  return redirect("/");
-                }
-              }}
-            ></Route>
-          </Route>
-        </Route>
-        <Route element={<Outlet />}>
-          <Route path="/login" element={<LogIn />} />
-          <Route path="/register" element={<Register />} />
-        </Route>
-      </Route>
-    )
-  );
-  let intlProps = {
-    locale: "en",
-    messages: intlMessagesEN,
+  const localeMessages = {
+    enUS: { locale: "en", messages: intlMessagesEN },
+    ruRU: { locale: "ru", messages: intlMessagesRU },
+    esES: { locale: "es", messages: intlMessagesES },
+    ukUA: { locale: "uk", messages: intlMessagesUK },
+    plPL: { locale: "pl", messages: intlMessagesPL },
   };
-  if (locale == "ruRU") intlProps = { locale: "ru", messages: intlMessagesRU };
-  if (locale == "esES") intlProps = { locale: "es", messages: intlMessagesES };
-  if (locale == "ukUA") intlProps = { locale: "uk", messages: intlMessagesUK };
-  if (locale == "plPL") intlProps = { locale: "pl", messages: intlMessagesPL };
+
+  const intlProps = localeMessages[locale] || localeMessages.enUS;
+
+  const router = createBrowserRouter(routes);
+
   return (
     <IntlProvider locale={intlProps.locale} messages={intlProps.messages}>
       <ThemeProvider theme={theme}>

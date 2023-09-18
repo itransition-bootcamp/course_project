@@ -1,7 +1,7 @@
 import Container from "@mui/material/Container";
 import { Alert, AlertTitle, Link, Snackbar } from "@mui/material";
 import { useState } from "react";
-import { LoginRegisterForm } from "../components/LoginRegisterForm";
+import { AuthForm } from "../components/AuthForm";
 import { useNavigate, Link as RouterLink, Navigate } from "react-router-dom";
 import { useAuth } from "../components/AuthProvider";
 import { useIntl } from "react-intl";
@@ -37,14 +37,14 @@ const Register = () => {
   if (authenticated) return <Navigate to="/" />;
   return (
     <Container component="main" maxWidth="xs" sx={{ pt: 10 }}>
-      <LoginRegisterForm
+      <AuthForm
         handleSubmit={handleSubmit}
-        text={intl.formatMessage({ id: "app.loginRegister.button.signup" })}
+        text={intl.formatMessage({ id: "app.auth.button.signup" })}
         rememberMe={false}
         bottomLink={
           <Link component={RouterLink} to="/login" variant="body2">
             {intl.formatMessage({
-              id: "app.loginRegister.bottomLink.toSignin",
+              id: "app.auth.bottomLink.toSignin",
             })}
           </Link>
         }
@@ -64,4 +64,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export const Component = Register;

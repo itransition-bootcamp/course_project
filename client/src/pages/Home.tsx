@@ -18,14 +18,14 @@ const StyledTagCloud = styled(TagCloud)(() => ({
   "& .tag-cloud-tag": { cursor: "pointer" },
 }));
 
-export const Component: React.FC = () => {
+const Home: React.FC = () => {
   const [topReviews, lastReviews, tags] = useLoaderData() as LoaderData;
   const [, setSearchParams] = useSearchParams();
   const { state } = useNavigation();
   if (state === "loading") return <LoadingSpinner />;
   else
     return (
-      <Container maxWidth="xl">
+      <Container component={"main"} maxWidth="xl">
         <Grid container columnSpacing={2}>
           <Grid item md={6}>
             <ReviewsContainer
@@ -74,3 +74,5 @@ export const loader: LoaderFunction = async ({ params, request }) => {
   }).then((res) => res.json());
   return [topReviews, lastReviews, tags];
 };
+
+export const Component = Home;

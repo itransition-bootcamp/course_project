@@ -42,7 +42,7 @@ export type Profile = {
   Reviews: Review[];
 };
 
-export const Component = () => {
+const Profile = () => {
   const profile = useLoaderData() as Profile;
   const { username, id, avatar, email, role, createdAt, Reviews } = profile;
   const [usernameInputValue, setUsernameInputValue] = useState("");
@@ -96,7 +96,11 @@ export const Component = () => {
   if (state === "loading") return <LoadingSpinner />;
   else
     return (
-      <Container sx={{ textAlign: "center", py: 2 }} maxWidth={false}>
+      <Container
+        component={"main"}
+        sx={{ textAlign: "center", py: 2 }}
+        maxWidth={false}
+      >
         <fetcher.Form
           method="PUT"
           onSubmit={mutateAuthUser}
@@ -240,3 +244,5 @@ export const loader: LoaderFunction = async ({ params, request }) => {
   if (!resp.ok) return redirect("/");
   else return resp;
 };
+
+export const Component = Profile;

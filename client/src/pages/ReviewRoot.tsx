@@ -6,7 +6,7 @@ import {
   useLoaderData,
 } from "react-router-dom";
 
-export const Component = () => {
+const ReviewRoot = () => {
   const review = useLoaderData();
 
   return <Outlet context={review} />;
@@ -43,3 +43,5 @@ export const loader: LoaderFunction = async ({ params, request }) => {
     return review;
   }
 };
+
+export const Component = ReviewRoot;

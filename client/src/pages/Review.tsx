@@ -27,7 +27,7 @@ import ReviewGallery from "../components/ReviewGallery";
 import { FormattedMessage } from "react-intl";
 import Like from "../components/Like";
 
-export const Component = () => {
+const Review = () => {
   const review = useOutletContext() as Review;
   const { user } = useAuth();
   const { state } = useNavigation();
@@ -38,7 +38,7 @@ export const Component = () => {
   if (state === "loading") return <LoadingSpinner />;
   else
     return (
-      <Container sx={{ py: 2 }}>
+      <Container component={"main"} sx={{ py: 2 }}>
         <Paper elevation={3} sx={{ p: 2 }}>
           <Link
             component={RouterLink}
@@ -112,3 +112,5 @@ export const Component = () => {
       </Container>
     );
 };
+
+export const Component = Review;

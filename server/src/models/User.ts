@@ -81,6 +81,9 @@ class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
         email: {
           type: DataTypes.STRING(60),
           unique: true,
+          validate: {
+            isEmail: true,
+          },
         },
         username: {
           type: DataTypes.STRING(30),

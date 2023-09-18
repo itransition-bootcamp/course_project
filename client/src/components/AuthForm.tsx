@@ -1,5 +1,4 @@
-import { Facebook, GitHub } from "@mui/icons-material";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import { Facebook, GitHub, LockOutlined } from "@mui/icons-material";
 import { Divider } from "@mui/material";
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
@@ -11,12 +10,19 @@ import Typography from "@mui/material/Typography";
 import { FC, FormEventHandler, ReactElement } from "react";
 import { FormattedMessage } from "react-intl";
 
-export const LoginRegisterForm: FC<{
+interface AuthFormProps {
   handleSubmit: FormEventHandler<HTMLFormElement>;
   text: string;
   rememberMe?: boolean;
   bottomLink: ReactElement;
-}> = ({ handleSubmit, text, rememberMe = true, bottomLink }) => {
+}
+
+export const AuthForm: FC<AuthFormProps> = ({
+  handleSubmit,
+  text,
+  rememberMe = true,
+  bottomLink,
+}) => {
   return (
     <Box
       sx={{
@@ -26,7 +32,7 @@ export const LoginRegisterForm: FC<{
       }}
     >
       <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-        <LockOutlinedIcon />
+        <LockOutlined />
       </Avatar>
       <Typography component="h1" variant="h5">
         {text}
@@ -37,7 +43,7 @@ export const LoginRegisterForm: FC<{
           required
           fullWidth
           id="username"
-          label={<FormattedMessage id="app.loginRegister.label.username" />}
+          label={<FormattedMessage id="app.auth.label.username" />}
           name="username"
           autoFocus
         />
@@ -46,7 +52,7 @@ export const LoginRegisterForm: FC<{
           required
           fullWidth
           name="password"
-          label={<FormattedMessage id="app.loginRegister.label.password" />}
+          label={<FormattedMessage id="app.auth.label.password" />}
           type="password"
           id="password"
           autoComplete="current-password"
@@ -54,7 +60,7 @@ export const LoginRegisterForm: FC<{
         {rememberMe && (
           <FormControlLabel
             control={<Checkbox value="remember" />}
-            label={<FormattedMessage id="app.loginRegister.label.rememberMe" />}
+            label={<FormattedMessage id="app.auth.label.rememberMe" />}
           />
         )}
         <Button
@@ -76,7 +82,7 @@ export const LoginRegisterForm: FC<{
           startIcon={<GitHub />}
           sx={{ mt: 1, mb: 2 }}
         >
-          <FormattedMessage id="app.loginRegister.button.github" />
+          <FormattedMessage id="app.auth.button.github" />
         </Button>
         <Button
           fullWidth
@@ -84,7 +90,7 @@ export const LoginRegisterForm: FC<{
           variant="outlined"
           startIcon={<Facebook />}
         >
-          <FormattedMessage id="app.loginRegister.button.facebook" />
+          <FormattedMessage id="app.auth.button.facebook" />
         </Button>
       </Box>
     </Box>

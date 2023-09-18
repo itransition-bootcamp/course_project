@@ -23,7 +23,7 @@ import TagsAutocomplete from "../components/TagsAutocomplete";
 import ReviewGallery from "../components/ReviewGallery";
 import { useIntl } from "react-intl";
 
-export const Component: FC = () => {
+const EditReview: FC = () => {
   const { state } = useNavigation();
   const { user, loading: loadingAuth } = useAuth();
   const editForm = useFetcher();
@@ -39,7 +39,7 @@ export const Component: FC = () => {
   if (state == "loading" || loadingAuth) return <LoadingSpinner />;
   if (!isAuthor) return <Navigate to={"/"} />;
   return (
-    <Container sx={{ py: 2 }}>
+    <Container component={"main"} sx={{ py: 2 }}>
       <editForm.Form
         method="put"
         autoComplete="off"
@@ -136,3 +136,5 @@ export const action: ActionFunction = async ({ params, request }) => {
   }
   return redirect("../");
 };
+
+export const Component = EditReview;

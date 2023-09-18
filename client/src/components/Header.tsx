@@ -109,7 +109,7 @@ const Header: FC = () => {
                     <FormattedMessage id={"app.header.drawer.themeToggle"} />
                   }
                 />
-                <ListItemIcon>
+                <ListItemIcon sx={{ justifyContent: "center" }}>
                   {isDarkMode ? <DarkMode /> : <LightMode />}
                 </ListItemIcon>
               </ListItemButton>

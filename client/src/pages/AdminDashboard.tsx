@@ -23,7 +23,7 @@ type TableUser = {
   createdAt: Date;
 };
 
-export const Component = () => {
+const AdminDashboard = () => {
   const { user, loading: authLoading, authenticated } = useAuth();
   const navigate = useNavigate();
   const submit = useSubmit();
@@ -106,7 +106,7 @@ export const Component = () => {
     return <Navigate to="/" />;
   else
     return (
-      <Container sx={{ pt: 2 }}>
+      <Container component={"main"} sx={{ pt: 2 }}>
         <Box style={{ marginBottom: 16 }}>
           <Button
             onClick={handleBlock}
@@ -183,3 +183,5 @@ export const loader: LoaderFunction = async ({ request }) => {
   );
   return users;
 };
+
+export const Component = AdminDashboard;

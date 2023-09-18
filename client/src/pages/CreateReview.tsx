@@ -1,3 +1,4 @@
+import { FC, useCallback, useState } from "react";
 import {
   Box,
   Button,
@@ -13,7 +14,7 @@ import {
   Typography,
 } from "@mui/material";
 import MuiMarkdown from "mui-markdown";
-import { FC, useCallback, useState } from "react";
+import { FormattedMessage, useIntl } from "react-intl";
 import {
   ActionFunction,
   LoaderFunction,
@@ -25,12 +26,11 @@ import {
 } from "react-router-dom";
 import { useAuth } from "../components/AuthProvider";
 import LoadingSpinner from "../components/LoadingSpinner";
-import TagsAutocomplete from "../components/TagsAutocomplete";
 import ReviewGallery from "../components/ReviewGallery";
+import TagsAutocomplete from "../components/TagsAutocomplete";
 import { Product } from "../types";
-import { FormattedMessage, useIntl } from "react-intl";
 
-export const Component: FC = () => {
+const CreateReview: FC = () => {
   const { state } = useNavigation();
   const { authenticated, loading: loadingAuth } = useAuth();
   const createForm = useFetcher();
@@ -42,19 +42,15 @@ export const Component: FC = () => {
   );
 
   const [title, setTitle] = useState("");
-  const [body, setbody] = useState("");
+  const [body, setBody] = useState("");
   const [rating, setRating] = useState(0);
   const [isPreview, setIsPreview] = useState(false);
-
   const [productId, setProductId] = useState("");
-  const handleChange = (event: SelectChangeEvent) => {
-    setProductId(event.target.value as string);
-  };
 
   const renderSelectGroup = useCallback(
     (cat: string) => {
       const items = products
-        .filter((p) => p.category == cat)
+        .filter((p) => p.category === cat)
         .map((p) => {
           return (
             <MenuItem key={p.id} value={p.id}>
@@ -66,16 +62,20 @@ export const Component: FC = () => {
         <ListSubheader>
           <FormattedMessage id={`app.createReview.subject.cat.${cat}`} />
         </ListSubheader>,
-        items,
+        ...items,
       ];
     },
     [products]
   );
 
-  if (state == "loading" || loadingAuth) return <LoadingSpinner />;
+  const handleProductIdChange = (event: SelectChangeEvent) => {
+    setProductId(event.target.value as string);
+  };
+
+  if (state === "loading" || loadingAuth) return <LoadingSpinner />;
   if (!authenticated) return <Navigate to={"/"} />;
   return (
-    <Container sx={{ py: 2 }}>
+    <Container component={"main"} sx={{ py: 2 }}>
       <createForm.Form
         method="POST"
         autoComplete="off"
@@ -91,7 +91,7 @@ export const Component: FC = () => {
             name="productId"
             value={productId}
             label={intl.formatMessage({ id: "app.createReview.label.subject" })}
-            onChange={handleChange}
+            onChange={handleProductIdChange}
             required
           >
             {categories.map((cat) => renderSelectGroup(cat))}
@@ -135,7 +135,7 @@ export const Component: FC = () => {
             required
             minRows={10}
             value={body}
-            onChange={(e) => setbody(e.target.value)}
+            onChange={(e) => setBody(e.target.value)}
             sx={{ mb: 1 }}
           />
         )}
@@ -202,3 +202,5 @@ export const action: ActionFunction = async ({ request }) => {
 export const loader: LoaderFunction = async () => {
   return fetch("/api/products");
 };
+
+export const Component = CreateReview;
