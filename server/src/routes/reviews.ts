@@ -82,6 +82,8 @@ reviews.get("/", async (req, res) => {
       },
     ];
 
+    dbQuery.group = [...(dbQuery.group as string[]), "Tags.id"];
+
     dbQuery.having = sequelize.where(
       sequelize.fn("ARRAY_AGG", sequelize.col("Tags.name")),
       {
