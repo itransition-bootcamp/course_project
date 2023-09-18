@@ -25,7 +25,7 @@ passport.use(
     {
       clientID: process.env.GITHUB_CLIENT_ID!,
       clientSecret: process.env.GITHUB_CLIENT_SECRET!,
-      callbackURL: "http://127.0.0.1:3000/auth/github/callback",
+      callbackURL: process.env.BASE_URL + "/auth/github/callback",
     },
     async function verify(
       accessToken: string,
@@ -74,7 +74,7 @@ passport.use(
     {
       clientID: process.env.FACEBOOK_APP_ID!,
       clientSecret: process.env.FACEBOOK_APP_SECRET!,
-      callbackURL: "http://localhost:3000/auth/facebook/callback",
+      callbackURL: process.env.BASE_URL + "/auth/facebook/callback",
     },
     async function verify(
       accessToken: string,
