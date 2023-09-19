@@ -1,10 +1,10 @@
-import Container from "@mui/material/Container";
-import { Alert, AlertTitle, Link, Snackbar } from "@mui/material";
 import { useState } from "react";
-import { AuthForm } from "../components/AuthForm";
+import { Container, Link, Snackbar } from "@mui/material";
+import { Alert, AlertTitle } from "@mui/material";
 import { useNavigate, Link as RouterLink, Navigate } from "react-router-dom";
 import { useAuth } from "../components/AuthProvider";
 import { useIntl } from "react-intl";
+import AuthForm from "../components/AuthForm";
 
 const Register = () => {
   const [open, setOpen] = useState(false);

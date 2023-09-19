@@ -17,7 +17,7 @@ interface AuthFormProps {
   bottomLink: ReactElement;
 }
 
-export const AuthForm: FC<AuthFormProps> = ({
+const AuthForm: FC<AuthFormProps> = ({
   handleSubmit,
   text,
   rememberMe = true,
@@ -96,3 +96,5 @@ export const AuthForm: FC<AuthFormProps> = ({
     </Box>
   );
 };
+
+export default AuthForm;

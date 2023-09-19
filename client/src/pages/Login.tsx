@@ -1,10 +1,10 @@
-import Container from "@mui/material/Container";
-import { Alert, AlertTitle, Link, Snackbar } from "@mui/material";
 import { useState } from "react";
-import { AuthForm } from "../components/AuthForm";
-import { Navigate, useNavigate, Link as RouterLink } from "react-router-dom";
+import { Container, Link, Snackbar } from "@mui/material";
+import { Alert, AlertTitle } from "@mui/material";
+import { useNavigate, Link as RouterLink, Navigate } from "react-router-dom";
 import { useAuth } from "../components/AuthProvider";
 import { useIntl } from "react-intl";
+import AuthForm from "../components/AuthForm";
 
 const LogIn = () => {
   const [open, setOpen] = useState(false);
@@ -20,6 +20,7 @@ const LogIn = () => {
 
     setOpen(false);
   };
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -36,8 +37,9 @@ const LogIn = () => {
   };
 
   if (authenticated) return <Navigate to="/" />;
+
   return (
-    <Container component={"main"} maxWidth="xs" sx={{ pt: 10 }}>
+    <Container component="main" maxWidth="xs" sx={{ pt: 10 }}>
       <AuthForm
         handleSubmit={handleSubmit}
         text={intl.formatMessage({ id: "app.auth.button.signin" })}

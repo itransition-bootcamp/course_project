@@ -12,26 +12,26 @@ import {
   Typography,
 } from "@mui/material";
 import MuiMarkdown from "mui-markdown";
+import { FC } from "react";
+import { FormattedMessage } from "react-intl";
 import {
   Form,
+  Link as RouterLink,
   useNavigate,
   useNavigation,
   useOutletContext,
-  Link as RouterLink,
 } from "react-router-dom";
 import { useAuth } from "../components/AuthProvider";
 import CommentsContainer from "../components/CommentsContainer";
-import { Review } from "../types";
+import Like from "../components/Like";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ReviewGallery from "../components/ReviewGallery";
-import { FormattedMessage } from "react-intl";
-import Like from "../components/Like";
+import { Review } from "../types";
 
-const Review = () => {
+const ReviewPage = () => {
   const review = useOutletContext() as Review;
   const { user } = useAuth();
   const { state } = useNavigation();
-  const navigate = useNavigate();
 
   const isAuthor = user?.id == review.UserId || user?.role == "admin";
 
@@ -67,45 +67,13 @@ const Review = () => {
             sx={{ pt: 1 }}
           />
 
-          {review.Tags && review.Tags.length > 0 && (
-            <List sx={{ display: "flex", flexWrap: "wrap", gap: 1, pt: 1 }}>
-              {review.Tags.map((tag) => (
-                <ListItem
-                  key={tag.id}
-                  sx={{ width: "unset", p: 0, cursor: "pointer" }}
-                  onClick={() => navigate("/?tags=" + tag.name)}
-                >
-                  <Chip label={tag.name} />
-                </ListItem>
-              ))}
-            </List>
-          )}
+          <RenderTags tags={review.Tags} />
 
           {review.Review_Images && review.Review_Images.length > 0 && (
             <ReviewGallery images={review.Review_Images} canEdit={false} />
           )}
 
-          {isAuthor && (
-            <Box display={"flex"} gap={2} mt={2}>
-              <Button
-                onClick={() => navigate("edit")}
-                variant="contained"
-                startIcon={<Edit />}
-              >
-                <FormattedMessage id="app.review.button.edit" />
-              </Button>
-              <Form action="delete" method="DELETE">
-                <Button
-                  type="submit"
-                  variant="contained"
-                  color="error"
-                  startIcon={<Delete />}
-                >
-                  <FormattedMessage id="app.review.button.delete" />
-                </Button>
-              </Form>
-            </Box>
-          )}
+          {isAuthor && <RenderButtons />}
         </Paper>
 
         <CommentsContainer />
@@ -113,4 +81,50 @@ const Review = () => {
     );
 };
 
-export const Component = Review;
+const RenderTags: FC<{ tags: Review["Tags"] }> = ({ tags }) => {
+  const navigate = useNavigate();
+  if (tags && tags.length > 0) {
+    return (
+      <List sx={{ display: "flex", flexWrap: "wrap", gap: 1, pt: 1 }}>
+        {tags.map((tag) => (
+          <ListItem
+            key={tag.id}
+            sx={{ width: "unset", p: 0, cursor: "pointer" }}
+            onClick={() => navigate("/?tags=" + tag.name)}
+          >
+            <Chip label={tag.name} />
+          </ListItem>
+        ))}
+      </List>
+    );
+  }
+  return null;
+};
+
+const RenderButtons: FC = () => {
+  const navigate = useNavigate();
+
+  return (
+    <Box display={"flex"} gap={2} mt={2}>
+      <Button
+        onClick={() => navigate("edit")}
+        variant="contained"
+        startIcon={<Edit />}
+      >
+        <FormattedMessage id="app.review.button.edit" />
+      </Button>
+      <Form action="delete" method="DELETE">
+        <Button
+          type="submit"
+          variant="contained"
+          color="error"
+          startIcon={<Delete />}
+        >
+          <FormattedMessage id="app.review.button.delete" />
+        </Button>
+      </Form>
+    </Box>
+  );
+};
+
+export const Component = ReviewPage;

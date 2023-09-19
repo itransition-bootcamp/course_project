@@ -69,15 +69,15 @@ export const loader: LoaderFunction = async ({ params, request }) => {
   if (category) fetchUrl += `&cat=${category}`;
   if (tagsSearchParam.length > 0)
     fetchUrl += tagsSearchParam.map((tag) => "&tags=" + tag).join("");
-  const topReviews = await fetch(fetchUrl + "&top", {
-    signal: request.signal,
-  }).then((res) => res.json());
-  const lastReviews = await fetch(fetchUrl, {
-    signal: request.signal,
-  }).then((res) => res.json());
-  const tags = await fetch("/api/tags?count", {
-    signal: request.signal,
-  }).then((res) => res.json());
+  const [topReviews, lastReviews, tags] = await Promise.all([
+    fetch(`${fetchUrl}&top`, { signal: request.signal }).then((res) =>
+      res.json()
+    ),
+    fetch(fetchUrl, { signal: request.signal }).then((res) => res.json()),
+    fetch("/api/tags?count", { signal: request.signal }).then((res) =>
+      res.json()
+    ),
+  ]);
   return [topReviews, lastReviews, tags];
 };
 
