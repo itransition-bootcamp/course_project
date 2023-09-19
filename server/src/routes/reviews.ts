@@ -44,7 +44,10 @@ reviews.get("/", async (req, res) => {
       include: [
         [
           sequelize.cast(
-            sequelize.fn("COUNT", sequelize.col("Likes.ReviewId")),
+            sequelize.fn(
+              "COUNT",
+              sequelize.fn("DISTINCT", sequelize.col("Likes.ReviewId"))
+            ),
             "integer"
           ),
           "likesCount",
@@ -82,10 +85,11 @@ reviews.get("/", async (req, res) => {
       },
     ];
 
-    dbQuery.group = [...(dbQuery.group as string[]), "Tags.id"];
-
     dbQuery.having = sequelize.where(
-      sequelize.fn("ARRAY_AGG", sequelize.col("Tags.name")),
+      sequelize.fn(
+        "ARRAY_AGG",
+        sequelize.fn("DISTINCT", sequelize.col("Tags.name"))
+      ),
       {
         [Op.contains]: sequelize.cast(
           Array.isArray(tags) ? tags : [tags],

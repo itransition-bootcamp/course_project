@@ -22,6 +22,11 @@ const Home: React.FC = () => {
   const [topReviews, lastReviews, tags] = useLoaderData() as LoaderData;
   const [, setSearchParams] = useSearchParams();
   const { state } = useNavigation();
+
+  const handleTagClick = (tag: TagCount) => {
+    setSearchParams({ tags: tag.value });
+  };
+
   if (state === "loading") return <LoadingSpinner />;
   else
     return (
@@ -44,24 +49,25 @@ const Home: React.FC = () => {
           minSize={15}
           maxSize={60}
           tags={tags}
-          onClick={(tag: TagCount) => setSearchParams({ tags: tag.value })}
+          onClick={handleTagClick}
         />
       </Container>
     );
 };
 
 export const loader: LoaderFunction = async ({ params, request }) => {
-  let category = params.category;
-  if (category == "books") category = "Book";
-  else if (category == "movies") category = "Movie";
-  else if (category == "games") category = "Videogame";
-  else category = undefined;
+  const categories: { [key: string]: string } = {
+    books: "Book",
+    movies: "Movie",
+    games: "Videogame",
+  };
+  const category = params.category ? categories[params.category] : undefined;
 
   const tagsSearchParam = new URL(request.url).searchParams.getAll("tags");
 
   let fetchUrl = `/api/reviews?limit=10`;
-  if (category) fetchUrl += "&cat=" + category;
-  if (tagsSearchParam)
+  if (category) fetchUrl += `&cat=${category}`;
+  if (tagsSearchParam.length > 0)
     fetchUrl += tagsSearchParam.map((tag) => "&tags=" + tag).join("");
   const topReviews = await fetch(fetchUrl + "&top", {
     signal: request.signal,
