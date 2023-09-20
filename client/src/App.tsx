@@ -44,7 +44,7 @@ function App() {
 
   const intlProps = localeMessages[locale] || localeMessages.enUS;
 
-  const router = createBrowserRouter(routes);
+  const router = useMemo(() => createBrowserRouter(routes), []);
 
   return (
     <IntlProvider locale={intlProps.locale} messages={intlProps.messages}>
