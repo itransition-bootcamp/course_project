@@ -1,9 +1,10 @@
-import { Delete, Edit } from "@mui/icons-material";
+import { Delete, Edit, PictureAsPdf } from "@mui/icons-material";
 import {
   Box,
   Button,
   Chip,
   Container,
+  IconButton,
   Link,
   List,
   ListItem,
@@ -32,8 +33,19 @@ const ReviewPage = () => {
   const review = useOutletContext() as Review;
   const { user } = useAuth();
   const { state } = useNavigation();
-
   const isAuthor = user?.id == review.UserId || user?.role == "admin";
+
+  const downloadPDF = () => {
+    fetch(`/api/reviews/${review.id}/pdf`).then((response) => {
+      response.blob().then((blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `review-${review.id}.pdf`;
+        a.click();
+      });
+    });
+  };
 
   if (state === "loading") return <LoadingSpinner />;
   else
@@ -53,6 +65,11 @@ const ReviewPage = () => {
           <Box display={"flex"} justifyContent={"space-between"} mb={1}>
             <Typography variant="h4" fontWeight={"bold"}>
               {review.title}
+              {user && (
+                <IconButton onClick={downloadPDF} sx={{ ml: 1 }}>
+                  <PictureAsPdf />
+                </IconButton>
+              )}
             </Typography>
             <Like reviewId={review.id} likesCount={review.likesCount!} />
           </Box>

@@ -15,5 +15,6 @@
     "@typescript-eslint/no-this-alias": 0,
     "@typescript-eslint/no-namespace": 0,
     "@typescript-eslint/ban-ts-comment": "warn"
-  }
+  },
+  "ignorePatterns": ["puppeteer.config.cjs"]
 }

@@ -15,6 +15,7 @@ import multer from "multer";
 import { v2 as cloudinary } from "cloudinary";
 import { Readable } from "stream";
 import { adminOrAuthor, authenticated, validIdParam } from "./handlers";
+import puppeteer from "puppeteer";
 
 cloudinary.config({
   cloud_name: "dxb2qepsn",
@@ -356,6 +357,50 @@ reviews.get("/:id/comments", validIdParam(), (req, res) => {
 
     res.end();
   });
+});
+async function printPDF(reviewId: string | number) {
+  const browser = await puppeteer.launch({ headless: "new" });
+  const page = await browser.newPage();
+  await page.emulateMediaFeatures([
+    { name: "prefers-color-scheme", value: "light" },
+  ]);
+
+  await page.goto(`${process.env.BASE_URL}/reviews/${reviewId}`, {
+    waitUntil: "networkidle2",
+  });
+
+  const reviewEl = await page.$("main > div.MuiPaper-root");
+  if (!reviewEl) {
+    await browser.close();
+    return false;
+  }
+
+  const rootFound = await page.evaluate((reviewEl) => {
+    const root: HTMLElement | null = document.querySelector("#root");
+    if (!root) return false;
+    root.innerHTML = reviewEl.innerHTML;
+    root.style.padding = "20px";
+    return true;
+  }, reviewEl);
+
+  if (!rootFound) {
+    await browser.close();
+    return false;
+  }
+
+  const pdf = await page.pdf({ format: "A4", printBackground: true });
+
+  await browser.close();
+  return pdf;
+}
+
+reviews.get("/:id/pdf", authenticated(), validIdParam(), async (req, res) => {
+  const pdf = await printPDF(req.params.id);
+  if (!pdf) return res.sendStatus(StatusCodes.NOT_FOUND);
+  else
+    res
+      .set({ "Content-Type": "application/pdf", "Content-Length": pdf.length })
+      .send(pdf);
 });
 
 reviews.post(
