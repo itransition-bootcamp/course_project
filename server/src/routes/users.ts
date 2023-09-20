@@ -1,5 +1,5 @@
 import express from "express";
-import User from "../models/User";
+import User from "../sequelize/models/User";
 import { StatusCodes } from "http-status-codes";
 
 const users = express.Router();

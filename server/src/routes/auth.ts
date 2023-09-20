@@ -1,6 +1,6 @@
 import express from "express";
 import passport from "passport";
-import { User } from "../models/allModels";
+import { User } from "../sequelize/models/allModels";
 import crypto from "crypto";
 import logger from "../logger";
 import { StatusCodes } from "http-status-codes";

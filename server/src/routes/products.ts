@@ -1,6 +1,6 @@
 import express from "express";
 import { StatusCodes } from "http-status-codes";
-import { Product } from "../models/allModels";
+import { Product } from "../sequelize/models/allModels";
 
 const products = express.Router();
 

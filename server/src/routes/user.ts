@@ -1,11 +1,11 @@
 import express from "express";
-import { Review, User, Like, Product } from "../models/allModels";
 import { StatusCodes } from "http-status-codes";
 import { v2 as cloudinary } from "cloudinary";
 import { Readable } from "stream";
 import multer from "multer";
 import { validIdParam, authorized } from "./handlers";
-import sequelize from "../sequelize";
+import getUserMe from "../sequelize/queries/getUserMe";
+import getUserById from "../sequelize/queries/getUserById";
 const upload = multer({});
 
 cloudinary.config({
@@ -17,35 +17,9 @@ cloudinary.config({
 const user = express.Router();
 
 user.get("/me", (req, res) => {
-  User.findByPk(req.user?.id, {
-    attributes: {
-      exclude: ["hashedPassword", "salt", "githubId", "twitterId"],
-      include: [
-        [
-          sequelize.literal(`(
-            SELECT
-            coalesce(SUM("likesPerReview"), '0')::integer
-            FROM
-              (
-                SELECT
-                  id,
-                  COUNT("User->Reviews->Likes"."ReviewId") AS "likesPerReview"
-                FROM
-                  "Reviews" AS "User->Reviews"
-                  LEFT OUTER JOIN "Likes" AS "User->Reviews->Likes" ON "User->Reviews"."id" = "User->Reviews->Likes"."ReviewId"
-                WHERE
-                  "User->Reviews"."UserId" = "User"."id"
-                GROUP BY
-                  "User->Reviews"."id"
-              ) "User->Reviews->Likes.likesPerReview"
-          )`),
-
-          "likesCount",
-        ],
-      ],
-    },
-    include: [{ model: Like, attributes: ["ReviewId"] }],
-  }).then((user) => {
+  if (!req.user || !req.user.id)
+    return res.sendStatus(StatusCodes.UNAUTHORIZED);
+  getUserMe(req.user.id).then((user) => {
     if (!user || user.status == "banned") {
       req.session = null;
       return res.json({
@@ -60,15 +34,7 @@ user.get("/me", (req, res) => {
 });
 
 user.get("/:id", validIdParam(), (req, res) => {
-  User.findByPk(req.params.id, {
-    attributes: { exclude: ["hashedPassword", "salt"] },
-
-    include: {
-      model: Review,
-      attributes: { exclude: ["vector"] },
-      include: [Like, Product],
-    },
-  }).then((user) => {
+  getUserById(req.params.id).then((user) => {
     if (!user) return res.sendStatus(StatusCodes.NOT_FOUND);
     const formated = user.sanitize();
     formated.Reviews?.map((review) => {

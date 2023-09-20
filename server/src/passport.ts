@@ -6,7 +6,7 @@ const LocalStrategy = passportLocal.Strategy;
 const GitHubStrategy = passportGithub.Strategy;
 const FacebookStrategy = passportFacebook.Strategy;
 import crypto, { BinaryLike } from "crypto";
-import { Like, User as UserModel } from "./models/allModels";
+import { Like, User as UserModel } from "./sequelize/models/allModels";
 import { VerifyCallback } from "passport-oauth2";
 
 // serialize the user.id to save in the cookie session

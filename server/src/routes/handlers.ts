@@ -1,7 +1,7 @@
 import { RequestHandler } from "express-serve-static-core";
 import { StatusCodes } from "http-status-codes";
-import Review from "../models/Review";
-import { User } from "../models/allModels";
+import Review from "../sequelize/models/Review";
+import { User } from "../sequelize/models/allModels";
 
 export function validIdParam(): RequestHandler {
   return async (req, res, next) => {

@@ -1,6 +1,6 @@
 import express from "express";
-import { Review, Tag } from "../models/allModels";
-import sequelize from "../sequelize";
+import { Review, Tag } from "../sequelize/models/allModels";
+import sequelize from "../sequelize/sequelize";
 import { FindOptions, InferAttributes } from "sequelize";
 
 const tags = express.Router();

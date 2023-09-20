@@ -1,5 +1,4 @@
 import express, { Response } from "express";
-import sequelize from "../sequelize";
 import {
   Review,
   User,
@@ -7,15 +6,16 @@ import {
   Like,
   Tag,
   Review_Image,
-  Product,
-} from "../models/allModels";
-import { FindOptions, Includeable, InferAttributes, Op } from "sequelize";
+} from "../sequelize/models/allModels";
+import { Op } from "sequelize";
 import { StatusCodes } from "http-status-codes";
 import multer from "multer";
 import { v2 as cloudinary } from "cloudinary";
 import { Readable } from "stream";
 import { adminOrAuthor, authenticated, validIdParam } from "./handlers";
 import puppeteer from "puppeteer";
+import getReviews from "../sequelize/queries/getReviews";
+import getReviewById from "../sequelize/queries/getReviewById";
 
 cloudinary.config({
   cloud_name: "dxb2qepsn",
@@ -31,76 +31,9 @@ reviews.get("/", async (req, res) => {
   const top = Object.prototype.hasOwnProperty.call(req.query, "top");
   const category = req.query.cat;
   if (category && typeof category != "string") return;
-  const tags = req.query.tags;
-  const dbQuery: FindOptions<
-    InferAttributes<
-      Review,
-      {
-        omit: never;
-      }
-    >
-  > = {
-    attributes: {
-      exclude: ["updatedAt", "vector"],
-      include: [
-        [
-          sequelize.cast(
-            sequelize.fn(
-              "COUNT",
-              sequelize.fn("DISTINCT", sequelize.col("Likes.ReviewId"))
-            ),
-            "integer"
-          ),
-          "likesCount",
-        ],
-      ],
-    },
-    include: [
-      {
-        model: Like,
-        attributes: [],
-      },
-      { model: Product, attributes: ["category", "name"] },
-    ],
-    group: ["Review.id", "Product.id"],
-    order: [["createdAt", "DESC"]],
-  };
+  const tags = req.query.tags as string | string[] | undefined;
 
-  if (top)
-    Object.assign(dbQuery, {
-      order: [["likesCount", "DESC"]],
-    });
-
-  if (category) {
-    dbQuery.where = {
-      "$Product.category$": category,
-    };
-  }
-  if (tags) {
-    dbQuery.include = [
-      ...(dbQuery.include as Includeable[]),
-      {
-        model: Tag,
-        attributes: [],
-        through: { attributes: [] },
-      },
-    ];
-
-    dbQuery.having = sequelize.where(
-      sequelize.fn(
-        "ARRAY_AGG",
-        sequelize.fn("DISTINCT", sequelize.col("Tags.name"))
-      ),
-      {
-        [Op.contains]: sequelize.cast(
-          Array.isArray(tags) ? tags : [tags],
-          "varchar[]"
-        ),
-      }
-    );
-  }
-  if (limit) Object.assign(dbQuery, { limit: limit, subQuery: false });
-  res.send(await Review.findAll(dbQuery));
+  res.send(await getReviews(limit, top, category, tags));
 });
 
 reviews.post("/", authenticated(), async (req, res) => {
@@ -197,86 +130,25 @@ reviews.post(
 
 reviews.all("/:id", validIdParam());
 reviews.get("/:id", async (req, res) => {
-  const dbQuery: FindOptions<InferAttributes<Review>> & {
-    include: Includeable[];
-  } = {
-    attributes: { exclude: ["updatedAt", "vector"] },
-    include: [Like, Tag, Product],
-  };
-  const userInReq = Object.prototype.hasOwnProperty.call(req.query, "user");
-  const galleryInReq = Object.prototype.hasOwnProperty.call(
+  const userInReqQuery = Object.prototype.hasOwnProperty.call(
+    req.query,
+    "user"
+  );
+  const galleryInReqQuery = Object.prototype.hasOwnProperty.call(
     req.query,
     "gallery"
   );
-  const commentsInReq = Object.prototype.hasOwnProperty.call(
+  const commentsInReqQuery = Object.prototype.hasOwnProperty.call(
     req.query,
     "comments"
   );
 
-  if (userInReq) {
-    dbQuery.include.push({
-      model: User,
-      attributes: ["username", "avatar"],
-    });
-  }
-  if (galleryInReq) {
-    dbQuery.include.push({
-      model: Review_Image,
-      attributes: ["id", "src"],
-    });
-  }
-  if (commentsInReq) {
-    dbQuery.group = [
-      "Review.id",
-      "Likes.ReviewId",
-      "Likes.UserId",
-      "Tags.id",
-      "Tags.Review_Tags.ReviewId",
-      "Tags.Review_Tags.TagId",
-      "Product.id",
-      "Comments.id",
-      "Comments.User.id",
-    ];
-    if (userInReq) dbQuery.group.push("User.id");
-    if (galleryInReq) dbQuery.group.push("Review_Images.id");
-    dbQuery.include.push({
-      model: Comment,
-      attributes: { exclude: ["updatedAt", "vector", "UserId"] },
-      include: [
-        {
-          model: User,
-          attributes: [
-            "id",
-            "username",
-            "avatar",
-            [
-              sequelize.literal(`(
-                  SELECT
-                  coalesce(SUM("likesPerReview"), '0')::integer
-                  FROM
-                    (
-                      SELECT
-                        id,
-                        COUNT("Comments->User->Reviews->Likes"."ReviewId") AS "likesPerReview"
-                      FROM
-                        "Reviews" AS "Comments->User->Reviews"
-                        LEFT OUTER JOIN "Likes" AS "Comments->User->Reviews->Likes" ON "Comments->User->Reviews"."id" = "Comments->User->Reviews->Likes"."ReviewId"
-                      WHERE
-                        "Comments->User->Reviews"."UserId" = "Comments->User"."id"
-                      GROUP BY
-                        "Comments->User->Reviews"."id"
-                    ) "Comments->User->Reviews->Likes.likesPerReview"
-                )`),
-
-              "likesCount",
-            ],
-          ],
-        },
-      ],
-    });
-    dbQuery.order = [sequelize.col("Comments.createdAt")];
-  }
-  const result = await Review.findByPk(req.params.id, dbQuery);
+  const result = await getReviewById(
+    req.params.id,
+    userInReqQuery,
+    galleryInReqQuery,
+    commentsInReqQuery
+  );
   if (!result) res.sendStatus(StatusCodes.NOT_FOUND);
   else res.send(result);
 });
@@ -335,29 +207,6 @@ reviews.get("/:id/like", authenticated(), validIdParam(), async (req, res) => {
   res.send("OK");
 });
 
-const subscribers: { [key: string]: Response[] } = {};
-
-reviews.get("/:id/comments", validIdParam(), (req, res) => {
-  const reviewId = req.params.id;
-
-  res.set({
-    Connection: "keep-alive", // allowing TCP connection to remain open for multiple HTTP requests/responses
-    "Content-Type": "text/event-stream", // media type for Server Sent Events (SSE)
-    "X-Accel-Buffering": "no",
-    "Cache-Control": "no-cache",
-  });
-  res.flushHeaders();
-  if (subscribers[reviewId] === undefined) subscribers[reviewId] = [res];
-  else subscribers[reviewId] = [...subscribers[reviewId], res];
-
-  res.on("close", () => {
-    subscribers[reviewId] = subscribers[reviewId].filter(
-      (response) => response != res
-    );
-
-    res.end();
-  });
-});
 async function printPDF(reviewId: string | number) {
   const browser = await puppeteer.launch({ headless: "new" });
   const page = await browser.newPage();
@@ -403,6 +252,29 @@ reviews.get("/:id/pdf", authenticated(), validIdParam(), async (req, res) => {
       .send(pdf);
 });
 
+const subscribers: { [key: string]: Response[] } = {};
+
+reviews.get("/:id/comments", validIdParam(), (req, res) => {
+  const reviewId = req.params.id;
+
+  res.set({
+    Connection: "keep-alive", // allowing TCP connection to remain open for multiple HTTP requests/responses
+    "Content-Type": "text/event-stream", // media type for Server Sent Events (SSE)
+    "X-Accel-Buffering": "no",
+    "Cache-Control": "no-cache",
+  });
+  res.flushHeaders();
+  if (subscribers[reviewId] === undefined) subscribers[reviewId] = [res];
+  else subscribers[reviewId] = [...subscribers[reviewId], res];
+
+  res.on("close", () => {
+    subscribers[reviewId] = subscribers[reviewId].filter(
+      (response) => response != res
+    );
+
+    res.end();
+  });
+});
 reviews.post(
   "/:id/comments",
   authenticated(),

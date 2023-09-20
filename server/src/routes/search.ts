@@ -1,6 +1,6 @@
 import express from "express";
-import { Comment, Like, Review } from "../models/allModels";
-import sequelize from "../sequelize";
+import { Comment, Like, Review } from "../sequelize/models/allModels";
+import sequelize from "../sequelize/sequelize";
 import { StatusCodes } from "http-status-codes";
 
 const search = express.Router();
