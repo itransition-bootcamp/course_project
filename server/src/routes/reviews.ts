@@ -1,21 +1,23 @@
-import express, { Response } from "express";
-import {
-  Review,
-  User,
-  Comment,
-  Like,
-  Tag,
-  Review_Image,
-} from "../sequelize/models/allModels";
+import express from "express";
+import { Review, Like, Tag, Review_Image } from "../sequelize/models/allModels";
 import { Op } from "sequelize";
 import { StatusCodes } from "http-status-codes";
 import multer from "multer";
 import { v2 as cloudinary } from "cloudinary";
 import { Readable } from "stream";
-import { adminOrAuthor, authenticated, validIdParam } from "./handlers";
+import { adminOrAuthor, authenticated } from "./handlers";
 import puppeteer from "puppeteer";
 import getReviews from "../sequelize/queries/getReviews";
 import getReviewById from "../sequelize/queries/getReviewById";
+import {
+  body,
+  matchedData,
+  oneOf,
+  param,
+  query,
+  validationResult,
+} from "express-validator";
+import comments from "./comments";
 
 cloudinary.config({
   cloud_name: "dxb2qepsn",
@@ -26,51 +28,74 @@ cloudinary.config({
 const upload = multer({});
 const reviews = express.Router();
 
-reviews.get("/", async (req, res) => {
-  const limit: number = parseInt(req.query.limit as string);
-  const top = Object.prototype.hasOwnProperty.call(req.query, "top");
-  const category = req.query.cat;
-  if (category && typeof category != "string") return;
-  const tags = req.query.tags as string | string[] | undefined;
+reviews.get(
+  "/",
+  query("limit").optional().isInt().toInt(),
+  query("top").optional(),
+  query("cat").optional().isString().notEmpty(),
+  oneOf([
+    query("tags").optional().isString().notEmpty(),
+    query("tags").optional().isArray().notEmpty(),
+  ]),
+  async (req, res) => {
+    const validation = validationResult(req);
+    if (!validation.isEmpty())
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .send({ errors: validation.array() });
 
-  res.send(await getReviews(limit, top, category, tags));
-});
+    const data = matchedData(req);
+    const limit: number = data.limit;
+    const top = "top" in data;
+    const category = data.cat;
+    const tags: string | string[] | undefined = data.tags;
 
-reviews.post("/", authenticated(), async (req, res) => {
-  const newReviewValues = {
-    title: req.body.title,
-    text: req.body.text,
-    rating: req.body.rating,
-    ProductId: req.body.ProductId,
-    UserId: req.user!.id,
-  };
+    res.send(await getReviews(limit, top, category, tags));
+  }
+);
 
-  if (
-    Object.values(newReviewValues).some(
-      (value) => value === undefined || value === null
-    )
-  )
-    return res.sendStatus(StatusCodes.BAD_REQUEST);
+reviews.post(
+  "/",
+  authenticated(),
+  body(["title", "text", "rating", "ProductId"]).notEmpty(),
+  body("rating").isInt({ min: 1, max: 10 }),
+  body("ProductId").isInt(),
+  async (req, res) => {
+    const validation = validationResult(req);
+    if (!validation.isEmpty())
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .send({ errors: validation.array() });
 
-  const newReview = await Review.create(newReviewValues);
+    const data = matchedData(req);
+    const reviewAttributes = {
+      title: data.title,
+      text: data.text,
+      rating: data.rating,
+      ProductId: data.ProductId,
+      UserId: req.user!.id,
+    };
 
-  await Review_Image.bulkCreate(
-    req.body.gallery.map((img: { src: string }) => {
-      return { ...img, ReviewId: newReview.id };
-    })
-  );
+    const newReview = await Review.create(reviewAttributes);
 
-  const newTags = await Promise.all(
-    req.body.tags.map(async (tag: string) => {
-      const [newTag] = await Tag.findOrCreate({ where: { name: tag } });
-      return newTag;
-    })
-  );
+    await Review_Image.bulkCreate(
+      req.body.gallery.map((img: { src: string }) => {
+        return { ...img, ReviewId: newReview.id };
+      })
+    );
 
-  await newReview.setTags(newTags);
+    const newTags = await Promise.all(
+      req.body.tags.map(async (tag: string) => {
+        const [newTag] = await Tag.findOrCreate({ where: { name: tag } });
+        return newTag;
+      })
+    );
 
-  res.status(200).send(newReview.id.toString());
-});
+    await newReview.setTags(newTags);
+
+    res.status(200).send(newReview.id.toString());
+  }
+);
 
 reviews.post(
   "/gallery",
@@ -78,16 +103,11 @@ reviews.post(
   upload.array("gallery"),
   async (req, res) => {
     const files = req.files as Express.Multer.File[];
-    if (!files) {
+    if (!files || files.length == 0) {
       return res.status(StatusCodes.BAD_REQUEST).send("No file was uploaded.");
     }
 
     files.map((file) => {
-      if (!file) {
-        return res
-          .status(StatusCodes.BAD_REQUEST)
-          .send("No file was uploaded.");
-      }
       const maxSizeMB = 3;
       if (file.size > 1024 * 1024 * maxSizeMB) {
         return res
@@ -128,30 +148,31 @@ reviews.post(
   }
 );
 
-reviews.all("/:id", validIdParam());
-reviews.get("/:id", async (req, res) => {
-  const userInReqQuery = Object.prototype.hasOwnProperty.call(
-    req.query,
-    "user"
-  );
-  const galleryInReqQuery = Object.prototype.hasOwnProperty.call(
-    req.query,
-    "gallery"
-  );
-  const commentsInReqQuery = Object.prototype.hasOwnProperty.call(
-    req.query,
-    "comments"
-  );
-
-  const result = await getReviewById(
-    req.params.id,
-    userInReqQuery,
-    galleryInReqQuery,
-    commentsInReqQuery
-  );
-  if (!result) res.sendStatus(StatusCodes.NOT_FOUND);
-  else res.send(result);
+reviews.all("/:id*", param("id").isInt().toInt(), async (req, res, next) => {
+  const validation = validationResult(req);
+  if (!validation.isEmpty())
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .send({ errors: validation.array() });
+  else next();
 });
+
+reviews.get(
+  "/:id",
+  query(["user", "gallery", "comments"]).optional(),
+  async (req, res) => {
+    const data = matchedData(req);
+
+    const review = await getReviewById(
+      data.id,
+      "user" in data,
+      "gallery" in data,
+      "comments" in data
+    );
+    if (!review) res.sendStatus(StatusCodes.NOT_FOUND);
+    else res.send(review);
+  }
+);
 
 reviews.delete("/:id", adminOrAuthor(), async (req, res) => {
   await res.locals.review.destroy();
@@ -197,7 +218,7 @@ reviews.put("/:id", adminOrAuthor(), async (req, res) => {
   res.send("OK");
 });
 
-reviews.get("/:id/like", authenticated(), validIdParam(), async (req, res) => {
+reviews.get("/:id/like", authenticated(), async (req, res) => {
   const findLike = await Like.findOrCreate({
     where: { ReviewId: req.params.id, UserId: req.user!.id },
   });
@@ -243,7 +264,7 @@ async function printPDF(reviewId: string | number) {
   return pdf;
 }
 
-reviews.get("/:id/pdf", authenticated(), validIdParam(), async (req, res) => {
+reviews.get("/:id/pdf", authenticated(), async (req, res) => {
   const pdf = await printPDF(req.params.id);
   if (!pdf) return res.sendStatus(StatusCodes.NOT_FOUND);
   else
@@ -252,68 +273,6 @@ reviews.get("/:id/pdf", authenticated(), validIdParam(), async (req, res) => {
       .send(pdf);
 });
 
-const subscribers: { [key: string]: Response[] } = {};
-
-reviews.get("/:id/comments", validIdParam(), (req, res) => {
-  const reviewId = req.params.id;
-
-  res.set({
-    Connection: "keep-alive", // allowing TCP connection to remain open for multiple HTTP requests/responses
-    "Content-Type": "text/event-stream", // media type for Server Sent Events (SSE)
-    "X-Accel-Buffering": "no",
-    "Cache-Control": "no-cache",
-  });
-  res.flushHeaders();
-  if (subscribers[reviewId] === undefined) subscribers[reviewId] = [res];
-  else subscribers[reviewId] = [...subscribers[reviewId], res];
-
-  res.on("close", () => {
-    subscribers[reviewId] = subscribers[reviewId].filter(
-      (response) => response != res
-    );
-
-    res.end();
-  });
-});
-reviews.post(
-  "/:id/comments",
-  authenticated(),
-  validIdParam(),
-  async (req, res) => {
-    const reviewId = parseInt(req.params.id);
-
-    const newComment = await Comment.create({
-      UserId: req.user!.id,
-      ReviewId: reviewId,
-      text: req.body.comment,
-    });
-
-    const newCommentWithUser = await Comment.findByPk(newComment.id, {
-      include: { model: User, attributes: ["avatar", "id", "username"] },
-    });
-    subscribers[reviewId] &&
-      subscribers[reviewId].map((subscriber) => {
-        subscriber.write(`data: ${JSON.stringify(newCommentWithUser)}\n\n`);
-        subscriber.flush();
-      });
-    res.sendStatus(200);
-  }
-);
-
-reviews.delete(
-  "/:id/comments/:commentId",
-  authenticated(),
-  validIdParam(),
-  async (req, res) => {
-    const commentId = parseInt(req.params.commentId);
-    const user = await User.findByPk(req.user!.id);
-    const comment = await Comment.findByPk(commentId);
-    if (!user || !comment) return res.sendStatus(StatusCodes.NOT_FOUND);
-    if (comment.UserId != user.id && user.role != "admin")
-      res.sendStatus(StatusCodes.UNAUTHORIZED);
-    else await comment?.destroy();
-    res.sendStatus(200);
-  }
-);
+reviews.use("/:id/comments", comments);
 
 export default reviews;

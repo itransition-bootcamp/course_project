@@ -3,14 +3,6 @@ import { StatusCodes } from "http-status-codes";
 import Review from "../sequelize/models/Review";
 import { User } from "../sequelize/models/allModels";
 
-export function validIdParam(): RequestHandler {
-  return async (req, res, next) => {
-    if (isNaN(parseInt(req.params.id)))
-      return res.sendStatus(StatusCodes.BAD_REQUEST);
-    else next();
-  };
-}
-
 export function authorized(): RequestHandler {
   return async (req, res, next) => {
     if (!req.isAuthenticated()) return res.sendStatus(StatusCodes.UNAUTHORIZED);
@@ -21,7 +13,7 @@ export function authorized(): RequestHandler {
         : await User.findByPk(req.params.id);
     if (!user || !me) return res.sendStatus(StatusCodes.NOT_FOUND);
     if (me.id != user.id && me.role != "admin")
-      return res.sendStatus(StatusCodes.UNAUTHORIZED);
+      return res.sendStatus(StatusCodes.FORBIDDEN);
     else {
       req.user = user;
       next();
@@ -36,6 +28,16 @@ export function authenticated(): RequestHandler {
   };
 }
 
+export function admin(): RequestHandler {
+  return async (req, res, next) => {
+    if (!req.isAuthenticated()) return res.sendStatus(StatusCodes.UNAUTHORIZED);
+    const user = await User.findByPk(req.user.id);
+    if (!user || user.role != "admin")
+      return res.sendStatus(StatusCodes.FORBIDDEN);
+    else next();
+  };
+}
+
 export function adminOrAuthor(): RequestHandler {
   return async (req, res, next) => {
     if (!req.isAuthenticated()) return res.sendStatus(StatusCodes.UNAUTHORIZED);
@@ -46,7 +48,7 @@ export function adminOrAuthor(): RequestHandler {
 
     const isAdmin = user!.role == "admin";
     const isAuthor = await user?.hasReview(review);
-    if (!isAdmin && !isAuthor) return res.sendStatus(StatusCodes.UNAUTHORIZED);
+    if (!isAdmin && !isAuthor) return res.sendStatus(StatusCodes.FORBIDDEN);
 
     res.locals.user = user;
     res.locals.review = review;

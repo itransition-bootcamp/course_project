@@ -3,9 +3,10 @@ import { StatusCodes } from "http-status-codes";
 import { v2 as cloudinary } from "cloudinary";
 import { Readable } from "stream";
 import multer from "multer";
-import { validIdParam, authorized } from "./handlers";
+import { authorized } from "./handlers";
 import getUserMe from "../sequelize/queries/getUserMe";
 import getUserById from "../sequelize/queries/getUserById";
+import { body, matchedData, param, validationResult } from "express-validator";
 const upload = multer({});
 
 cloudinary.config({
@@ -17,8 +18,12 @@ cloudinary.config({
 const user = express.Router();
 
 user.get("/me", (req, res) => {
-  if (!req.user || !req.user.id)
-    return res.sendStatus(StatusCodes.UNAUTHORIZED);
+  if (!req.user || !req.user.id) {
+    req.session = null;
+    return res.status(StatusCodes.OK).json({
+      authenticated: false,
+    });
+  }
   getUserMe(req.user.id).then((user) => {
     if (!user || user.status == "banned") {
       req.session = null;
@@ -33,8 +38,14 @@ user.get("/me", (req, res) => {
   });
 });
 
-user.get("/:id", validIdParam(), (req, res) => {
-  getUserById(req.params.id).then((user) => {
+user.get("/:id", param("id").isInt().toInt(), (req, res) => {
+  const validation = validationResult(req);
+  if (!validation.isEmpty())
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .send({ errors: validation.array() });
+
+  getUserById(matchedData(req).id).then((user) => {
     if (!user) return res.sendStatus(StatusCodes.NOT_FOUND);
     const formated = user.sanitize();
     formated.Reviews?.map((review) => {
@@ -44,24 +55,53 @@ user.get("/:id", validIdParam(), (req, res) => {
   });
 });
 
-user.put("/:id", validIdParam(), authorized(), async (req, res) => {
-  if (Object.prototype.hasOwnProperty.call(req.body, "email"))
-    req.user!.email = req.body.email === "" ? null : req.body.email;
-  if (Object.prototype.hasOwnProperty.call(req.body, "avatar"))
-    req.user!.avatar = req.body.avatar === "" ? null : req.body.avatar;
-  if (Object.prototype.hasOwnProperty.call(req.body, "username"))
-    req.user!.username = req.body.username === "" ? null : req.body.username;
+user.put(
+  "/:id",
+  param("id").isInt().toInt(),
+  body("email")
+    .optional()
+    .if(body("email").notEmpty())
+    .isEmail()
+    .normalizeEmail({ all_lowercase: true }),
+  body("avatar").optional().isURL(),
+  body("username")
+    .optional()
+    .trim()
+    .matches(/^[A-Za-z0-9._]+$/),
+  authorized(),
+  async (req, res) => {
+    const validation = validationResult(req);
+    if (!validation.isEmpty())
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .send({ errors: validation.array() });
 
-  await req.user!.save!();
-  res.send("OK");
-});
+    const data = matchedData(req);
+
+    if ("email" in data)
+      req.user!.email = data.email === "" ? null : data.email;
+    if ("avatar" in data)
+      req.user!.avatar = data.avatar === "" ? null : data.avatar;
+    if ("username" in data)
+      req.user!.username = data.username === "" ? null : data.username;
+
+    await req.user!.save!();
+    res.send("OK");
+  }
+);
 
 user.post(
   "/:id/avatar",
-  validIdParam(),
+  param("id").isInt().toInt(),
   authorized(),
   upload.single("avatar"),
   async (req, res) => {
+    const validation = validationResult(req);
+    if (!validation.isEmpty())
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .send({ errors: validation.array() });
+
     const file = req.file;
     if (!file) {
       return res.status(StatusCodes.BAD_REQUEST).send("No file was uploaded.");

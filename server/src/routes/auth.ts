@@ -4,6 +4,7 @@ import { User } from "../sequelize/models/allModels";
 import crypto from "crypto";
 import logger from "../logger";
 import { StatusCodes } from "http-status-codes";
+import { body, matchedData, validationResult } from "express-validator";
 const auth = express.Router();
 
 auth.post("/login", (req, res, next) => {
@@ -27,37 +28,49 @@ auth.post("/login", (req, res, next) => {
   )(req, res);
 });
 
-auth.post("/register", async (req, res, next) => {
-  const data = req.body;
-  if (data.username == "" || data.password == "")
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ message: "Username or password can't be empty" });
+auth.post(
+  "/register",
+  body(["username", "password"])
+    .isString()
+    .withMessage("Username and password should be string")
+    .notEmpty()
+    .withMessage("Username and password can't be empty"),
+  async (req, res, next) => {
+    const validation = validationResult(req);
+    if (!validationResult(req).isEmpty())
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: validation.array()[0].msg });
 
-  const userDB = await User.findOne({ where: { username: data.username } });
-  if (userDB) {
-    res.status(StatusCodes.CONFLICT).json({ message: "User already exists!" });
-  } else {
-    const salt = crypto.randomBytes(16).toString("base64");
-    const hashedPassword = crypto
-      .pbkdf2Sync(data.password, salt, 1000, 32, "sha256")
-      .toString("base64");
+    const data = matchedData(req);
 
-    const newUser = await User.create({
-      username: data.username,
-      hashedPassword: hashedPassword,
-      salt: salt,
-    });
-    req.logIn(newUser, function (err) {
-      if (err) {
-        return next(err);
-      }
-      return res.json({
-        user: newUser,
+    const userDB = await User.findOne({ where: { username: data.username } });
+    if (userDB) {
+      res
+        .status(StatusCodes.CONFLICT)
+        .json({ message: "User already exists!" });
+    } else {
+      const salt = crypto.randomBytes(16).toString("base64");
+      const hashedPassword = crypto
+        .pbkdf2Sync(data.password, salt, 1000, 32, "sha256")
+        .toString("base64");
+
+      const newUser = await User.create({
+        username: data.username,
+        hashedPassword: hashedPassword,
+        salt: salt,
       });
-    });
+      req.logIn(newUser, function (err) {
+        if (err) {
+          return next(err);
+        }
+        return res.json({
+          user: newUser,
+        });
+      });
+    }
   }
-});
+);
 
 auth.get(
   "/github",
