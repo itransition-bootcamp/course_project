@@ -4,7 +4,13 @@ import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import routes from "./routes";
 import { useMemo } from "react";
 import AuthProvider from "./components/AuthProvider";
-
+import {
+  enUS as enUSgrid,
+  esES as esESgrid,
+  plPL as plPLgrid,
+  ruRU as ruRUgrid,
+  ukUA as ukUAgrid,
+} from "@mui/x-data-grid";
 import * as locales from "@mui/material/locale";
 import { IntlProvider } from "react-intl";
 import { useDarkMode, useLocalStorage } from "usehooks-ts";
@@ -21,6 +27,13 @@ function App() {
   );
   const { isDarkMode } = useDarkMode();
 
+  const gridLocales = {
+    enUS: enUSgrid,
+    esES: esESgrid,
+    plPL: plPLgrid,
+    ruRU: ruRUgrid,
+    ukUA: ukUAgrid,
+  };
   const theme = useMemo(
     () =>
       createTheme(
@@ -29,7 +42,8 @@ function App() {
             mode: isDarkMode ? "dark" : "light",
           },
         },
-        locales[locale]
+        locales[locale],
+        gridLocales[locale]
       ),
     [isDarkMode, locale]
   );
@@ -42,7 +56,7 @@ function App() {
     plPL: { locale: "pl", messages: intlMessagesPL },
   };
 
-  const intlProps = localeMessages[locale] || localeMessages.enUS;
+  const intlProps = localeMessages[locale];
 
   const router = useMemo(() => createBrowserRouter(routes), []);
 
