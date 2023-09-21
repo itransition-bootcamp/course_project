@@ -58,8 +58,8 @@
   "app.adminDashboard.tableHeader.regDate": "Fecha de registro",
 
   "app.reviewWrapper.reviewSubject.category.Videogame": "Videojuego: {name}",
-  "app.reviewWrapper.reviewSubject.category.Book": "Libro: {nombre}",
-  "app.reviewWrapper.reviewSubject.category.Movie": "Película: {nombre}",
+  "app.reviewWrapper.reviewSubject.category.Book": "Libro: {name}",
+  "app.reviewWrapper.reviewSubject.category.Movie": "Película: {name}",
 
   "app.imageUploader.default.single": "Arrastre y suelte el archivo de imagen aquí, o haga clic para seleccionar desde el dispositivo",
   "app.imageUploader.default.multiple": "Arrastra y suelta el archivo de imágenes aquí, o haz clic para seleccionar desde el dispositivo",
